@@ -87,7 +87,7 @@ const EditInformation = () => {
       </div>
 
       {/* Profile Information */}
-      <div className="w-[70%] mx-auto h-full grid grid-cols-1">
+      <div className="max-w-xl h-full grid grid-cols-1 px-2">
         {/* Profile Picture */}
         <div className="w-full h-full mt-10  flex justify-start items-center">
           <div
@@ -120,7 +120,7 @@ const EditInformation = () => {
             style={{ display: "none" }}
           />
           <div className="ml-5 flex items-center justify-between">
-            <div className="text-white -ml-8 mr-5 z-10 bg-[#FF8133] rounded-full p-1">
+            <div className="text-white -ml-8 mr-5 z-10 bg-[#FF9E1C] rounded-full p-1">
                 <RiEdit2Line size={20}/>
             </div>
             <div>

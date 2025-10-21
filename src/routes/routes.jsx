@@ -18,6 +18,8 @@ import EditTermsConditions from "../page/EditTermsConditions/EditTermsConditions
 import Notification from "../component/Main/Notification/Notification";
 import EarningsPage from "../page/EarningsPage/EarningsPage";
 import UsersPage from "../page/Users/UsersPage";
+import ContactUs from "../page/ContactUs/ContactUs";
+import EditContactUs from "../page/EditContactUs/EditContactUs";
 
 const router = createBrowserRouter([
   {
@@ -79,6 +81,14 @@ const router = createBrowserRouter([
       },{
         path: "/settings/edit-about-us/:id",
         element: <EditAboutUs/>
+      },
+      {
+        path: "settings/ContactUs",
+        element: <ContactUs />,
+      },
+      {
+        path: "/settings/ContactUs/:id",
+        element: <EditContactUs />
       },
     ],
   },

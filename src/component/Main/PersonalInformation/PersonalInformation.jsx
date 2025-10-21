@@ -31,7 +31,7 @@ const PersonalInformation = () => {
       </div>
 
       {/* Profile Information */}
-      <div className="w-[70%] mx-auto h-full grid grid-cols-1">
+      <div className="max-w-xl h-full grid grid-cols-1 px-2">
         {/* Profile Picture */}
         <div className="w-full h-full mt-10  flex justify-start items-center">
           <img
@@ -70,7 +70,7 @@ const PersonalInformation = () => {
             />
           </Form.Item>
           <Link to="/edit-personal-info">
-          <button className="w-full px-8 py-3 bg-[#FF8133] font-semibold rounded-lg">
+          <button className="w-full px-8 py-3 bg-[#FF9E1C] font-semibold rounded-lg">
             Edit Profile
           </button>
         </Link>
