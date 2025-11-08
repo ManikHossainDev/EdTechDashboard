@@ -30,7 +30,7 @@ const EditContactUs = () => {
       </div>
 
       {/* Form Section */}
-      <div className="w-full p-6 rounded-lg shadow-md">
+      <div className="w-full p-6 rounded-lg ">
         <Form form={form} layout="vertical" onFinish={handleSubmit}>
           {/* React Quill for About Us Content */}
           <Form.Item name="content" initialValue={content}>

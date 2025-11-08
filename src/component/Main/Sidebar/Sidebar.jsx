@@ -8,12 +8,12 @@ import { useDispatch } from "react-redux";
 import { logoutUser } from "../../../redux/features/auth/authSlice";
 import { RiMoneyDollarCircleFill } from "react-icons/ri";
 import { MdDashboard, MdFamilyRestroom } from "react-icons/md";
+import { LuBoxes } from "react-icons/lu";
 
-
-
-const sidebarItems = [
+const sidebarItems = [  
   { path: "/", name: "Dashboard", icon: <MdDashboard className="size-6" /> },
   { path: "/Parents", name: "Parents", icon: <MdFamilyRestroom  className="size-6" /> },
+  { path: "/Modules", name: "Modules", icon: <LuBoxes className="size-6"/>},
   { path: "/Earnings", name: "Earnings", icon: <RiMoneyDollarCircleFill className="size-6" /> },
   { path: "/settings", name: "Settings", icon: <IoSettingsSharp className="size-6" /> },
 ];

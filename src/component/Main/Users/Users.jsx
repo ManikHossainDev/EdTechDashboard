@@ -182,8 +182,8 @@ const Users = () => {
   }, [data, isError, error]);
 
   return (
-    <section>
-      <div className="md:flex justify-between items-center py-6 px-2">
+    <section className="px-2">
+      <div className="md:flex justify-between items-center py-6 ">
         <h1 className="text-2xl flex items-center font-semibold">Parents list</h1>
         <Form layout="inline" className="flex space-x-4">
   <Item name="month">
@@ -210,12 +210,14 @@ const Users = () => {
 </Form>
       </div>
       <ConfigProvider
+      
         theme={{
           components: {
             Table: {
               headerBg: "#FF9E1C",
               headerColor: "#FFFFFF",
               headerBorderRadius: 5,
+
             },
           },
         }}

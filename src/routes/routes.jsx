@@ -20,6 +20,8 @@ import EarningsPage from "../page/EarningsPage/EarningsPage";
 import UsersPage from "../page/Users/UsersPage";
 import ContactUs from "../page/ContactUs/ContactUs";
 import EditContactUs from "../page/EditContactUs/EditContactUs";
+import ModulesPage from "../page/ModulesPage/ModulesPage";
+import CreateModulesPage from "../page/CreateModulesPage/CreateModulesPage";
 
 const router = createBrowserRouter([
   {
@@ -38,6 +40,14 @@ const router = createBrowserRouter([
       {
         path: "Parents",
         element: <UsersPage />,
+      },
+      {
+        path: "CreateModules",
+        element: <CreateModulesPage />
+      },
+      {
+        path: "Modules",
+        element: <ModulesPage />
       },
       {
         path: "Earnings",
