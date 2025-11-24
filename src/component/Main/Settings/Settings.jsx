@@ -45,6 +45,10 @@ const Settings = () => {
       title: "Contact Us",
       path: "ContactUs",
     },
+    {
+      title: "FAQ",
+      path: "FAQ",
+    },
   ];
 
   const handleNavigate = (value) => {

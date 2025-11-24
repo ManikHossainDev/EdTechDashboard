@@ -1,6 +1,8 @@
 import  { useState } from 'react';
-import { Video, Image, X, Play,} from 'lucide-react';
-
+import {  X, Play,} from 'lucide-react';
+import Img_box_light from "../../../assets/Modules/Img_box_light.png"
+import Video_fill from "../../../assets/Modules/Video_fill.png"
+import { TbArrowNarrowLeft } from 'react-icons/tb';
 const CreateModules = () => {
   const [moduleName, setModuleName] = useState('');
   const [videos, setVideos] = useState([]);
@@ -8,7 +10,7 @@ const CreateModules = () => {
   const [learningObjective, setLearningObjective] = useState('');
   const [learningContent, setLearningContent] = useState('');
   const [safeContent, setSafeContent] = useState('');
-  const [showSuccess, setShowSuccess] = useState(false);
+
 
   const handleVideoUpload = (e) => {
     const files = Array.from(e.target.files);
@@ -45,10 +47,7 @@ const CreateModules = () => {
       alert('Please enter a module name');
       return;
     }
-    
-    setShowSuccess(true);
     setTimeout(() => {
-      setShowSuccess(false);
       // Reset form
       setModuleName('');
       setVideos([]);
@@ -60,10 +59,15 @@ const CreateModules = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-50 via-white to-blue-50 p-4 md:p-8">
-      <div className="max-w-4xl mx-auto">
-        
-        <div className="bg-white rounded-2xl shadow-xl p-6 md:p-8 space-y-6">
+    <div>
+        <div className='flex items-center space-x-2 px-1 md:px-4 mt-3 text-xl font-semibold'>
+            <TbArrowNarrowLeft />
+            <h1>Create Modules </h1>
+        </div>
+        <div className="p-2 md:p-4 w-full  md:max-w-7xl mx-auto bg-white rounded-lg shadow-md lg:my-10">
+      <div className="w-full md:max-w-4xl mx-auto">
+        <div className=" p-2 md:p-8 space-y-1 md:space-y-6">
+         <h2 className='text-[20px] font-semibold border-b-2 border-gray-200'>Create Modules</h2>
           {/* Module Name */}
           <div>
             <label className="block text-sm font-semibold text-gray-700 mb-2">
@@ -93,7 +97,7 @@ const CreateModules = () => {
                 id="video-upload"
               />
               <label htmlFor="video-upload" className="cursor-pointer">
-                <Video className="w-12 h-12 mx-auto text-purple-500 mb-2" />
+                 <img className='mx-auto' src={Video_fill} alt="" />
                 <p className="text-gray-600 font-medium">Upload Videos</p>
                 <p className="text-sm text-gray-400 mt-1">Click to select video files</p>
               </label>
@@ -142,7 +146,7 @@ const CreateModules = () => {
             <label className="block text-sm font-semibold text-gray-700 mb-2">
               Learning Content
             </label>
-            <textarea
+            <textarea 
               value={learningContent}
               onChange={(e) => setLearningContent(e.target.value)}
               placeholder="Enter the learning content details..."
@@ -166,7 +170,7 @@ const CreateModules = () => {
                 id="image-upload"
               />
               <label htmlFor="image-upload" className="cursor-pointer">
-                <Image className="w-12 h-12 mx-auto text-blue-500 mb-2" />
+                <img className='mx-auto' src={Img_box_light} alt="" />
                 <p className="text-gray-600 font-medium">Upload Pictures</p>
                 <p className="text-sm text-gray-400 mt-1">PNG, JPG up to 10MB</p>
               </label>
@@ -208,29 +212,17 @@ const CreateModules = () => {
           </div>
 
           {/* Create Button */}
-          <button
+         <div className='flex justify-center items-center'>
+             <button
             onClick={handleCreate}
-            className="w-full bg-gradient-to-r from-purple-600 to-blue-600 text-white font-bold py-4 rounded-xl hover:from-purple-700 hover:to-blue-700 transition-all transform hover:scale-[1.02] active:scale-[0.98] shadow-lg"
+            className=" mx-auto px-5 md:px-7 bg-[#FF9E1C] text-white font-bold py-4 rounded-xl hover:from-purple-700 hover:to-blue-700 transition-all transform hover:scale-[1.02] active:scale-[0.98] shadow-lg"
           >
             Create Module
           </button>
-
-          {/* Success Message */}
-          {showSuccess && (
-            <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
-              <div className="bg-white rounded-2xl p-8 shadow-2xl text-center animate-bounce">
-                <div className="w-16 h-16 bg-green-500 rounded-full mx-auto mb-4 flex items-center justify-center">
-                  <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" />
-                  </svg>
-                </div>
-                <h3 className="text-2xl font-bold text-gray-800">Module Created!</h3>
-                <p className="text-gray-600 mt-2">Your module has been successfully created.</p>
-              </div>
-            </div>
-          )}
+         </div>
         </div>
       </div>
+    </div>
     </div>
   );
 }

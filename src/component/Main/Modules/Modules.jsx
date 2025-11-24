@@ -56,7 +56,7 @@ const Modules = () => {
   ];
 
   return (
-    <div className="p-6">
+    <div className="p-2 md:p-6">
       <div className="flex justify-between items-center mb-6">
         <h2 className="text-xl font-semibold">Modules List</h2>
         <a href="/CreateModules">
@@ -67,11 +67,11 @@ const Modules = () => {
         </a>
       </div>
 
-      <div className="grid grid-cols-2 gap-4 w-full md:max-w-5xl">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-1 md:gap-4 w-full md:max-w-5xl">
         {data.map((module) => (
           <div
             key={module.id}
-            className="flex items-center space-x-3 bg-[#FDD6D640] p-4 rounded-lg border border-[#D8D8D8] "
+            className="flex items-center space-x-3 bg-[#FDD6D640] p-2 md:p-4 rounded-lg border border-[#D8D8D8] "
           >
             <img
               src={module.image}
