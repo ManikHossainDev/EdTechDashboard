@@ -5,12 +5,12 @@ import { useSelector } from "react-redux";
 
 const AdminRoutes = ({ children }) => {
   const { user } = useSelector((state) => state.auth);
-  const isAdmin = user && user.role === "admin";
+  console.log(user?.authRole)
+  const isAdmin = user && user.authRole === "admin";
   if (!isAdmin) {
     return <Navigate to="/auth" replace />;
   }
-
-  // If admin, render the requested admin route component
+  
   return <>{children}</>;
 };
 

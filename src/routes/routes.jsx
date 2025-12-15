@@ -22,14 +22,16 @@ import ContactUs from "../page/ContactUs/ContactUs";
 import EditContactUs from "../page/EditContactUs/EditContactUs";
 import ModulesPage from "../page/ModulesPage/ModulesPage";
 import CreateModulesPage from "../page/CreateModulesPage/CreateModulesPage";
+import FAQ from "../component/Main/FAQ/FAQ";
+import AdminRoutes from "./AdminRoutes";
 
 const router = createBrowserRouter([
   {
     path: "/",
     element: (
-      // <AdminRoutes>
-      // </AdminRoutes>
-      <MainLayout />
+      <AdminRoutes>
+        <MainLayout />
+      </AdminRoutes>
     ),
     errorElement: <h1>Error</h1>,
     children: [
@@ -99,6 +101,10 @@ const router = createBrowserRouter([
       {
         path: "/settings/ContactUs/:id",
         element: <EditContactUs />
+      },
+      {
+        path: "/settings/FAQ",
+        element: <FAQ />
       },
     ],
   },

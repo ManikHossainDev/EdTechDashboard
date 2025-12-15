@@ -14,6 +14,7 @@ const ForgetPassword = () => {
   const submit = async (values) => {
     try {
       const res = await forgotPassword(values);
+      console.log(res)
       if (res.error) {
         toast.error(res?.error?.data?.message);
         console.log(res.error);
@@ -78,6 +79,7 @@ const ForgetPassword = () => {
           {/* CustomButton for submit */}
           <Form.Item>
             <Button
+             htmlType="submit"
               loading={isLoading}
               border
               size="large"

@@ -9,25 +9,28 @@ import { useResetPasswordMutation } from "../../../redux/features/auth/authApi";
 const NewPassword = () => {
   const navigate = useNavigate();
   const { email } = useParams();
+  console.log(email)
   const [resetPassword, { isLoading }] = useResetPasswordMutation();
   const submit = async (values) => {
-    const { password } = values;
+    const { password, confirmPassword } = values;
+
     try {
       const res = await resetPassword({
-        email,
-        password: password,
+        password:password,
+        confirmPassword:confirmPassword,
       });
+      console.log(res)
       if (res.error) {
         toast.error(res.error.data.message);
       }
       if (res.data) {
         toast.success(res.data.message);
-        navigate("/auth/login");
+        navigate("/auth");
       }
     } catch (error) {
       toast.error("Something went wrong");
     }
-  };
+};
 
   return (
     <div className="w-full h-full md:h-screen md:flex justify-around ">
@@ -96,7 +99,7 @@ const NewPassword = () => {
 
           {/* CustomButton for submission */}
           <Form.Item>
-            <Button size="large" loading={isLoading} border className="w-full text-[#FF9E1C] bg-white">
+            <Button htmlType="submit" size="large" loading={isLoading} border className="w-full text-[#FF9E1C] bg-white">
               Update Password
             </Button>
           </Form.Item>

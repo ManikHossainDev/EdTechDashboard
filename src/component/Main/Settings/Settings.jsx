@@ -1,21 +1,23 @@
 /* eslint-disable react/no-unescaped-entities */
 /* eslint-disable no-undef */
 /* eslint-disable no-unused-vars */
-import {Form, Modal, Switch } from "antd";
+import { Form, Modal, Switch } from "antd";
 import { MdKeyboardArrowRight } from "react-icons/md";
 import OTPInput from "react-otp-input";
 // import { useSelector } from "react-redux";
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import CustomInput from "../../../utils/CustomInput";
 import CustomButton from "../../../utils/CustomButton";
 import { useState } from "react";
+import { useChangePasswordMutation } from "../../../redux/features/profile/profileApi";
+
+import { toast } from "sonner";
 
 const Settings = () => {
   // const { user } = useSelector(state => state?.auth)
   const navigate = useNavigate();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [modelTitle, setModelTitle] = useState("");
-  const [otp, setOtp] = useState("");
   const [form] = Form.useForm();
   const onChange = (checked) => {
     console.log(`switch to ${checked}`);
@@ -54,8 +56,7 @@ const Settings = () => {
   const handleNavigate = (value) => {
     if (value === "notification") {
       return;
-    }
-    else if (value === "change-password") {
+    } else if (value === "change-password") {
       setModelTitle("Change password");
       setIsModalOpen(true);
     } else {
@@ -63,23 +64,29 @@ const Settings = () => {
     }
   };
 
+  const [updatePassword] = useChangePasswordMutation();
+
   const handleChangePassword = async (values) => {
-    return console.log(values);
-    // const { oldPassword, newPassword } = values;
+    const { oldPassword, newPassword, reenterPassword } = values;
+    try {
+      const result = await updatePassword({
+        currentPassword: oldPassword,
+        password: newPassword,
+        confirmPassword: reenterPassword,
+      });
+      if (result?.error) {
+        toast.error(result?.error?.data?.message || "Something went wrong");
+      }
+      if (result?.data) {
+        setIsModalOpen(false);
+        form.resetFields();
+        toast.success
+      }
+    } catch (error) {
+      console.log(error);
+    }
   };
-  const handleForgetPassword = async (values) => {
-    forgotPassword(values);
-  };
-  const handleVerifyOtp = async (e) => {
-    e.preventDefault();
-    verifyOtp({
-      code: otp,
-      email: user?.email,
-    });
-  };
-  const handleResetPassword = async (values) => {
-    changePassword({ email: user?.email, password: values?.password });
-  };
+
   return (
     <section className="w-full py-6 grid grid-cols-1  md:grid-cols-2 gap-5 px-3">
       {settingsItem.map((setting, index) => (

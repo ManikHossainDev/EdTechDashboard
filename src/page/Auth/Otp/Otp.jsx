@@ -3,11 +3,13 @@ import { Link, useNavigate, useParams } from "react-router-dom";
 import { IoIosArrowBack } from "react-icons/io";
 import OTPInput from "react-otp-input";
 import { useState } from "react";
+import { useDispatch } from "react-redux";
 
 import {
   useForgotPasswordMutation,
   useVerifyEmailMutation,
 } from "../../../redux/features/auth/authApi";
+import { loggedUser } from "../../../redux/features/auth/authSlice";
 import { toast } from "sonner";
 import { Button } from "antd";
 
@@ -15,21 +17,36 @@ const Otp = () => {
   const [otp, setOtp] = useState("");
   const { email } = useParams();
   const navigate = useNavigate();
+  const dispatch = useDispatch(); // Add dispatch hook
   const [forgotPassword] = useForgotPasswordMutation();
   const [verifyOtp, { isLoading }] = useVerifyEmailMutation();
+
   const handleOtpChange = (otpValue) => {
     setOtp(otpValue);
   };
+
   const handleMatchOtp = async () => {
     try {
       const res = await verifyOtp({
         email,
-        oneTimeCode: otp,
+        otp: otp,
       });
+      console.log(res)
       if (res.error) {
         toast.error(res?.error?.data?.message);
       }
       if (res.data) {
+        // Extract the reset password token from the response
+        const token = res?.data?.data?.resetPasswordToken;
+
+        // Dispatch the token to the Redux store to set up headers globally
+        if (token) {
+          dispatch(loggedUser({
+            token: token,
+            user: null // Since this is for password reset, user info might not be available yet
+          }));
+        }
+
         toast.success(res?.data?.message);
         navigate(`/auth/new-password/${email}`);
       }
@@ -52,6 +69,7 @@ const Otp = () => {
       toast.error("Something went wrong");
     }
   };
+
   return (
     <div className="w-full  h-full md:h-screen md:flex justify-around ">
     <div className="w-full max-w-7xl mx-auto rounded-md h-[70%] md:my-28 grid grid-cols-1 md:grid-cols-2 place-content-center px-1 md:px-5 py-15 gap-8 md:mx-10 ">

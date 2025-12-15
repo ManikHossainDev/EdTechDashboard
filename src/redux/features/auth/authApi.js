@@ -10,13 +10,6 @@ const authApi = baseApi.injectEndpoints({
         body: data,
       }),
     }),
-    register: builder.mutation({
-      query: (data) => ({
-        url: "/auth/register",
-        method: "POST",
-        body: data,
-      }),
-    }),
     logout: builder.mutation({
       query: () => ({
         url: "/logout",
@@ -32,7 +25,7 @@ const authApi = baseApi.injectEndpoints({
     }),
     verifyEmail: builder.mutation({
       query: (data) => ({
-        url: "/auth/verify-email",
+        url: "/auth/verify-reset-otp",
         method: "POST",
         body: data,
       }),
