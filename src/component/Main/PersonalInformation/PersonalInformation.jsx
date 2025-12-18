@@ -1,23 +1,23 @@
 import { IoChevronBack } from "react-icons/io5";
 import { Link } from "react-router-dom";
-import { imageBaseUrl } from "../../../config/imageBaseUrl";
-import { useSelector } from "react-redux";
+// import { imageBaseUrl } from "../../../config/imageBaseUrl";
 import { Form } from "antd";
 import { useEffect } from "react";
 import CustomInput from "../../../utils/CustomInput";
+import { useGetUserQuery } from "../../../redux/features/profile/profileApi";
 
 const PersonalInformation = () => {
-  const { user } = useSelector((state) => state.auth);
+  const {data} = useGetUserQuery()
+  console.log(data)
   const [form] = Form.useForm();
   useEffect(() => {
-    if (user) {
+    if (data) {
       form.setFieldsValue({
-        fullName: user.fullName,
-        email: user.email,
-        phone: user.phone,
+        fullName: data?.data?.fullName,
+        email: data?.data?.email,
       });
     }
-  }, [user, form]);
+  }, [data, form]);
   return (
     <div className="w-full">
       {/* Back Button and Title */}
@@ -35,13 +35,14 @@ const PersonalInformation = () => {
         {/* Profile Picture */}
         <div className="w-full h-full mt-10  flex justify-start items-center">
           <img
-            className="size-32 rounded-full "
-            src={`${imageBaseUrl}${user?.image?.url}`}
+            className="size-32 rounded-md"
+            // src={`${imageBaseUrl}${user?.image?.url}`}
+            src={data?.data?.profile?.profilePicture?.url}
             alt=""
           />
           <div className="ml-5">
-           <h1 className="mt-2 text-gray-500">James Don</h1>
-           <h1 className="text-lg font-semibold uppercase">{user?.role}</h1>
+           <h1 className="mt-2 text-gray-500">{data?.data?.fullName}</h1>
+           <h1 className="text-lg font-semibold uppercase">{data?.data?.authRole}</h1>
           </div>
         </div>
 
@@ -61,14 +62,6 @@ const PersonalInformation = () => {
             <CustomInput placeholder="Enter your email" readOnly />
           </Form.Item>
 
-          {/* Phone Number */}
-          <Form.Item label="Phone Number" name="phone">
-            <CustomInput
-              type="number"
-              placeholder="Enter your phone number"
-              readOnly
-            />
-          </Form.Item>
           <Link to="/edit-personal-info">
           <button className="w-full px-8 py-3 bg-[#FF9E1C] font-semibold rounded-lg">
             Edit Profile

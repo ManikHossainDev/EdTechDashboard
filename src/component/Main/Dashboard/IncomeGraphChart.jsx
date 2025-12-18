@@ -1,8 +1,11 @@
 
 import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts';
+import { useGetIncomeRatioQuery } from '../../../redux/features/dashboard/dashboardApi';
 
 const PureComponentChart = () => {
-  // Static data as an example (replace with your actual data source)
+  const {data} = useGetIncomeRatioQuery()
+  console.log(data)
+
   const chartData = [
     { name: "January", uv: 120000 },
     { name: "February", uv: 150000 },

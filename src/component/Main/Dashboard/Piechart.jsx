@@ -1,6 +1,36 @@
+import { useGetChildrenEarningsQuery } from "../../../redux/features/dashboard/dashboardApi";
+
 const Piechart = () => {
-  // Chart data matching the image
-  const totalChildren = 369;
+  const { data, isLoading, isError } = useGetChildrenEarningsQuery();
+
+  // Handle loading state
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center">
+        <div className="bg-white rounded-3xl shadow-lg p-8 w-full">
+          <div className="flex justify-center items-center">
+            <p>Loading chart data...</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Handle error state
+  if (isError) {
+    return (
+      <div className="flex items-center justify-center">
+        <div className="bg-white rounded-3xl shadow-lg p-8 w-full">
+          <div className="flex justify-center items-center">
+            <p>Error loading chart data. Please try again later.</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Check if data exists before accessing it
+  const totalChildren = data && data[0] ? data[0]?.childrenCount || 0 : 0;
   const totalContent = 75; // percentage
   const lightSegment = 40; // percentage
   const darkSegment = 60; // percentage
@@ -36,7 +66,7 @@ const Piechart = () => {
         </div>
         {/* Main content container */}
         <div className="flex items-center justify-center">
-          
+
 
           {/* Center - Donut Chart */}
           <div className="relative">
@@ -64,7 +94,7 @@ const Piechart = () => {
                 strokeDashoffset={-lightSegmentLength}
               />
             </svg>
-            
+
             {/* Percentage labels */}
             <div className="absolute top-1/4 left-1/4 text-sm font-semibold text-gray-700">
               40%
@@ -74,7 +104,7 @@ const Piechart = () => {
             </div>
           </div>
 
-          
+
         </div>
       </div>
     </div>

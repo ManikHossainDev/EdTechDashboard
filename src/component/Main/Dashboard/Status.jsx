@@ -1,35 +1,61 @@
-
-
-import Line from "../../../assets/auth/Line_up.png"
+import Line from "../../../assets/auth/Line_up.png";
+import { useGetDashboardStatusQuery } from "../../../redux/features/dashboard/dashboardApi";
 
 const Status = () => {
+  const { data, isLoading, isError } = useGetDashboardStatusQuery();
 
+  if (isLoading) return <p>Loading...</p>;
+  if (isError) return <p>Something went wrong</p>;
 
- 
-  const Alldata = [
-    { title: "Total Parents", value:  700 },
-    { title: "Total Children", value:  400 }, 
-    { title: "Total Modules",value:   300 }, 
-    { title: "Total Earnings", value: 200 }, 
+  const dashboardData = [
+    {
+      title: "Total Parents",
+      value: data?.totalParents,
+      growth: data?.monthlyGrowth?.parents?.percentageChange,
+    },
+    {
+      title: "Total Children",
+      value: data?.totalChildren,
+      growth: data?.monthlyGrowth?.children?.percentageChange,
+    },
+    {
+      title: "Total Modules",
+      value: data?.totalModules,
+      growth: 0, // backend এ module growth নাই
+    },
+    {
+      title: "Total Earnings",
+      value: data?.totalEarnings,
+      growth: data?.monthlyGrowth?.earnings?.percentageChange,
+    },
   ];
+
   return (
     <div className="w-full grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-4 gap-7 px-2">
-      {Alldata.map((item, idx) => (
+      {dashboardData.map((item, idx) => (
         <div
           key={idx}
-          className="w-full p-1 md:p-5 rounded-lg shadow-lg  border- border-l-4 border-[#FF9E1C] bg-[#FEFEFE]"
+          className="w-full p-1 md:p-5 rounded-lg shadow-lg border-l-4 border-[#FF9E1C] bg-[#FEFEFE]"
         >
           <h1 className="text-base lg:text-xl font-semibold text-[#222222]">
-              {item.title}
-            </h1>
-          <h1 className="text-base lg:text-xl pt-1 font-semibold text-[#222222] ">
-            {item.value}
+            {item.title}
           </h1>
 
-          <h1 className="text-base lg:text-xl  py-1 text-[#222222] flex items-center space-x-1">
-            <img src={Line} alt="line" /> <span  className="px-2 text-[#83D913]">5%</span>  <h1>increase from last month</h1>
+          <h1 className="text-base lg:text-xl pt-1 font-semibold text-[#222222]">
+            {item.value ?? 0}
           </h1>
 
+          <div className="text-sm py-1 text-[#222222] flex items-center space-x-1">
+            <img src={Line} alt="line" />
+            <span
+              className={`px-2 ${
+                item.growth > 0 ? "text-[#83D913]" : "text-red-500"
+              }`}
+            >
+              {item.growth ?? 0}%
+            </span>
+            <span>increase from last month</span>
+          </div>
         </div>
       ))}
     </div>
@@ -37,7 +63,3 @@ const Status = () => {
 };
 
 export default Status;
-
-
-
-
