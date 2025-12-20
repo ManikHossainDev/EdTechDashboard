@@ -24,6 +24,15 @@ import ModulesPage from "../page/ModulesPage/ModulesPage";
 import CreateModulesPage from "../page/CreateModulesPage/CreateModulesPage";
 import FAQ from "../component/Main/FAQ/FAQ";
 import AdminRoutes from "./AdminRoutes";
+import Threemodules from "../component/Main/Modules/Threemodules";
+import Fourmodules from "../component/Main/Modules/Fourmodules";
+import Fivemodules from "../component/Main/Modules/Fivemodules";
+import Sixmodules from "../component/Main/Modules/Sixmodules";
+import Sevenmodules from "../component/Main/Modules/Sevenmodules";
+import Eightmodules from "../component/Main/Modules/Eightmodules";
+import Onemodules from "../component/Main/Modules/Onemodules";
+import Towmodules from "../component/Main/Modules/Towmodules";
+
 
 const router = createBrowserRouter([
   {
@@ -49,7 +58,41 @@ const router = createBrowserRouter([
       },
       {
         path: "Modules",
-        element: <ModulesPage />
+        element: <ModulesPage />,
+        children: [
+          {
+            index: true,
+            element: <Onemodules />,
+          },
+          {
+            path: "two",
+            element: <Towmodules />,
+          },
+          {
+            path: "three",
+            element: <Threemodules />,
+          },
+          {
+            path: "four",
+            element: <Fourmodules />,
+          },
+           {
+            path: "five",
+            element: <Fivemodules/>
+          },
+          {
+            path: "six",
+            element: <Sixmodules />,
+          },
+          {
+            path: "seven",
+            element: <Sevenmodules />,
+          },
+          {
+            path: "eight",
+            element: <Eightmodules />,
+          },
+        ],
       },
       {
         path: "Earnings",

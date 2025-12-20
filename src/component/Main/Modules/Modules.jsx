@@ -1,88 +1,53 @@
-import { GoPlus } from "react-icons/go";
-
-// Import your images
-import m1 from "../../../assets/Modules/image 5.png";
-import m2 from "../../../assets/Modules/image 6.png";
-import m3 from "../../../assets/Modules/image 7.png";
-import m4 from "../../../assets/Modules/image 8.png";
-import m5 from "../../../assets/Modules/image 9.png";
-import m6 from "../../../assets/Modules/image 10.png";
-import m7 from "../../../assets/Modules/image 11.png";
-import m8 from "../../../assets/Modules/image 12.png";
-
+import {
+  Box,
+  Circle,
+  Square,
+  Triangle,
+  Star,
+  Hexagon,
+  Pentagon,
+  Diamond,
+} from "lucide-react";
+import { NavLink, Outlet } from "react-router-dom";
 
 const Modules = () => {
-  const data = [
-    {
-      id: 1,
-      image: m1,
-      title: "Internet Safety and Wellbeing",
-    },
-    {
-      id: 2,
-      image: m2,
-      title: "Critical Media Literacy",
-    },
-    {
-      id: 3,
-      image: m3,
-      title: "Social Boundaries",
-    },
-    {
-      id: 4,
-      image: m4,
-      title: "Respectful Communication",
-    },
-    {
-      id: 5,
-      image: m5,
-      title: "Passwords and Privacy",
-    },
-    {
-      id: 6,
-      image: m6,
-      title: "Independent Problem-Solving",
-    },
-    {
-      id: 7,
-      image: m7,
-      title: "Digital Judgment",
-    },
-    {
-      id: 8,
-      image: m8,
-      title: "Balancing Screen Time",
-    },
-  ];
-
+  const moduleTabs = [
+  { name: "One", path: ".", icon: <Box size={18} /> },
+  { name: "Two", path: "two", icon: <Circle size={18} /> },
+  { name: "Three", path: "three", icon: <Triangle size={18} /> },
+  { name: "Four", path: "four", icon: <Square size={18} /> },
+  { name: "Five", path: "five", icon: <Pentagon size={18} /> },
+  { name: "Six", path: "six", icon: <Hexagon size={18} /> },
+  { name: "Seven", path: "seven", icon: <Star size={18} /> },
+  { name: "Eight", path: "eight", icon: <Diamond size={18} /> },
+];
   return (
-    <div className="p-2 md:p-6">
-      <div className="flex justify-between items-center mb-6">
-        <h2 className="text-xl font-semibold">Modules List</h2>
-        <a href="/CreateModules">
-        <button className="flex items-center space-x-2 bg-[#FF9E1C] text-white px-4 py-2 rounded-lg hover:bg-[#e8900f] transition-colors">
-          <GoPlus className="text-xl" />
-          <span>Add Modules</span>
-        </button>
-        </a>
+    <div className="py-5 md:px-2">
+      {/* Tabs */}
+      <div className="flex flex-wrap gap-2 bg-white md:p-6 rounded-t-lg shadow-sm border-b">
+        {moduleTabs.map((tab) => (
+          <NavLink
+            key={tab.name}
+            to={tab.path}
+            end={tab.path === "."} 
+            className={({ isActive }) =>
+              `flex items-center gap-2 px-4 py-2 rounded-lg text-sm md:text-md lg:text-lg transition-all
+              ${
+                isActive
+                  ? "bg-blue-100 text-blue-700 font-semibold shadow-sm"
+                  : "text-gray-600 hover:bg-gray-100"
+              }`
+            }
+          >
+            {tab.icon}
+            {tab.name}
+          </NavLink>
+        ))}
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-1 md:gap-4 w-full md:max-w-5xl">
-        {data.map((module) => (
-          <div
-            key={module.id}
-            className="flex items-center space-x-3 bg-[#FDD6D640] p-2 md:p-4 rounded-lg border border-[#D8D8D8] "
-          >
-            <img
-              src={module.image}
-              alt={module.title}
-              className="w-10 h-10 object-contain"
-            />
-            <span className="text-sm font-medium text-gray-800">
-              {module.title}
-            </span>
-          </div>
-        ))}
+      {/* Nested Route Content */}
+      <div className=" bg-white p-4 rounded-b-md shadow-sm">
+        <Outlet />
       </div>
     </div>
   );
