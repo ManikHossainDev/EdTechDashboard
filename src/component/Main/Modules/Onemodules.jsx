@@ -1,76 +1,243 @@
-import  { useState } from 'react';
+import  { useState, useEffect } from 'react';
 import { useGetModulesOneByIdQuery } from '../../../redux/features/modules/modulesOne';
 
 const Onemodules = () => {
   const id = '69351cf24826bf0c83d19eef'
-  const {data} = useGetModulesOneByIdQuery(id)
-  console.log(data)
-   
-  // Main form state
-  const [formData, setFormData] = useState({
-    moduleNumber: 1,
-    title: '',
-    theme: '',
-    description: '',
-    slug: '',
-    status: 'draft',
-    order: 1,
-    learningObjectives: [''],
-    contentBlocks: [{ type: 'text', order: 1, content: '' }],
-    interactiveTask: {
-      type: 'drag-drop',
-      title: '',
-      description: '',
-      instructions: '',
-      points: 20,
-      items: [{ id: '1', text: '' }],
-      categories: [
-        { id: 'safe', name: 'Safe', description: 'This is okay' },
-        { id: 'unsure', name: 'Unsure', description: 'Not sure and confused' },
-        { id: 'tell-adult', name: 'Tell an Adult', description: 'Talk to a trusted adult' }
-      ],
-      correctMapping: {}
-    },
-    quiz: {
-      title: '',
-      description: '',
-      passingScore: 75,
-      totalPoints: 20,
-      allowRetake: true,
-      showCorrectAnswers: true,
-      questions: [{
-        questionNumber: 1,
-        type: 'multiple-choice',
-        question: '',
-        points: 10,
-        explanation: '',
-        options: [{ id: 'A', text: '', isCorrect: false }]
-      }]
-    },
-    parentTip: {
-      title: 'For Parents',
-      content: '',
-      additionalResources: []
+  const {data, isLoading, isError, error} = useGetModulesOneByIdQuery(id)
+
+  // Optimized data transformation function
+  const transformApiData = (apiData) => {
+    if (!apiData?.data) return null;
+
+    const moduleData = apiData.data;
+
+    // Format learning objectives
+    const formattedLearningObjectives = moduleData.learningObjectives?.map(obj => obj.text) || [];
+
+    // Format learning content as content blocks
+    const formattedContentBlocks = moduleData.learningContent?.map((content, index) => ({
+      type: content.type || 'text',
+      order: content.order || index + 1,
+      content: content.content?.text || '',
+      listItems: content.content?.listItems || []
+    })) || [];
+
+    // Format interactive task
+    const formattedInteractiveTask = {
+      type: moduleData.interactiveTask?.type || 'drag-drop',
+      title: moduleData.interactiveTask?.title || '',
+      description: moduleData.interactiveTask?.description || '',
+      instructions: moduleData.interactiveTask?.instructions || '',
+      points: moduleData.interactiveTask?.points || 20,
+      items: moduleData.interactiveTask?.config?.items?.map(item => ({
+        id: item.id,
+        text: item.text,
+        image: item.image
+      })) || [],
+      categories: moduleData.interactiveTask?.config?.categories?.map(category => ({
+        id: category.id,
+        name: category.name,
+        description: category.description
+      })) || [],
+      correctMapping: moduleData.interactiveTask?.config?.correctMapping || {}
+    };
+
+    // Format quiz
+    const formattedQuiz = {
+      title: moduleData.quiz?.title || '',
+      description: moduleData.quiz?.description || '',
+      passingScore: moduleData.quiz?.passingScore || 75,
+      totalPoints: moduleData.quiz?.totalPoints || 100,
+      allowRetake: moduleData.quiz?.allowRetake || true,
+      showCorrectAnswers: moduleData.quiz?.showCorrectAnswers || true,
+      questions: moduleData.quiz?.questions?.map((question, index) => {
+        // Handle the case where options might be incomplete
+        const options = Array.isArray(question.options) ?
+          question.options.map(option => ({
+            id: option.id,
+            text: option.text,
+            isCorrect: option.isCorrect
+          })) :
+          [];
+
+        return {
+          questionNumber: question.questionNumber || index + 1,
+          type: question.type || 'multiple-choice',
+          question: question.question || '',
+          points: question.points || 10,
+          explanation: question.explanation || '',
+          options: options
+        };
+      }) || []
+    };
+
+    // Format parent tip
+    const formattedParentTip = {
+      title: moduleData.parentTip?.title || 'For Parents',
+      content: moduleData.parentTip?.content || '',
+      additionalResources: moduleData.parentTip?.additionalResources || []
+    };
+
+    // Return the formatted data
+    return {
+      moduleNumber: moduleData.moduleNumber || 1,
+      title: moduleData.title || '',
+      theme: moduleData.theme || '',
+      description: moduleData.description || '',
+      slug: moduleData.slug || '',
+      status: moduleData.status || 'draft',
+      order: moduleData.order || 1,
+      introVideo: moduleData.introVideo || null,
+      unlockConditions: moduleData.unlockConditions || { requiresPreviousModule: false },
+      learningObjectives: formattedLearningObjectives,
+      contentBlocks: formattedContentBlocks,
+      interactiveTask: formattedInteractiveTask,
+      quiz: formattedQuiz,
+      parentTip: formattedParentTip,
+      prerequisites: moduleData.prerequisites || [],
+      createdAt: moduleData.createdAt,
+      updatedAt: moduleData.updatedAt,
+      publishedAt: moduleData.publishedAt,
+      id: moduleData.id
+    };
+  };
+
+  // Show loading state
+  if (isLoading) {
+    return (
+      <div className="container mx-auto p-6">
+        <h2 className="text-2xl font-bold mb-6">Loading Module...</h2>
+        <div className="text-center py-10">
+          <div className="inline-block animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
+          <p className="mt-4">Loading module data...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Show error state
+  if (isError) {
+    return (
+      <div className="container mx-auto p-6">
+        <h2 className="text-2xl font-bold mb-6">Error Loading Module</h2>
+        <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative" role="alert">
+          <strong className="font-bold">Error: </strong>
+          <span className="block sm:inline">{error?.data?.message || error?.error || 'Failed to load module data'}</span>
+        </div>
+      </div>
+    );
+  }
+
+  // Console log the original data
+  console.log('Original API Data:', data);
+
+  // Transform the data
+  const formattedData = transformApiData(data);
+
+  // Console log the transformed data
+  console.log('Formatted Data:', formattedData);
+
+  // Log the updated values after transformation
+  console.log('Updated values after transformation:', {
+    title: formattedData?.title,
+    description: formattedData?.description,
+    learningObjectives: formattedData?.learningObjectives,
+    contentBlocks: formattedData?.contentBlocks,
+    interactiveTask: formattedData?.interactiveTask,
+    quiz: formattedData?.quiz,
+    parentTip: formattedData?.parentTip
+  });
+
+  // Main form state - initialize with formatted data if available, otherwise with defaults
+  const [formData, setFormData] = useState(() => {
+    if (formattedData) {
+      return formattedData;
     }
+
+    return {
+      moduleNumber: 1,
+      title: '',
+      theme: '',
+      description: '',
+      slug: '',
+      status: 'draft',
+      order: 1,
+      introVideo: null,
+      unlockConditions: { requiresPreviousModule: false },
+      learningObjectives: [''],
+      contentBlocks: [{ type: 'text', order: 1, content: '', listItems: [] }],
+      interactiveTask: {
+        type: 'drag-drop',
+        title: '',
+        description: '',
+        instructions: '',
+        points: 20,
+        items: [{ id: '1', text: '', image: null }],
+        categories: [
+          { id: 'safe', name: 'Safe', description: 'This is okay' },
+          { id: 'unsure', name: 'Unsure', description: 'Not sure and confused' },
+          { id: 'tell-adult', name: 'Tell an Adult', description: 'Talk to a trusted adult' }
+        ],
+        correctMapping: {}
+      },
+      quiz: {
+        title: '',
+        description: '',
+        passingScore: 75,
+        totalPoints: 20,
+        allowRetake: true,
+        showCorrectAnswers: true,
+        questions: [{
+          questionNumber: 1,
+          type: 'multiple-choice',
+          question: '',
+          points: 10,
+          explanation: '',
+          options: [{ id: 'A', text: '', isCorrect: false }]
+        }]
+      },
+      parentTip: {
+        title: 'For Parents',
+        content: '',
+        additionalResources: []
+      },
+      prerequisites: [],
+      createdAt: null,
+      updatedAt: null,
+      publishedAt: null,
+      id: null
+    };
   });
 
   // Handle main form changes
   const handleMainChange = (e) => {
     const { name, value } = e.target;
-    setFormData(prev => ({
-      ...prev,
-      [name]: value
-    }));
+    setFormData(prev => {
+      const updatedData = {
+        ...prev,
+        [name]: value
+      };
+      // Console log the updated values when form fields change
+      console.log('Updated main form field:', name, 'to:', value);
+      console.log('Current form data:', updatedData);
+      return updatedData;
+    });
   };
 
   // Handle learning objectives changes
   const handleLearningObjectiveChange = (index, value) => {
     const newObjectives = [...formData.learningObjectives];
     newObjectives[index] = value;
-    setFormData(prev => ({
-      ...prev,
-      learningObjectives: newObjectives
-    }));
+    setFormData(prev => {
+      const updatedData = {
+        ...prev,
+        learningObjectives: newObjectives
+      };
+      // Console log the updated values when learning objectives change
+      console.log('Updated learning objective at index:', index, 'to:', value);
+      console.log('Current learning objectives:', newObjectives);
+      return updatedData;
+    });
   };
 
   const addLearningObjective = () => {
@@ -92,10 +259,16 @@ const Onemodules = () => {
   const handleContentBlockChange = (index, field, value) => {
     const newBlocks = [...formData.contentBlocks];
     newBlocks[index][field] = value;
-    setFormData(prev => ({
-      ...prev,
-      contentBlocks: newBlocks
-    }));
+    setFormData(prev => {
+      const updatedData = {
+        ...prev,
+        contentBlocks: newBlocks
+      };
+      // Console log the updated values when content blocks change
+      console.log('Updated content block at index:', index, 'field:', field, 'to:', value);
+      console.log('Current content blocks:', newBlocks);
+      return updatedData;
+    });
   };
 
   const addContentBlock = () => {
@@ -116,25 +289,37 @@ const Onemodules = () => {
 
   // Handle interactive task changes
   const handleInteractiveTaskChange = (field, value) => {
-    setFormData(prev => ({
-      ...prev,
-      interactiveTask: {
-        ...prev.interactiveTask,
-        [field]: value
-      }
-    }));
+    setFormData(prev => {
+      const updatedData = {
+        ...prev,
+        interactiveTask: {
+          ...prev.interactiveTask,
+          [field]: value
+        }
+      };
+      // Console log the updated values when interactive task changes
+      console.log('Updated interactive task field:', field, 'to:', value);
+      console.log('Current interactive task:', updatedData.interactiveTask);
+      return updatedData;
+    });
   };
 
   const handleInteractiveItemChange = (index, field, value) => {
     const newItems = [...formData.interactiveTask.items];
     newItems[index][field] = value;
-    setFormData(prev => ({
-      ...prev,
-      interactiveTask: {
-        ...prev.interactiveTask,
-        items: newItems
-      }
-    }));
+    setFormData(prev => {
+      const updatedData = {
+        ...prev,
+        interactiveTask: {
+          ...prev.interactiveTask,
+          items: newItems
+        }
+      };
+      // Console log the updated values when interactive item changes
+      console.log('Updated interactive item at index:', index, 'field:', field, 'to:', value);
+      console.log('Current interactive items:', newItems);
+      return updatedData;
+    });
   };
 
   const addInteractiveItem = () => {
@@ -162,61 +347,91 @@ const Onemodules = () => {
   const handleCategoryChange = (index, field, value) => {
     const newCategories = [...formData.interactiveTask.categories];
     newCategories[index][field] = value;
-    setFormData(prev => ({
-      ...prev,
-      interactiveTask: {
-        ...prev.interactiveTask,
-        categories: newCategories
-      }
-    }));
+    setFormData(prev => {
+      const updatedData = {
+        ...prev,
+        interactiveTask: {
+          ...prev.interactiveTask,
+          categories: newCategories
+        }
+      };
+      // Console log the updated values when category changes
+      console.log('Updated category at index:', index, 'field:', field, 'to:', value);
+      console.log('Current categories:', newCategories);
+      return updatedData;
+    });
   };
 
   const handleCorrectMappingChange = (itemId, categoryId) => {
-    setFormData(prev => ({
-      ...prev,
-      interactiveTask: {
-        ...prev.interactiveTask,
-        correctMapping: {
-          ...prev.interactiveTask.correctMapping,
-          [itemId]: categoryId
+    setFormData(prev => {
+      const updatedData = {
+        ...prev,
+        interactiveTask: {
+          ...prev.interactiveTask,
+          correctMapping: {
+            ...prev.interactiveTask.correctMapping,
+            [itemId]: categoryId
+          }
         }
-      }
-    }));
+      };
+      // Console log the updated values when correct mapping changes
+      console.log('Updated correct mapping for item:', itemId, 'to category:', categoryId);
+      console.log('Current correct mapping:', updatedData.interactiveTask.correctMapping);
+      return updatedData;
+    });
   };
 
   // Handle quiz changes
   const handleQuizChange = (field, value) => {
-    setFormData(prev => ({
-      ...prev,
-      quiz: {
-        ...prev.quiz,
-        [field]: value
-      }
-    }));
+    setFormData(prev => {
+      const updatedData = {
+        ...prev,
+        quiz: {
+          ...prev.quiz,
+          [field]: value
+        }
+      };
+      // Console log the updated values when quiz changes
+      console.log('Updated quiz field:', field, 'to:', value);
+      console.log('Current quiz:', updatedData.quiz);
+      return updatedData;
+    });
   };
 
   const handleQuestionChange = (index, field, value) => {
     const newQuestions = [...formData.quiz.questions];
     newQuestions[index][field] = value;
-    setFormData(prev => ({
-      ...prev,
-      quiz: {
-        ...prev.quiz,
-        questions: newQuestions
-      }
-    }));
+    setFormData(prev => {
+      const updatedData = {
+        ...prev,
+        quiz: {
+          ...prev.quiz,
+          questions: newQuestions
+        }
+      };
+      // Console log the updated values when question changes
+      console.log('Updated question at index:', index, 'field:', field, 'to:', value);
+      console.log('Current questions:', newQuestions);
+      return updatedData;
+    });
   };
 
   const handleOptionChange = (questionIndex, optionIndex, field, value) => {
     const newQuestions = [...formData.quiz.questions];
     newQuestions[questionIndex].options[optionIndex][field] = value;
-    setFormData(prev => ({
-      ...prev,
-      quiz: {
-        ...prev.quiz,
-        questions: newQuestions
-      }
-    }));
+    setFormData(prev => {
+      const updatedData = {
+        ...prev,
+        quiz: {
+          ...prev.quiz,
+          questions: newQuestions
+        }
+      };
+      // Console log the updated values when option changes
+      console.log('Updated option at question:', questionIndex, 'option:', optionIndex, 'field:', field, 'to:', value);
+      console.log('Current questions:', newQuestions);
+      return updatedData;
+    });
   };
 
   const addQuestion = () => {
@@ -277,18 +492,27 @@ const Onemodules = () => {
 
   // Handle parent tip changes
   const handleParentTipChange = (field, value) => {
-    setFormData(prev => ({
-      ...prev,
-      parentTip: {
-        ...prev.parentTip,
-        [field]: value
-      }
-    }));
+    setFormData(prev => {
+      const updatedData = {
+        ...prev,
+        parentTip: {
+          ...prev.parentTip,
+          [field]: value
+        }
+      };
+      // Console log the updated values when parent tip changes
+      console.log('Updated parent tip field:', field, 'to:', value);
+      console.log('Current parent tip:', updatedData.parentTip);
+      return updatedData;
+    });
   };
 
   // Handle form submission
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
   const handleSubmit = (e) => {
     e.preventDefault();
+    setIsSubmitting(true);
 
     // Create the final data object in the required format
     const finalData = {
@@ -334,6 +558,7 @@ const Onemodules = () => {
 
     console.log('Module Data:', finalData);
     alert('Data logged to console!');
+    setIsSubmitting(false);
   };
 
   return (
@@ -876,9 +1101,18 @@ const Onemodules = () => {
         <div className="flex justify-end">
           <button
             type="submit"
-            className="bg-green-500 text-white px-6 py-2 rounded hover:bg-green-600"
+            disabled={isSubmitting}
+            className={`bg-green-500 text-white px-6 py-2 rounded hover:bg-green-600 ${isSubmitting ? 'opacity-70 cursor-not-allowed' : ''}`}
           >
-            Save Module
+            {isSubmitting ? (
+              <span className="flex items-center">
+                <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+                Saving...
+              </span>
+            ) : 'Save Module'}
           </button>
         </div>
       </form>

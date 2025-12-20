@@ -30,8 +30,8 @@ import Fivemodules from "../component/Main/Modules/Fivemodules";
 import Sixmodules from "../component/Main/Modules/Sixmodules";
 import Sevenmodules from "../component/Main/Modules/Sevenmodules";
 import Eightmodules from "../component/Main/Modules/Eightmodules";
-import Onemodules from "../component/Main/Modules/Onemodules";
 import Towmodules from "../component/Main/Modules/Towmodules";
+import Onemodules from "../component/Main/Modules/Onemodules";
 
 
 const router = createBrowserRouter([

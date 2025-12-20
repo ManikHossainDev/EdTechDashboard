@@ -11,11 +11,11 @@ const modulesOne = baseApi.injectEndpoints({
       transformResponse: (response) => response,
     }),
     updateModulesOne: builder.mutation({
-      query: ({id, formdata}) => {
+      query: ({id, updatedData}) => {
         return {
           url: `/admin/modulesOne/${id}`,
           method: "PATCH",
-          body: formdata,
+          body: updatedData,
         };
       },
       invalidatesTags: ["modulesOnes"],
