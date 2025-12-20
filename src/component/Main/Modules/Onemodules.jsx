@@ -1,9 +1,889 @@
+import  { useState } from 'react';
+import { useGetModulesOneByIdQuery } from '../../../redux/features/modules/modulesOne';
+
 const Onemodules = () => {
- return (
- <div>
- <h2>Welcome to the Onemodules page</h2>
- </div>
- );
+  const id = '69351cf24826bf0c83d19eef'
+  const {data} = useGetModulesOneByIdQuery(id)
+  console.log(data)
+   
+  // Main form state
+  const [formData, setFormData] = useState({
+    moduleNumber: 1,
+    title: '',
+    theme: '',
+    description: '',
+    slug: '',
+    status: 'draft',
+    order: 1,
+    learningObjectives: [''],
+    contentBlocks: [{ type: 'text', order: 1, content: '' }],
+    interactiveTask: {
+      type: 'drag-drop',
+      title: '',
+      description: '',
+      instructions: '',
+      points: 20,
+      items: [{ id: '1', text: '' }],
+      categories: [
+        { id: 'safe', name: 'Safe', description: 'This is okay' },
+        { id: 'unsure', name: 'Unsure', description: 'Not sure and confused' },
+        { id: 'tell-adult', name: 'Tell an Adult', description: 'Talk to a trusted adult' }
+      ],
+      correctMapping: {}
+    },
+    quiz: {
+      title: '',
+      description: '',
+      passingScore: 75,
+      totalPoints: 20,
+      allowRetake: true,
+      showCorrectAnswers: true,
+      questions: [{
+        questionNumber: 1,
+        type: 'multiple-choice',
+        question: '',
+        points: 10,
+        explanation: '',
+        options: [{ id: 'A', text: '', isCorrect: false }]
+      }]
+    },
+    parentTip: {
+      title: 'For Parents',
+      content: '',
+      additionalResources: []
+    }
+  });
+
+  // Handle main form changes
+  const handleMainChange = (e) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({
+      ...prev,
+      [name]: value
+    }));
+  };
+
+  // Handle learning objectives changes
+  const handleLearningObjectiveChange = (index, value) => {
+    const newObjectives = [...formData.learningObjectives];
+    newObjectives[index] = value;
+    setFormData(prev => ({
+      ...prev,
+      learningObjectives: newObjectives
+    }));
+  };
+
+  const addLearningObjective = () => {
+    setFormData(prev => ({
+      ...prev,
+      learningObjectives: [...prev.learningObjectives, '']
+    }));
+  };
+
+  const removeLearningObjective = (index) => {
+    const newObjectives = formData.learningObjectives.filter((_, i) => i !== index);
+    setFormData(prev => ({
+      ...prev,
+      learningObjectives: newObjectives
+    }));
+  };
+
+  // Handle content blocks changes
+  const handleContentBlockChange = (index, field, value) => {
+    const newBlocks = [...formData.contentBlocks];
+    newBlocks[index][field] = value;
+    setFormData(prev => ({
+      ...prev,
+      contentBlocks: newBlocks
+    }));
+  };
+
+  const addContentBlock = () => {
+    const newOrder = formData.contentBlocks.length + 1;
+    setFormData(prev => ({
+      ...prev,
+      contentBlocks: [...prev.contentBlocks, { type: 'text', order: newOrder, content: '' }]
+    }));
+  };
+
+  const removeContentBlock = (index) => {
+    const newBlocks = formData.contentBlocks.filter((_, i) => i !== index);
+    setFormData(prev => ({
+      ...prev,
+      contentBlocks: newBlocks.map((block, i) => ({ ...block, order: i + 1 }))
+    }));
+  };
+
+  // Handle interactive task changes
+  const handleInteractiveTaskChange = (field, value) => {
+    setFormData(prev => ({
+      ...prev,
+      interactiveTask: {
+        ...prev.interactiveTask,
+        [field]: value
+      }
+    }));
+  };
+
+  const handleInteractiveItemChange = (index, field, value) => {
+    const newItems = [...formData.interactiveTask.items];
+    newItems[index][field] = value;
+    setFormData(prev => ({
+      ...prev,
+      interactiveTask: {
+        ...prev.interactiveTask,
+        items: newItems
+      }
+    }));
+  };
+
+  const addInteractiveItem = () => {
+    const newId = (formData.interactiveTask.items.length + 1).toString();
+    setFormData(prev => ({
+      ...prev,
+      interactiveTask: {
+        ...prev.interactiveTask,
+        items: [...prev.interactiveTask.items, { id: newId, text: '' }]
+      }
+    }));
+  };
+
+  const removeInteractiveItem = (index) => {
+    const newItems = formData.interactiveTask.items.filter((_, i) => i !== index);
+    setFormData(prev => ({
+      ...prev,
+      interactiveTask: {
+        ...prev.interactiveTask,
+        items: newItems
+      }
+    }));
+  };
+
+  const handleCategoryChange = (index, field, value) => {
+    const newCategories = [...formData.interactiveTask.categories];
+    newCategories[index][field] = value;
+    setFormData(prev => ({
+      ...prev,
+      interactiveTask: {
+        ...prev.interactiveTask,
+        categories: newCategories
+      }
+    }));
+  };
+
+  const handleCorrectMappingChange = (itemId, categoryId) => {
+    setFormData(prev => ({
+      ...prev,
+      interactiveTask: {
+        ...prev.interactiveTask,
+        correctMapping: {
+          ...prev.interactiveTask.correctMapping,
+          [itemId]: categoryId
+        }
+      }
+    }));
+  };
+
+  // Handle quiz changes
+  const handleQuizChange = (field, value) => {
+    setFormData(prev => ({
+      ...prev,
+      quiz: {
+        ...prev.quiz,
+        [field]: value
+      }
+    }));
+  };
+
+  const handleQuestionChange = (index, field, value) => {
+    const newQuestions = [...formData.quiz.questions];
+    newQuestions[index][field] = value;
+    setFormData(prev => ({
+      ...prev,
+      quiz: {
+        ...prev.quiz,
+        questions: newQuestions
+      }
+    }));
+  };
+
+  const handleOptionChange = (questionIndex, optionIndex, field, value) => {
+    const newQuestions = [...formData.quiz.questions];
+    newQuestions[questionIndex].options[optionIndex][field] = value;
+    setFormData(prev => ({
+      ...prev,
+      quiz: {
+        ...prev.quiz,
+        questions: newQuestions
+      }
+    }));
+  };
+
+  const addQuestion = () => {
+    const newNumber = formData.quiz.questions.length + 1;
+    setFormData(prev => ({
+      ...prev,
+      quiz: {
+        ...prev.quiz,
+        questions: [...prev.quiz.questions, {
+          questionNumber: newNumber,
+          type: 'multiple-choice',
+          question: '',
+          points: 10,
+          explanation: '',
+          options: [{ id: 'A', text: '', isCorrect: false }]
+        }]
+      }
+    }));
+  };
+
+  const removeQuestion = (index) => {
+    const newQuestions = formData.quiz.questions.filter((_, i) => i !== index);
+    setFormData(prev => ({
+      ...prev,
+      quiz: {
+        ...prev.quiz,
+        questions: newQuestions.map((q, i) => ({ ...q, questionNumber: i + 1 }))
+      }
+    }));
+  };
+
+  const addOption = (questionIndex) => {
+    const newOptions = [...formData.quiz.questions[questionIndex].options];
+    const nextLetter = String.fromCharCode(65 + newOptions.length); // A, B, C, etc.
+    newOptions.push({ id: nextLetter, text: '', isCorrect: false });
+    const newQuestions = [...formData.quiz.questions];
+    newQuestions[questionIndex].options = newOptions;
+    setFormData(prev => ({
+      ...prev,
+      quiz: {
+        ...prev.quiz,
+        questions: newQuestions
+      }
+    }));
+  };
+
+  const removeOption = (questionIndex, optionIndex) => {
+    const newQuestions = [...formData.quiz.questions];
+    newQuestions[questionIndex].options = newQuestions[questionIndex].options.filter((_, i) => i !== optionIndex);
+    setFormData(prev => ({
+      ...prev,
+      quiz: {
+        ...prev.quiz,
+        questions: newQuestions
+      }
+    }));
+  };
+
+  // Handle parent tip changes
+  const handleParentTipChange = (field, value) => {
+    setFormData(prev => ({
+      ...prev,
+      parentTip: {
+        ...prev.parentTip,
+        [field]: value
+      }
+    }));
+  };
+
+  // Handle form submission
+  const handleSubmit = (e) => {
+    e.preventDefault();
+
+    // Create the final data object in the required format
+    const finalData = {
+      moduleNumber: parseInt(formData.moduleNumber),
+      title: formData.title,
+      theme: formData.theme,
+      description: formData.description,
+      slug: formData.slug,
+      status: formData.status,
+      order: parseInt(formData.order),
+      learningObjectives: formData.learningObjectives.filter(obj => obj.trim() !== ''),
+      contentBlocks: formData.contentBlocks
+        .filter(block => block.content.trim() !== '')
+        .map(block => ({
+          ...block,
+          order: parseInt(block.order)
+        })),
+      interactiveTask: {
+        ...formData.interactiveTask,
+        points: parseInt(formData.interactiveTask.points),
+        items: formData.interactiveTask.items.filter(item => item.text.trim() !== ''),
+        categories: formData.interactiveTask.categories.filter(cat => cat.name.trim() !== ''),
+        correctMapping: formData.interactiveTask.correctMapping
+      },
+      quiz: {
+        ...formData.quiz,
+        passingScore: parseInt(formData.quiz.passingScore),
+        totalPoints: parseInt(formData.quiz.totalPoints),
+        questions: formData.quiz.questions
+          .filter(q => q.question.trim() !== '')
+          .map((q, idx) => ({
+            ...q,
+            questionNumber: idx + 1,
+            points: parseInt(q.points),
+            options: q.options.filter(opt => opt.text.trim() !== '')
+          }))
+      },
+      parentTip: {
+        ...formData.parentTip,
+        additionalResources: formData.parentTip.additionalResources
+      }
+    };
+
+    console.log('Module Data:', finalData);
+    alert('Data logged to console!');
+  };
+
+  return (
+    <div className="container mx-auto p-6 bg-white rounded-lg shadow-md">
+      <h2 className="text-2xl font-bold mb-6">Create Module</h2>
+
+      <form onSubmit={handleSubmit} className="space-y-8">
+        {/* Basic Module Info */}
+        <div className="border border-gray-200 rounded-lg p-4">
+          <h3 className="text-xl font-semibold mb-4">Module Information</h3>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm font-medium mb-1">Module Number</label>
+              <input
+                type="number"
+                name="moduleNumber"
+                value={formData.moduleNumber}
+                onChange={handleMainChange}
+                className="w-full p-2 border border-gray-300 rounded"
+                required
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium mb-1">Title</label>
+              <input
+                type="text"
+                name="title"
+                value={formData.title}
+                onChange={handleMainChange}
+                className="w-full p-2 border border-gray-300 rounded"
+                required
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium mb-1">Theme</label>
+              <input
+                type="text"
+                name="theme"
+                value={formData.theme}
+                onChange={handleMainChange}
+                className="w-full p-2 border border-gray-300 rounded"
+                required
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium mb-1">Description</label>
+              <textarea
+                name="description"
+                value={formData.description}
+                onChange={handleMainChange}
+                className="w-full p-2 border border-gray-300 rounded"
+                rows="3"
+                required
+              ></textarea>
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium mb-1">Slug</label>
+              <input
+                type="text"
+                name="slug"
+                value={formData.slug}
+                onChange={handleMainChange}
+                className="w-full p-2 border border-gray-300 rounded"
+                required
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium mb-1">Status</label>
+              <select
+                name="status"
+                value={formData.status}
+                onChange={handleMainChange}
+                className="w-full p-2 border border-gray-300 rounded"
+              >
+                <option value="draft">Draft</option>
+                <option value="published">Published</option>
+                <option value="archived">Archived</option>
+              </select>
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium mb-1">Order</label>
+              <input
+                type="number"
+                name="order"
+                value={formData.order}
+                onChange={handleMainChange}
+                className="w-full p-2 border border-gray-300 rounded"
+                required
+              />
+            </div>
+          </div>
+        </div>
+
+        {/* Learning Objectives */}
+        <div className="border border-gray-200 rounded-lg p-4">
+          <div className="flex justify-between items-center mb-4">
+            <h3 className="text-xl font-semibold">Learning Objectives</h3>
+            <button
+              type="button"
+              onClick={addLearningObjective}
+              className="bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600"
+            >
+              Add Objective
+            </button>
+          </div>
+
+          {formData.learningObjectives.map((objective, index) => (
+            <div key={index} className="flex gap-2 mb-2">
+              <input
+                type="text"
+                value={objective}
+                onChange={(e) => handleLearningObjectiveChange(index, e.target.value)}
+                className="flex-1 p-2 border border-gray-300 rounded"
+                placeholder={`Objective ${index + 1}`}
+              />
+              {formData.learningObjectives.length > 1 && (
+                <button
+                  type="button"
+                  onClick={() => removeLearningObjective(index)}
+                  className="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600"
+                >
+                  Remove
+                </button>
+              )}
+            </div>
+          ))}
+        </div>
+
+        {/* Content Blocks */}
+        <div className="border border-gray-200 rounded-lg p-4">
+          <div className="flex justify-between items-center mb-4">
+            <h3 className="text-xl font-semibold">Content Blocks</h3>
+            <button
+              type="button"
+              onClick={addContentBlock}
+              className="bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600"
+            >
+              Add Block
+            </button>
+          </div>
+
+          {formData.contentBlocks.map((block, index) => (
+            <div key={index} className="mb-4 p-4 border border-gray-200 rounded">
+              <div className="flex justify-between items-center mb-2">
+                <span className="font-medium">Block {index + 1}</span>
+                {formData.contentBlocks.length > 1 && (
+                  <button
+                    type="button"
+                    onClick={() => removeContentBlock(index)}
+                    className="bg-red-500 text-white px-2 py-1 rounded text-sm hover:bg-red-600"
+                  >
+                    Remove
+                  </button>
+                )}
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium mb-1">Type</label>
+                  <select
+                    value={block.type}
+                    onChange={(e) => handleContentBlockChange(index, 'type', e.target.value)}
+                    className="w-full p-2 border border-gray-300 rounded"
+                  >
+                    <option value="text">Text</option>
+                    <option value="image">Image</option>
+                    <option value="video">Video</option>
+                    <option value="audio">Audio</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium mb-1">Order</label>
+                  <input
+                    type="number"
+                    value={block.order}
+                    onChange={(e) => handleContentBlockChange(index, 'order', e.target.value)}
+                    className="w-full p-2 border border-gray-300 rounded"
+                  />
+                </div>
+              </div>
+
+              <div className="mt-2">
+                <label className="block text-sm font-medium mb-1">Content</label>
+                <textarea
+                  value={block.content}
+                  onChange={(e) => handleContentBlockChange(index, 'content', e.target.value)}
+                  className="w-full p-2 border border-gray-300 rounded"
+                  rows="3"
+                ></textarea>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {/* Interactive Task */}
+        <div className="border border-gray-200 rounded-lg p-4">
+          <h3 className="text-xl font-semibold mb-4">Interactive Task (Drag-Drop)</h3>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+            <div>
+              <label className="block text-sm font-medium mb-1">Title</label>
+              <input
+                type="text"
+                value={formData.interactiveTask.title}
+                onChange={(e) => handleInteractiveTaskChange('title', e.target.value)}
+                className="w-full p-2 border border-gray-300 rounded"
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium mb-1">Description</label>
+              <input
+                type="text"
+                value={formData.interactiveTask.description}
+                onChange={(e) => handleInteractiveTaskChange('description', e.target.value)}
+                className="w-full p-2 border border-gray-300 rounded"
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium mb-1">Instructions</label>
+              <input
+                type="text"
+                value={formData.interactiveTask.instructions}
+                onChange={(e) => handleInteractiveTaskChange('instructions', e.target.value)}
+                className="w-full p-2 border border-gray-300 rounded"
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium mb-1">Points</label>
+              <input
+                type="number"
+                value={formData.interactiveTask.points}
+                onChange={(e) => handleInteractiveTaskChange('points', e.target.value)}
+                className="w-full p-2 border border-gray-300 rounded"
+              />
+            </div>
+          </div>
+
+          <div className="mb-4">
+            <div className="flex justify-between items-center mb-2">
+              <h4 className="font-medium">Items</h4>
+              <button
+                type="button"
+                onClick={addInteractiveItem}
+                className="bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600"
+              >
+                Add Item
+              </button>
+            </div>
+
+            {formData.interactiveTask.items.map((item, index) => (
+              <div key={item.id} className="flex gap-2 mb-2">
+                <input
+                  type="text"
+                  value={item.text}
+                  onChange={(e) => handleInteractiveItemChange(index, 'text', e.target.value)}
+                  className="flex-1 p-2 border border-gray-300 rounded"
+                  placeholder={`Item ${index + 1}`}
+                />
+                <select
+                  value={formData.interactiveTask.correctMapping[item.id] || ''}
+                  onChange={(e) => handleCorrectMappingChange(item.id, e.target.value)}
+                  className="p-2 border border-gray-300 rounded"
+                >
+                  <option value="">Select Category</option>
+                  {formData.interactiveTask.categories.map((category) => (
+                    <option key={category.id} value={category.id}>
+                      {category.name}
+                    </option>
+                  ))}
+                </select>
+                {formData.interactiveTask.items.length > 1 && (
+                  <button
+                    type="button"
+                    onClick={() => removeInteractiveItem(index)}
+                    className="bg-red-500 text-white px-2 py-1 rounded hover:bg-red-600"
+                  >
+                    Remove
+                  </button>
+                )}
+              </div>
+            ))}
+          </div>
+
+          <div>
+            <h4 className="font-medium mb-2">Categories</h4>
+
+            {formData.interactiveTask.categories.map((category, index) => (
+              <div key={category.id} className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-2">
+                <div>
+                  <label className="block text-sm font-medium mb-1">Name</label>
+                  <input
+                    type="text"
+                    value={category.name}
+                    onChange={(e) => handleCategoryChange(index, 'name', e.target.value)}
+                    className="w-full p-2 border border-gray-300 rounded"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium mb-1">Description</label>
+                  <input
+                    type="text"
+                    value={category.description}
+                    onChange={(e) => handleCategoryChange(index, 'description', e.target.value)}
+                    className="w-full p-2 border border-gray-300 rounded"
+                  />
+                </div>
+
+                <div className="flex items-end">
+                  <span className="text-sm text-gray-500">ID: {category.id}</span>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Quiz Section */}
+        <div className="border border-gray-200 rounded-lg p-4">
+          <div className="flex justify-between items-center mb-4">
+            <h3 className="text-xl font-semibold">Quiz</h3>
+            <button
+              type="button"
+              onClick={addQuestion}
+              className="bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600"
+            >
+              Add Question
+            </button>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+            <div>
+              <label className="block text-sm font-medium mb-1">Quiz Title</label>
+              <input
+                type="text"
+                value={formData.quiz.title}
+                onChange={(e) => handleQuizChange('title', e.target.value)}
+                className="w-full p-2 border border-gray-300 rounded"
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium mb-1">Description</label>
+              <input
+                type="text"
+                value={formData.quiz.description}
+                onChange={(e) => handleQuizChange('description', e.target.value)}
+                className="w-full p-2 border border-gray-300 rounded"
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium mb-1">Passing Score (%)</label>
+              <input
+                type="number"
+                value={formData.quiz.passingScore}
+                onChange={(e) => handleQuizChange('passingScore', e.target.value)}
+                className="w-full p-2 border border-gray-300 rounded"
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium mb-1">Total Points</label>
+              <input
+                type="number"
+                value={formData.quiz.totalPoints}
+                onChange={(e) => handleQuizChange('totalPoints', e.target.value)}
+                className="w-full p-2 border border-gray-300 rounded"
+              />
+            </div>
+
+            <div className="flex items-center">
+              <input
+                type="checkbox"
+                id="allowRetake"
+                checked={formData.quiz.allowRetake}
+                onChange={(e) => handleQuizChange('allowRetake', e.target.checked)}
+                className="mr-2"
+              />
+              <label htmlFor="allowRetake" className="text-sm font-medium">Allow Retake</label>
+            </div>
+
+            <div className="flex items-center">
+              <input
+                type="checkbox"
+                id="showCorrectAnswers"
+                checked={formData.quiz.showCorrectAnswers}
+                onChange={(e) => handleQuizChange('showCorrectAnswers', e.target.checked)}
+                className="mr-2"
+              />
+              <label htmlFor="showCorrectAnswers" className="text-sm font-medium">Show Correct Answers</label>
+            </div>
+          </div>
+
+          {formData.quiz.questions.map((question, qIndex) => (
+            <div key={qIndex} className="mb-6 p-4 border border-gray-300 rounded">
+              <div className="flex justify-between items-center mb-2">
+                <span className="font-medium">Question {qIndex + 1}</span>
+                {formData.quiz.questions.length > 1 && (
+                  <button
+                    type="button"
+                    onClick={() => removeQuestion(qIndex)}
+                    className="bg-red-500 text-white px-2 py-1 rounded text-sm hover:bg-red-600"
+                  >
+                    Remove Question
+                  </button>
+                )}
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                <div>
+                  <label className="block text-sm font-medium mb-1">Question</label>
+                  <textarea
+                    value={question.question}
+                    onChange={(e) => handleQuestionChange(qIndex, 'question', e.target.value)}
+                    className="w-full p-2 border border-gray-300 rounded"
+                    rows="2"
+                  ></textarea>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium mb-1">Explanation</label>
+                  <textarea
+                    value={question.explanation}
+                    onChange={(e) => handleQuestionChange(qIndex, 'explanation', e.target.value)}
+                    className="w-full p-2 border border-gray-300 rounded"
+                    rows="2"
+                  ></textarea>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium mb-1">Type</label>
+                  <select
+                    value={question.type}
+                    onChange={(e) => handleQuestionChange(qIndex, 'type', e.target.value)}
+                    className="w-full p-2 border border-gray-300 rounded"
+                  >
+                    <option value="multiple-choice">Multiple Choice</option>
+                    <option value="true-false">True/False</option>
+                    <option value="short-answer">Short Answer</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium mb-1">Points</label>
+                  <input
+                    type="number"
+                    value={question.points}
+                    onChange={(e) => handleQuestionChange(qIndex, 'points', e.target.value)}
+                    className="w-full p-2 border border-gray-300 rounded"
+                  />
+                </div>
+              </div>
+
+              <div className="mb-2">
+                <div className="flex justify-between items-center mb-2">
+                  <h5 className="font-medium">Options</h5>
+                  <button
+                    type="button"
+                    onClick={() => addOption(qIndex)}
+                    className="bg-blue-500 text-white px-2 py-1 rounded text-sm hover:bg-blue-600"
+                  >
+                    Add Option
+                  </button>
+                </div>
+
+                {question.options.map((option, oIndex) => (
+                  <div key={oIndex} className="flex gap-2 mb-2">
+                    <input
+                      type="text"
+                      value={option.text}
+                      onChange={(e) => handleOptionChange(qIndex, oIndex, 'text', e.target.value)}
+                      className="flex-1 p-2 border border-gray-300 rounded"
+                      placeholder={`Option ${String.fromCharCode(65 + oIndex)}`}
+                    />
+                    <div className="flex items-center">
+                      <input
+                        type="checkbox"
+                        id={`correct-${qIndex}-${oIndex}`}
+                        checked={option.isCorrect}
+                        onChange={(e) => handleOptionChange(qIndex, oIndex, 'isCorrect', e.target.checked)}
+                        className="mr-1"
+                      />
+                      <label htmlFor={`correct-${qIndex}-${oIndex}`} className="text-sm">Correct</label>
+                    </div>
+                    {question.options.length > 1 && (
+                      <button
+                        type="button"
+                        onClick={() => removeOption(qIndex, oIndex)}
+                        className="bg-red-500 text-white px-2 py-1 rounded text-sm hover:bg-red-600"
+                      >
+                        Remove
+                      </button>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {/* Parent Tip */}
+        <div className="border border-gray-200 rounded-lg p-4">
+          <h3 className="text-xl font-semibold mb-4">Parent Tip</h3>
+
+          <div className="grid grid-cols-1 gap-4">
+            <div>
+              <label className="block text-sm font-medium mb-1">Title</label>
+              <input
+                type="text"
+                value={formData.parentTip.title}
+                onChange={(e) => handleParentTipChange('title', e.target.value)}
+                className="w-full p-2 border border-gray-300 rounded"
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium mb-1">Content</label>
+              <textarea
+                value={formData.parentTip.content}
+                onChange={(e) => handleParentTipChange('content', e.target.value)}
+                className="w-full p-2 border border-gray-300 rounded"
+                rows="4"
+              ></textarea>
+            </div>
+          </div>
+        </div>
+
+        {/* Submit Button */}
+        <div className="flex justify-end">
+          <button
+            type="submit"
+            className="bg-green-500 text-white px-6 py-2 rounded hover:bg-green-600"
+          >
+            Save Module
+          </button>
+        </div>
+      </form>
+    </div>
+  );
 };
 
 export default Onemodules;
