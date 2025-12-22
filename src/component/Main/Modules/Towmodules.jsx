@@ -652,6 +652,18 @@ const Towmodules = () => {
                   })) || [],
               })) || [],
           };
+        } else if (task.type === "build-your-own") {
+          return {
+            type: task.type,
+            title: task.title,
+            description: task.description,
+            instructions: task.instructions,
+            config: {
+              components: task.config.components || [],
+              validationRules: task.config.validationRules || [],
+              feedback: task.config.feedback || {}
+            }
+          };
         }
         return task;
       })
@@ -1381,6 +1393,71 @@ const Towmodules = () => {
                       ))}
                     </div>
                   ))}
+                </div>
+              )}
+
+              {task.type === "build-your-own" && (
+                <div className="mb-4">
+                  <h4 className="font-medium mb-2">Configuration</h4>
+
+                  <div className="mb-4">
+                    <h5 className="font-medium mb-1">Components</h5>
+                    {task.config.components?.map((component, compIndex) => (
+                      <div key={compIndex} className="flex items-center gap-2 mb-2">
+                        <input
+                          type="text"
+                          value={component.text}
+                          className="flex-1 p-2 border border-gray-300 rounded"
+                          readOnly
+                        />
+                        <span className="text-sm text-gray-500">ID: {component.id}</span>
+                      </div>
+                    ))}
+                  </div>
+
+                  <div className="mb-4">
+                    <h5 className="font-medium mb-1">Validation Rules</h5>
+                    {task.config.validationRules?.map((rule, ruleIndex) => (
+                      <div key={ruleIndex} className="mb-2">
+                        <input
+                          type="text"
+                          value={rule}
+                          className="w-full p-2 border border-gray-300 rounded"
+                          readOnly
+                        />
+                      </div>
+                    ))}
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div>
+                      <label className="block text-sm font-medium mb-1">Weak Feedback</label>
+                      <input
+                        type="text"
+                        value={task.config.feedback?.weak || ""}
+                        className="w-full p-2 border border-gray-300 rounded"
+                        readOnly
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium mb-1">Moderate Feedback</label>
+                      <input
+                        type="text"
+                        value={task.config.feedback?.moderate || ""}
+                        className="w-full p-2 border border-gray-300 rounded"
+                        readOnly
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium mb-1">Strong Feedback</label>
+                      <input
+                        type="text"
+                        value={task.config.feedback?.strong || ""}
+                        className="w-full p-2 border border-gray-300 rounded"
+                        readOnly
+                      />
+                    </div>
+                  </div>
                 </div>
               )}
             </div>
