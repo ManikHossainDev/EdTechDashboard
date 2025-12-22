@@ -1,12 +1,12 @@
-import  { useState, useEffect } from 'react';
-import { useGetModulesOneByIdQuery } from '../../../redux/features/modules/modulesOne';
+import { useState } from "react";
+import { useGetModulesOneByIdQuery } from "../../../redux/features/modules/modulesOne";
 
 const Onemodules = () => {
-  const id = '69351cf24826bf0c83d19eef'
-  const {data, isLoading, isError, error} = useGetModulesOneByIdQuery(id)
+  const id = "69351cf24826bf0c83d19eef";
+  const { data, isLoading, isError, error } = useGetModulesOneByIdQuery(id);
 
   // Handle form submission - moved to top to maintain consistent hook order
-  const [isSubmitting, setIsSubmitting] = useState(false)
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   // Optimized data transformation function
   const transformApiData = (apiData) => {
@@ -15,83 +15,90 @@ const Onemodules = () => {
     const moduleData = apiData.data;
 
     // Format learning objectives
-    const formattedLearningObjectives = moduleData.learningObjectives?.map(obj => obj.text) || [];
+    const formattedLearningObjectives =
+      moduleData.learningObjectives?.map((obj) => obj.text) || [];
 
     // Format learning content as content blocks
-    const formattedContentBlocks = moduleData.learningContent?.map((content, index) => ({
-      type: content.type || 'text',
-      order: content.order || index + 1,
-      content: content.content?.text || '',
-      listItems: content.content?.listItems || []
-    })) || [];
+    const formattedContentBlocks =
+      moduleData.learningContent?.map((content, index) => ({
+        type: content.type || "text",
+        order: content.order || index + 1,
+        content: content.content?.text || "",
+        listItems: content.content?.listItems || [],
+      })) || [];
 
     // Format interactive task
     const formattedInteractiveTask = {
-      type: moduleData.interactiveTask?.type || 'drag-drop',
-      title: moduleData.interactiveTask?.title || '',
-      description: moduleData.interactiveTask?.description || '',
-      instructions: moduleData.interactiveTask?.instructions || '',
+      type: moduleData.interactiveTask?.type || "drag-drop",
+      title: moduleData.interactiveTask?.title || "",
+      description: moduleData.interactiveTask?.description || "",
+      instructions: moduleData.interactiveTask?.instructions || "",
       points: moduleData.interactiveTask?.points || 20,
-      items: moduleData.interactiveTask?.config?.items?.map(item => ({
-        id: item.id,
-        text: item.text,
-        image: item.image
-      })) || [],
-      categories: moduleData.interactiveTask?.config?.categories?.map(category => ({
-        id: category.id,
-        name: category.name,
-        description: category.description
-      })) || [],
-      correctMapping: moduleData.interactiveTask?.config?.correctMapping || {}
+      items:
+        moduleData.interactiveTask?.config?.items?.map((item) => ({
+          id: item.id,
+          text: item.text,
+          image: item.image,
+        })) || [],
+      categories:
+        moduleData.interactiveTask?.config?.categories?.map((category) => ({
+          id: category.id,
+          name: category.name,
+          description: category.description,
+        })) || [],
+      correctMapping: moduleData.interactiveTask?.config?.correctMapping || {},
     };
 
     // Format quiz
     const formattedQuiz = {
-      title: moduleData.quiz?.title || '',
-      description: moduleData.quiz?.description || '',
+      title: moduleData.quiz?.title || "",
+      description: moduleData.quiz?.description || "",
       passingScore: moduleData.quiz?.passingScore || 75,
       totalPoints: moduleData.quiz?.totalPoints || 100,
       allowRetake: moduleData.quiz?.allowRetake || true,
       showCorrectAnswers: moduleData.quiz?.showCorrectAnswers || true,
-      questions: moduleData.quiz?.questions?.map((question, index) => {
-        // Handle the case where options might be incomplete
-        const options = Array.isArray(question.options) ?
-          question.options.map(option => ({
-            id: option.id,
-            text: option.text,
-            isCorrect: option.isCorrect
-          })) :
-          [];
+      questions:
+        moduleData.quiz?.questions?.map((question, index) => {
+          // Handle the case where options might be incomplete
+          const options = Array.isArray(question.options)
+            ? question.options.map((option) => ({
+                id: option.id,
+                text: option.text,
+                isCorrect: option.isCorrect,
+              }))
+            : [];
 
-        return {
-          questionNumber: question.questionNumber || index + 1,
-          type: question.type || 'multiple-choice',
-          question: question.question || '',
-          points: question.points || 10,
-          explanation: question.explanation || '',
-          options: options
-        };
-      }) || []
+          return {
+            questionNumber: question.questionNumber || index + 1,
+            type: question.type || "multiple-choice",
+            question: question.question || "",
+            points: question.points || 10,
+            explanation: question.explanation || "",
+            options: options,
+          };
+        }) || [],
     };
 
     // Format parent tip
     const formattedParentTip = {
-      title: moduleData.parentTip?.title || 'For Parents',
-      content: moduleData.parentTip?.content || '',
-      additionalResources: moduleData.parentTip?.additionalResources || []
+      title: moduleData.parentTip?.title || "For Parents",
+      content: moduleData.parentTip?.content || "",
+      additionalResources: moduleData.parentTip?.additionalResources || [],
     };
 
     // Return the formatted data
     return {
       moduleNumber: moduleData.moduleNumber || 1,
-      title: moduleData.title || '',
-      theme: moduleData.theme || '',
-      description: moduleData.description || '',
-      slug: moduleData.slug || '',
-      status: moduleData.status || 'draft',
+      title: moduleData.title || "",
+      theme: moduleData.theme || "",
+      description: moduleData.description || "",
+      slug: moduleData.slug || "",
+      status: moduleData.status || "draft",
       order: moduleData.order || 1,
       introVideo: moduleData.introVideo || null,
-      unlockConditions: moduleData.unlockConditions || { requiresPreviousModule: false },
+      unlockConditions: moduleData.unlockConditions || {
+        requiresPreviousModule: false,
+      },
       learningObjectives: formattedLearningObjectives,
       contentBlocks: formattedContentBlocks,
       interactiveTask: formattedInteractiveTask,
@@ -101,9 +108,85 @@ const Onemodules = () => {
       createdAt: moduleData.createdAt,
       updatedAt: moduleData.updatedAt,
       publishedAt: moduleData.publishedAt,
-      id: moduleData.id
+      id: moduleData.id,
     };
   };
+
+  // Initialize formData state first, before any conditional returns
+  // We use the transformed data if available, otherwise default values
+  const [formData, setFormData] = useState(() => {
+    if (data && !isLoading && !isError) {
+      const transformedData = transformApiData(data);
+      if (transformedData) {
+        return transformedData;
+      }
+    }
+
+    // Default values if no data is available
+    return {
+      moduleNumber: 1,
+      title: "",
+      theme: "",
+      description: "",
+      slug: "",
+      status: "draft",
+      order: 1,
+      introVideo: null,
+      unlockConditions: { requiresPreviousModule: false },
+      learningObjectives: [""],
+      contentBlocks: [{ type: "text", order: 1, content: "", listItems: [] }],
+      interactiveTask: {
+        type: "drag-drop",
+        title: "",
+        description: "",
+        instructions: "",
+        points: 20,
+        items: [{ id: "1", text: "", image: null }],
+        categories: [
+          { id: "safe", name: "Safe", description: "This is okay" },
+          {
+            id: "unsure",
+            name: "Unsure",
+            description: "Not sure and confused",
+          },
+          {
+            id: "tell-adult",
+            name: "Tell an Adult",
+            description: "Talk to a trusted adult",
+          },
+        ],
+        correctMapping: {},
+      },
+      quiz: {
+        title: "",
+        description: "",
+        passingScore: 75,
+        totalPoints: 20,
+        allowRetake: true,
+        showCorrectAnswers: true,
+        questions: [
+          {
+            questionNumber: 1,
+            type: "multiple-choice",
+            question: "",
+            points: 10,
+            explanation: "",
+            options: [{ id: "A", text: "", isCorrect: false }],
+          },
+        ],
+      },
+      parentTip: {
+        title: "For Parents",
+        content: "",
+        additionalResources: [],
+      },
+      prerequisites: [],
+      createdAt: null,
+      updatedAt: null,
+      publishedAt: null,
+      id: null,
+    };
+  });
 
   // Show loading state
   if (isLoading) {
@@ -123,106 +206,52 @@ const Onemodules = () => {
     return (
       <div className="container mx-auto p-6">
         <h2 className="text-2xl font-bold mb-6">Error Loading Module</h2>
-        <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative" role="alert">
+        <div
+          className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative"
+          role="alert"
+        >
           <strong className="font-bold">Error: </strong>
-          <span className="block sm:inline">{error?.data?.message || error?.error || 'Failed to load module data'}</span>
+          <span className="block sm:inline">
+            {error?.data?.message ||
+              error?.error ||
+              "Failed to load module data"}
+          </span>
         </div>
       </div>
     );
   }
 
   // Console log the original data
-  console.log('Original API Data:', data);
+  console.log("Original API Data:", data);
 
   // Transform the data
   const formattedData = transformApiData(data);
 
   // Console log the transformed data
-  console.log('Formatted Data:', formattedData);
+  console.log("Formatted Data:", formattedData);
 
   // Log the updated values after transformation
-  console.log('Updated values after transformation:', {
+  console.log("Updated values after transformation:", {
     title: formattedData?.title,
     description: formattedData?.description,
     learningObjectives: formattedData?.learningObjectives,
     contentBlocks: formattedData?.contentBlocks,
     interactiveTask: formattedData?.interactiveTask,
     quiz: formattedData?.quiz,
-    parentTip: formattedData?.parentTip
-  });
-
-  // Main form state - initialize with formatted data if available, otherwise with defaults
-  const [formData, setFormData] = useState(() => {
-    if (formattedData) {
-      return formattedData;
-    }
-
-    return {
-      moduleNumber: 1,
-      title: '',
-      theme: '',
-      description: '',
-      slug: '',
-      status: 'draft',
-      order: 1,
-      introVideo: null,
-      unlockConditions: { requiresPreviousModule: false },
-      learningObjectives: [''],
-      contentBlocks: [{ type: 'text', order: 1, content: '', listItems: [] }],
-      interactiveTask: {
-        type: 'drag-drop',
-        title: '',
-        description: '',
-        instructions: '',
-        points: 20,
-        items: [{ id: '1', text: '', image: null }],
-        categories: [
-          { id: 'safe', name: 'Safe', description: 'This is okay' },
-          { id: 'unsure', name: 'Unsure', description: 'Not sure and confused' },
-          { id: 'tell-adult', name: 'Tell an Adult', description: 'Talk to a trusted adult' }
-        ],
-        correctMapping: {}
-      },
-      quiz: {
-        title: '',
-        description: '',
-        passingScore: 75,
-        totalPoints: 20,
-        allowRetake: true,
-        showCorrectAnswers: true,
-        questions: [{
-          questionNumber: 1,
-          type: 'multiple-choice',
-          question: '',
-          points: 10,
-          explanation: '',
-          options: [{ id: 'A', text: '', isCorrect: false }]
-        }]
-      },
-      parentTip: {
-        title: 'For Parents',
-        content: '',
-        additionalResources: []
-      },
-      prerequisites: [],
-      createdAt: null,
-      updatedAt: null,
-      publishedAt: null,
-      id: null
-    };
+    parentTip: formattedData?.parentTip,
   });
 
   // Handle main form changes
   const handleMainChange = (e) => {
     const { name, value } = e.target;
-    setFormData(prev => {
+    setFormData((prev) => {
       const updatedData = {
         ...prev,
-        [name]: value
+        [name]: value,
       };
       // Console log the updated values when form fields change
-      console.log('Updated main form field:', name, 'to:', value);
-      console.log('Current form data:', updatedData);
+      console.log("Updated main form field:", name, "to:", value);
+      console.log("Current form data:", updatedData);
       return updatedData;
     });
   };
@@ -231,30 +260,32 @@ const Onemodules = () => {
   const handleLearningObjectiveChange = (index, value) => {
     const newObjectives = [...formData.learningObjectives];
     newObjectives[index] = value;
-    setFormData(prev => {
+    setFormData((prev) => {
       const updatedData = {
         ...prev,
-        learningObjectives: newObjectives
+        learningObjectives: newObjectives,
       };
       // Console log the updated values when learning objectives change
-      console.log('Updated learning objective at index:', index, 'to:', value);
-      console.log('Current learning objectives:', newObjectives);
+      console.log("Updated learning objective at index:", index, "to:", value);
+      console.log("Current learning objectives:", newObjectives);
       return updatedData;
     });
   };
 
   const addLearningObjective = () => {
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      learningObjectives: [...prev.learningObjectives, '']
+      learningObjectives: [...prev.learningObjectives, ""],
     }));
   };
 
   const removeLearningObjective = (index) => {
-    const newObjectives = formData.learningObjectives.filter((_, i) => i !== index);
-    setFormData(prev => ({
+    const newObjectives = formData.learningObjectives.filter(
+      (_, i) => i !== index
+    );
+    setFormData((prev) => ({
       ...prev,
-      learningObjectives: newObjectives
+      learningObjectives: newObjectives,
     }));
   };
 
@@ -262,47 +293,57 @@ const Onemodules = () => {
   const handleContentBlockChange = (index, field, value) => {
     const newBlocks = [...formData.contentBlocks];
     newBlocks[index][field] = value;
-    setFormData(prev => {
+    setFormData((prev) => {
       const updatedData = {
         ...prev,
-        contentBlocks: newBlocks
+        contentBlocks: newBlocks,
       };
       // Console log the updated values when content blocks change
-      console.log('Updated content block at index:', index, 'field:', field, 'to:', value);
-      console.log('Current content blocks:', newBlocks);
+      console.log(
+        "Updated content block at index:",
+        index,
+        "field:",
+        field,
+        "to:",
+        value
+      );
+      console.log("Current content blocks:", newBlocks);
       return updatedData;
     });
   };
 
   const addContentBlock = () => {
     const newOrder = formData.contentBlocks.length + 1;
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      contentBlocks: [...prev.contentBlocks, { type: 'text', order: newOrder, content: '' }]
+      contentBlocks: [
+        ...prev.contentBlocks,
+        { type: "text", order: newOrder, content: "" },
+      ],
     }));
   };
 
   const removeContentBlock = (index) => {
     const newBlocks = formData.contentBlocks.filter((_, i) => i !== index);
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      contentBlocks: newBlocks.map((block, i) => ({ ...block, order: i + 1 }))
+      contentBlocks: newBlocks.map((block, i) => ({ ...block, order: i + 1 })),
     }));
   };
 
   // Handle interactive task changes
   const handleInteractiveTaskChange = (field, value) => {
-    setFormData(prev => {
+    setFormData((prev) => {
       const updatedData = {
         ...prev,
         interactiveTask: {
           ...prev.interactiveTask,
-          [field]: value
-        }
+          [field]: value,
+        },
       };
       // Console log the updated values when interactive task changes
-      console.log('Updated interactive task field:', field, 'to:', value);
-      console.log('Current interactive task:', updatedData.interactiveTask);
+      console.log("Updated interactive task field:", field, "to:", value);
+      console.log("Current interactive task:", updatedData.interactiveTask);
       return updatedData;
     });
   };
@@ -310,93 +351,117 @@ const Onemodules = () => {
   const handleInteractiveItemChange = (index, field, value) => {
     const newItems = [...formData.interactiveTask.items];
     newItems[index][field] = value;
-    setFormData(prev => {
+    setFormData((prev) => {
       const updatedData = {
         ...prev,
         interactiveTask: {
           ...prev.interactiveTask,
-          items: newItems
-        }
+          items: newItems,
+        },
       };
       // Console log the updated values when interactive item changes
-      console.log('Updated interactive item at index:', index, 'field:', field, 'to:', value);
-      console.log('Current interactive items:', newItems);
+      console.log(
+        "Updated interactive item at index:",
+        index,
+        "field:",
+        field,
+        "to:",
+        value
+      );
+      console.log("Current interactive items:", newItems);
       return updatedData;
     });
   };
 
   const addInteractiveItem = () => {
     const newId = (formData.interactiveTask.items.length + 1).toString();
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
       interactiveTask: {
         ...prev.interactiveTask,
-        items: [...prev.interactiveTask.items, { id: newId, text: '' }]
-      }
+        items: [...prev.interactiveTask.items, { id: newId, text: "" }],
+      },
     }));
   };
 
   const removeInteractiveItem = (index) => {
-    const newItems = formData.interactiveTask.items.filter((_, i) => i !== index);
-    setFormData(prev => ({
+    const newItems = formData.interactiveTask.items.filter(
+      (_, i) => i !== index
+    );
+    setFormData((prev) => ({
       ...prev,
       interactiveTask: {
         ...prev.interactiveTask,
-        items: newItems
-      }
+        items: newItems,
+      },
     }));
   };
 
   const handleCategoryChange = (index, field, value) => {
     const newCategories = [...formData.interactiveTask.categories];
     newCategories[index][field] = value;
-    setFormData(prev => {
+    setFormData((prev) => {
       const updatedData = {
         ...prev,
         interactiveTask: {
           ...prev.interactiveTask,
-          categories: newCategories
-        }
+          categories: newCategories,
+        },
       };
       // Console log the updated values when category changes
-      console.log('Updated category at index:', index, 'field:', field, 'to:', value);
-      console.log('Current categories:', newCategories);
+      console.log(
+        "Updated category at index:",
+        index,
+        "field:",
+        field,
+        "to:",
+        value
+      );
+      console.log("Current categories:", newCategories);
       return updatedData;
     });
   };
 
   const handleCorrectMappingChange = (itemId, categoryId) => {
-    setFormData(prev => {
+    setFormData((prev) => {
       const updatedData = {
         ...prev,
         interactiveTask: {
           ...prev.interactiveTask,
           correctMapping: {
             ...prev.interactiveTask.correctMapping,
-            [itemId]: categoryId
-          }
-        }
+            [itemId]: categoryId,
+          },
+        },
       };
       // Console log the updated values when correct mapping changes
-      console.log('Updated correct mapping for item:', itemId, 'to category:', categoryId);
-      console.log('Current correct mapping:', updatedData.interactiveTask.correctMapping);
+      console.log(
+        "Updated correct mapping for item:",
+        itemId,
+        "to category:",
+        categoryId
+      );
+      console.log(
+        "Current correct mapping:",
+        updatedData.interactiveTask.correctMapping
+      );
       return updatedData;
     });
   };
 
   // Handle quiz changes
   const handleQuizChange = (field, value) => {
-    setFormData(prev => {
+    setFormData((prev) => {
       const updatedData = {
         ...prev,
         quiz: {
           ...prev.quiz,
-          [field]: value
-        }
+          [field]: value,
+        },
       };
       // Console log the updated values when quiz changes
-      console.log('Updated quiz field:', field, 'to:', value);
-      console.log('Current quiz:', updatedData.quiz);
+      console.log("Updated quiz field:", field, "to:", value);
+      console.log("Current quiz:", updatedData.quiz);
       return updatedData;
     });
   };
@@ -404,17 +469,24 @@ const Onemodules = () => {
   const handleQuestionChange = (index, field, value) => {
     const newQuestions = [...formData.quiz.questions];
     newQuestions[index][field] = value;
-    setFormData(prev => {
+    setFormData((prev) => {
       const updatedData = {
         ...prev,
         quiz: {
           ...prev.quiz,
-          questions: newQuestions
-        }
+          questions: newQuestions,
+        },
       };
       // Console log the updated values when question changes
-      console.log('Updated question at index:', index, 'field:', field, 'to:', value);
-      console.log('Current questions:', newQuestions);
+      console.log(
+        "Updated question at index:",
+        index,
+        "field:",
+        field,
+        "to:",
+        value
+      );
+      console.log("Current questions:", newQuestions);
       return updatedData;
     });
   };
@@ -422,90 +494,107 @@ const Onemodules = () => {
   const handleOptionChange = (questionIndex, optionIndex, field, value) => {
     const newQuestions = [...formData.quiz.questions];
     newQuestions[questionIndex].options[optionIndex][field] = value;
-    setFormData(prev => {
+    setFormData((prev) => {
       const updatedData = {
         ...prev,
         quiz: {
           ...prev.quiz,
-          questions: newQuestions
-        }
+          questions: newQuestions,
+        },
       };
       // Console log the updated values when option changes
-      console.log('Updated option at question:', questionIndex, 'option:', optionIndex, 'field:', field, 'to:', value);
-      console.log('Current questions:', newQuestions);
+      console.log(
+        "Updated option at question:",
+        questionIndex,
+        "option:",
+        optionIndex,
+        "field:",
+        field,
+        "to:",
+        value
+      );
+      console.log("Current questions:", newQuestions);
       return updatedData;
     });
   };
 
   const addQuestion = () => {
     const newNumber = formData.quiz.questions.length + 1;
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
       quiz: {
         ...prev.quiz,
-        questions: [...prev.quiz.questions, {
-          questionNumber: newNumber,
-          type: 'multiple-choice',
-          question: '',
-          points: 10,
-          explanation: '',
-          options: [{ id: 'A', text: '', isCorrect: false }]
-        }]
-      }
+        questions: [
+          ...prev.quiz.questions,
+          {
+            questionNumber: newNumber,
+            type: "multiple-choice",
+            question: "",
+            points: 10,
+            explanation: "",
+            options: [{ id: "A", text: "", isCorrect: false }],
+          },
+        ],
+      },
     }));
   };
 
   const removeQuestion = (index) => {
     const newQuestions = formData.quiz.questions.filter((_, i) => i !== index);
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
       quiz: {
         ...prev.quiz,
-        questions: newQuestions.map((q, i) => ({ ...q, questionNumber: i + 1 }))
-      }
+        questions: newQuestions.map((q, i) => ({
+          ...q,
+          questionNumber: i + 1,
+        })),
+      },
     }));
   };
 
   const addOption = (questionIndex) => {
     const newOptions = [...formData.quiz.questions[questionIndex].options];
     const nextLetter = String.fromCharCode(65 + newOptions.length); // A, B, C, etc.
-    newOptions.push({ id: nextLetter, text: '', isCorrect: false });
+    newOptions.push({ id: nextLetter, text: "", isCorrect: false });
     const newQuestions = [...formData.quiz.questions];
     newQuestions[questionIndex].options = newOptions;
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
       quiz: {
         ...prev.quiz,
-        questions: newQuestions
-      }
+        questions: newQuestions,
+      },
     }));
   };
 
   const removeOption = (questionIndex, optionIndex) => {
     const newQuestions = [...formData.quiz.questions];
-    newQuestions[questionIndex].options = newQuestions[questionIndex].options.filter((_, i) => i !== optionIndex);
-    setFormData(prev => ({
+    newQuestions[questionIndex].options = newQuestions[
+      questionIndex
+    ].options.filter((_, i) => i !== optionIndex);
+    setFormData((prev) => ({
       ...prev,
       quiz: {
         ...prev.quiz,
-        questions: newQuestions
-      }
+        questions: newQuestions,
+      },
     }));
   };
 
   // Handle parent tip changes
   const handleParentTipChange = (field, value) => {
-    setFormData(prev => {
+    setFormData((prev) => {
       const updatedData = {
         ...prev,
         parentTip: {
           ...prev.parentTip,
-          [field]: value
-        }
+          [field]: value,
+        },
       };
       // Console log the updated values when parent tip changes
-      console.log('Updated parent tip field:', field, 'to:', value);
-      console.log('Current parent tip:', updatedData.parentTip);
+      console.log("Updated parent tip field:", field, "to:", value);
+      console.log("Current parent tip:", updatedData.parentTip);
       return updatedData;
     });
   };
@@ -523,41 +612,47 @@ const Onemodules = () => {
       slug: formData.slug,
       status: formData.status,
       order: parseInt(formData.order),
-      learningObjectives: formData.learningObjectives.filter(obj => obj.trim() !== ''),
+      learningObjectives: formData.learningObjectives.filter(
+        (obj) => obj.trim() !== ""
+      ),
       contentBlocks: formData.contentBlocks
-        .filter(block => block.content.trim() !== '')
-        .map(block => ({
+        .filter((block) => block.content.trim() !== "")
+        .map((block) => ({
           ...block,
-          order: parseInt(block.order)
+          order: parseInt(block.order),
         })),
       interactiveTask: {
         ...formData.interactiveTask,
         points: parseInt(formData.interactiveTask.points),
-        items: formData.interactiveTask.items.filter(item => item.text.trim() !== ''),
-        categories: formData.interactiveTask.categories.filter(cat => cat.name.trim() !== ''),
-        correctMapping: formData.interactiveTask.correctMapping
+        items: formData.interactiveTask.items.filter(
+          (item) => item.text.trim() !== ""
+        ),
+        categories: formData.interactiveTask.categories.filter(
+          (cat) => cat.name.trim() !== ""
+        ),
+        correctMapping: formData.interactiveTask.correctMapping,
       },
       quiz: {
         ...formData.quiz,
         passingScore: parseInt(formData.quiz.passingScore),
         totalPoints: parseInt(formData.quiz.totalPoints),
         questions: formData.quiz.questions
-          .filter(q => q.question.trim() !== '')
+          .filter((q) => q.question.trim() !== "")
           .map((q, idx) => ({
             ...q,
             questionNumber: idx + 1,
             points: parseInt(q.points),
-            options: q.options.filter(opt => opt.text.trim() !== '')
-          }))
+            options: q.options.filter((opt) => opt.text.trim() !== ""),
+          })),
       },
       parentTip: {
         ...formData.parentTip,
-        additionalResources: formData.parentTip.additionalResources
-      }
+        additionalResources: formData.parentTip.additionalResources,
+      },
     };
 
-    console.log('Module Data:', finalData);
-    alert('Data logged to console!');
+    console.log("Module Data:", finalData);
+    alert("Data logged to console!");
     setIsSubmitting(false);
   };
 
@@ -572,7 +667,9 @@ const Onemodules = () => {
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium mb-1">Module Number</label>
+              <label className="block text-sm font-medium mb-1">
+                Module Number
+              </label>
               <input
                 type="number"
                 name="moduleNumber"
@@ -608,7 +705,9 @@ const Onemodules = () => {
             </div>
 
             <div>
-              <label className="block text-sm font-medium mb-1">Description</label>
+              <label className="block text-sm font-medium mb-1">
+                Description
+              </label>
               <textarea
                 name="description"
                 value={formData.description}
@@ -677,7 +776,9 @@ const Onemodules = () => {
               <input
                 type="text"
                 value={objective}
-                onChange={(e) => handleLearningObjectiveChange(index, e.target.value)}
+                onChange={(e) =>
+                  handleLearningObjectiveChange(index, e.target.value)
+                }
                 className="flex-1 p-2 border border-gray-300 rounded"
                 placeholder={`Objective ${index + 1}`}
               />
@@ -708,7 +809,10 @@ const Onemodules = () => {
           </div>
 
           {formData.contentBlocks.map((block, index) => (
-            <div key={index} className="mb-4 p-4 border border-gray-200 rounded">
+            <div
+              key={index}
+              className="mb-4 p-4 border border-gray-200 rounded"
+            >
               <div className="flex justify-between items-center mb-2">
                 <span className="font-medium">Block {index + 1}</span>
                 {formData.contentBlocks.length > 1 && (
@@ -727,7 +831,9 @@ const Onemodules = () => {
                   <label className="block text-sm font-medium mb-1">Type</label>
                   <select
                     value={block.type}
-                    onChange={(e) => handleContentBlockChange(index, 'type', e.target.value)}
+                    onChange={(e) =>
+                      handleContentBlockChange(index, "type", e.target.value)
+                    }
                     className="w-full p-2 border border-gray-300 rounded"
                   >
                     <option value="text">Text</option>
@@ -738,21 +844,29 @@ const Onemodules = () => {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium mb-1">Order</label>
+                  <label className="block text-sm font-medium mb-1">
+                    Order
+                  </label>
                   <input
                     type="number"
                     value={block.order}
-                    onChange={(e) => handleContentBlockChange(index, 'order', e.target.value)}
+                    onChange={(e) =>
+                      handleContentBlockChange(index, "order", e.target.value)
+                    }
                     className="w-full p-2 border border-gray-300 rounded"
                   />
                 </div>
               </div>
 
               <div className="mt-2">
-                <label className="block text-sm font-medium mb-1">Content</label>
+                <label className="block text-sm font-medium mb-1">
+                  Content
+                </label>
                 <textarea
                   value={block.content}
-                  onChange={(e) => handleContentBlockChange(index, 'content', e.target.value)}
+                  onChange={(e) =>
+                    handleContentBlockChange(index, "content", e.target.value)
+                  }
                   className="w-full p-2 border border-gray-300 rounded"
                   rows="3"
                 ></textarea>
@@ -763,7 +877,9 @@ const Onemodules = () => {
 
         {/* Interactive Task */}
         <div className="border border-gray-200 rounded-lg p-4">
-          <h3 className="text-xl font-semibold mb-4">Interactive Task (Drag-Drop)</h3>
+          <h3 className="text-xl font-semibold mb-4">
+            Interactive Task (Drag-Drop)
+          </h3>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
             <div>
@@ -771,27 +887,37 @@ const Onemodules = () => {
               <input
                 type="text"
                 value={formData.interactiveTask.title}
-                onChange={(e) => handleInteractiveTaskChange('title', e.target.value)}
+                onChange={(e) =>
+                  handleInteractiveTaskChange("title", e.target.value)
+                }
                 className="w-full p-2 border border-gray-300 rounded"
               />
             </div>
 
             <div>
-              <label className="block text-sm font-medium mb-1">Description</label>
+              <label className="block text-sm font-medium mb-1">
+                Description
+              </label>
               <input
                 type="text"
                 value={formData.interactiveTask.description}
-                onChange={(e) => handleInteractiveTaskChange('description', e.target.value)}
+                onChange={(e) =>
+                  handleInteractiveTaskChange("description", e.target.value)
+                }
                 className="w-full p-2 border border-gray-300 rounded"
               />
             </div>
 
             <div>
-              <label className="block text-sm font-medium mb-1">Instructions</label>
+              <label className="block text-sm font-medium mb-1">
+                Instructions
+              </label>
               <input
                 type="text"
                 value={formData.interactiveTask.instructions}
-                onChange={(e) => handleInteractiveTaskChange('instructions', e.target.value)}
+                onChange={(e) =>
+                  handleInteractiveTaskChange("instructions", e.target.value)
+                }
                 className="w-full p-2 border border-gray-300 rounded"
               />
             </div>
@@ -801,7 +927,9 @@ const Onemodules = () => {
               <input
                 type="number"
                 value={formData.interactiveTask.points}
-                onChange={(e) => handleInteractiveTaskChange('points', e.target.value)}
+                onChange={(e) =>
+                  handleInteractiveTaskChange("points", e.target.value)
+                }
                 className="w-full p-2 border border-gray-300 rounded"
               />
             </div>
@@ -824,13 +952,17 @@ const Onemodules = () => {
                 <input
                   type="text"
                   value={item.text}
-                  onChange={(e) => handleInteractiveItemChange(index, 'text', e.target.value)}
+                  onChange={(e) =>
+                    handleInteractiveItemChange(index, "text", e.target.value)
+                  }
                   className="flex-1 p-2 border border-gray-300 rounded"
                   placeholder={`Item ${index + 1}`}
                 />
                 <select
-                  value={formData.interactiveTask.correctMapping[item.id] || ''}
-                  onChange={(e) => handleCorrectMappingChange(item.id, e.target.value)}
+                  value={formData.interactiveTask.correctMapping[item.id] || ""}
+                  onChange={(e) =>
+                    handleCorrectMappingChange(item.id, e.target.value)
+                  }
                   className="p-2 border border-gray-300 rounded"
                 >
                   <option value="">Select Category</option>
@@ -857,29 +989,40 @@ const Onemodules = () => {
             <h4 className="font-medium mb-2">Categories</h4>
 
             {formData.interactiveTask.categories.map((category, index) => (
-              <div key={category.id} className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-2">
+              <div
+                key={category.id}
+                className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-2"
+              >
                 <div>
                   <label className="block text-sm font-medium mb-1">Name</label>
                   <input
                     type="text"
                     value={category.name}
-                    onChange={(e) => handleCategoryChange(index, 'name', e.target.value)}
+                    onChange={(e) =>
+                      handleCategoryChange(index, "name", e.target.value)
+                    }
                     className="w-full p-2 border border-gray-300 rounded"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium mb-1">Description</label>
+                  <label className="block text-sm font-medium mb-1">
+                    Description
+                  </label>
                   <input
                     type="text"
                     value={category.description}
-                    onChange={(e) => handleCategoryChange(index, 'description', e.target.value)}
+                    onChange={(e) =>
+                      handleCategoryChange(index, "description", e.target.value)
+                    }
                     className="w-full p-2 border border-gray-300 rounded"
                   />
                 </div>
 
                 <div className="flex items-end">
-                  <span className="text-sm text-gray-500">ID: {category.id}</span>
+                  <span className="text-sm text-gray-500">
+                    ID: {category.id}
+                  </span>
                 </div>
               </div>
             ))}
@@ -901,41 +1044,55 @@ const Onemodules = () => {
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
             <div>
-              <label className="block text-sm font-medium mb-1">Quiz Title</label>
+              <label className="block text-sm font-medium mb-1">
+                Quiz Title
+              </label>
               <input
                 type="text"
                 value={formData.quiz.title}
-                onChange={(e) => handleQuizChange('title', e.target.value)}
+                onChange={(e) => handleQuizChange("title", e.target.value)}
                 className="w-full p-2 border border-gray-300 rounded"
               />
             </div>
 
             <div>
-              <label className="block text-sm font-medium mb-1">Description</label>
+              <label className="block text-sm font-medium mb-1">
+                Description
+              </label>
               <input
                 type="text"
                 value={formData.quiz.description}
-                onChange={(e) => handleQuizChange('description', e.target.value)}
+                onChange={(e) =>
+                  handleQuizChange("description", e.target.value)
+                }
                 className="w-full p-2 border border-gray-300 rounded"
               />
             </div>
 
             <div>
-              <label className="block text-sm font-medium mb-1">Passing Score (%)</label>
+              <label className="block text-sm font-medium mb-1">
+                Passing Score (%)
+              </label>
               <input
                 type="number"
                 value={formData.quiz.passingScore}
-                onChange={(e) => handleQuizChange('passingScore', e.target.value)}
+                onChange={(e) =>
+                  handleQuizChange("passingScore", e.target.value)
+                }
                 className="w-full p-2 border border-gray-300 rounded"
               />
             </div>
 
             <div>
-              <label className="block text-sm font-medium mb-1">Total Points</label>
+              <label className="block text-sm font-medium mb-1">
+                Total Points
+              </label>
               <input
                 type="number"
                 value={formData.quiz.totalPoints}
-                onChange={(e) => handleQuizChange('totalPoints', e.target.value)}
+                onChange={(e) =>
+                  handleQuizChange("totalPoints", e.target.value)
+                }
                 className="w-full p-2 border border-gray-300 rounded"
               />
             </div>
@@ -945,10 +1102,14 @@ const Onemodules = () => {
                 type="checkbox"
                 id="allowRetake"
                 checked={formData.quiz.allowRetake}
-                onChange={(e) => handleQuizChange('allowRetake', e.target.checked)}
+                onChange={(e) =>
+                  handleQuizChange("allowRetake", e.target.checked)
+                }
                 className="mr-2"
               />
-              <label htmlFor="allowRetake" className="text-sm font-medium">Allow Retake</label>
+              <label htmlFor="allowRetake" className="text-sm font-medium">
+                Allow Retake
+              </label>
             </div>
 
             <div className="flex items-center">
@@ -956,15 +1117,25 @@ const Onemodules = () => {
                 type="checkbox"
                 id="showCorrectAnswers"
                 checked={formData.quiz.showCorrectAnswers}
-                onChange={(e) => handleQuizChange('showCorrectAnswers', e.target.checked)}
+                onChange={(e) =>
+                  handleQuizChange("showCorrectAnswers", e.target.checked)
+                }
                 className="mr-2"
               />
-              <label htmlFor="showCorrectAnswers" className="text-sm font-medium">Show Correct Answers</label>
+              <label
+                htmlFor="showCorrectAnswers"
+                className="text-sm font-medium"
+              >
+                Show Correct Answers
+              </label>
             </div>
           </div>
 
           {formData.quiz.questions.map((question, qIndex) => (
-            <div key={qIndex} className="mb-6 p-4 border border-gray-300 rounded">
+            <div
+              key={qIndex}
+              className="mb-6 p-4 border border-gray-300 rounded"
+            >
               <div className="flex justify-between items-center mb-2">
                 <span className="font-medium">Question {qIndex + 1}</span>
                 {formData.quiz.questions.length > 1 && (
@@ -980,20 +1151,32 @@ const Onemodules = () => {
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                 <div>
-                  <label className="block text-sm font-medium mb-1">Question</label>
+                  <label className="block text-sm font-medium mb-1">
+                    Question
+                  </label>
                   <textarea
                     value={question.question}
-                    onChange={(e) => handleQuestionChange(qIndex, 'question', e.target.value)}
+                    onChange={(e) =>
+                      handleQuestionChange(qIndex, "question", e.target.value)
+                    }
                     className="w-full p-2 border border-gray-300 rounded"
                     rows="2"
                   ></textarea>
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium mb-1">Explanation</label>
+                  <label className="block text-sm font-medium mb-1">
+                    Explanation
+                  </label>
                   <textarea
                     value={question.explanation}
-                    onChange={(e) => handleQuestionChange(qIndex, 'explanation', e.target.value)}
+                    onChange={(e) =>
+                      handleQuestionChange(
+                        qIndex,
+                        "explanation",
+                        e.target.value
+                      )
+                    }
                     className="w-full p-2 border border-gray-300 rounded"
                     rows="2"
                   ></textarea>
@@ -1003,7 +1186,9 @@ const Onemodules = () => {
                   <label className="block text-sm font-medium mb-1">Type</label>
                   <select
                     value={question.type}
-                    onChange={(e) => handleQuestionChange(qIndex, 'type', e.target.value)}
+                    onChange={(e) =>
+                      handleQuestionChange(qIndex, "type", e.target.value)
+                    }
                     className="w-full p-2 border border-gray-300 rounded"
                   >
                     <option value="multiple-choice">Multiple Choice</option>
@@ -1013,11 +1198,15 @@ const Onemodules = () => {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium mb-1">Points</label>
+                  <label className="block text-sm font-medium mb-1">
+                    Points
+                  </label>
                   <input
                     type="number"
                     value={question.points}
-                    onChange={(e) => handleQuestionChange(qIndex, 'points', e.target.value)}
+                    onChange={(e) =>
+                      handleQuestionChange(qIndex, "points", e.target.value)
+                    }
                     className="w-full p-2 border border-gray-300 rounded"
                   />
                 </div>
@@ -1040,7 +1229,14 @@ const Onemodules = () => {
                     <input
                       type="text"
                       value={option.text}
-                      onChange={(e) => handleOptionChange(qIndex, oIndex, 'text', e.target.value)}
+                      onChange={(e) =>
+                        handleOptionChange(
+                          qIndex,
+                          oIndex,
+                          "text",
+                          e.target.value
+                        )
+                      }
                       className="flex-1 p-2 border border-gray-300 rounded"
                       placeholder={`Option ${String.fromCharCode(65 + oIndex)}`}
                     />
@@ -1049,10 +1245,22 @@ const Onemodules = () => {
                         type="checkbox"
                         id={`correct-${qIndex}-${oIndex}`}
                         checked={option.isCorrect}
-                        onChange={(e) => handleOptionChange(qIndex, oIndex, 'isCorrect', e.target.checked)}
+                        onChange={(e) =>
+                          handleOptionChange(
+                            qIndex,
+                            oIndex,
+                            "isCorrect",
+                            e.target.checked
+                          )
+                        }
                         className="mr-1"
                       />
-                      <label htmlFor={`correct-${qIndex}-${oIndex}`} className="text-sm">Correct</label>
+                      <label
+                        htmlFor={`correct-${qIndex}-${oIndex}`}
+                        className="text-sm"
+                      >
+                        Correct
+                      </label>
                     </div>
                     {question.options.length > 1 && (
                       <button
@@ -1080,7 +1288,7 @@ const Onemodules = () => {
               <input
                 type="text"
                 value={formData.parentTip.title}
-                onChange={(e) => handleParentTipChange('title', e.target.value)}
+                onChange={(e) => handleParentTipChange("title", e.target.value)}
                 className="w-full p-2 border border-gray-300 rounded"
               />
             </div>
@@ -1089,7 +1297,9 @@ const Onemodules = () => {
               <label className="block text-sm font-medium mb-1">Content</label>
               <textarea
                 value={formData.parentTip.content}
-                onChange={(e) => handleParentTipChange('content', e.target.value)}
+                onChange={(e) =>
+                  handleParentTipChange("content", e.target.value)
+                }
                 className="w-full p-2 border border-gray-300 rounded"
                 rows="4"
               ></textarea>
@@ -1102,17 +1312,37 @@ const Onemodules = () => {
           <button
             type="submit"
             disabled={isSubmitting}
-            className={`bg-green-500 text-white px-6 py-2 rounded hover:bg-green-600 ${isSubmitting ? 'opacity-70 cursor-not-allowed' : ''}`}
+            className={`bg-green-500 text-white px-6 py-2 rounded hover:bg-green-600 ${
+              isSubmitting ? "opacity-70 cursor-not-allowed" : ""
+            }`}
           >
             {isSubmitting ? (
               <span className="flex items-center">
-                <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                <svg
+                  className="animate-spin -ml-1 mr-2 h-4 w-4 text-white"
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                >
+                  <circle
+                    className="opacity-25"
+                    cx="12"
+                    cy="12"
+                    r="10"
+                    stroke="currentColor"
+                    strokeWidth="4"
+                  ></circle>
+                  <path
+                    className="opacity-75"
+                    fill="currentColor"
+                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                  ></path>
                 </svg>
                 Saving...
               </span>
-            ) : 'Save Module'}
+            ) : (
+              "Save Module"
+            )}
           </button>
         </div>
       </form>
