@@ -691,6 +691,7 @@ const Onemodules = () => {
     console.log("Module Data:", updatedData);
     try {
       const res = await updateModuleOne({ id, updatedData });
+      console.log(res, "im the api response");
     } catch (error) {
       alert("Error to Update");
     }
