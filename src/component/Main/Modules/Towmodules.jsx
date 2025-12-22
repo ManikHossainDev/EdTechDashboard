@@ -53,15 +53,59 @@ const Towmodules = () => {
       }) || [];
 
     // Format interactive tasks
-    const formattedInteractiveTasks =
-      moduleData.interactiveTasks?.map((task) => ({
-        type: task.type || "sort-categories",
-        title: task.title || "",
-        description: task.description || "",
-        instructions: task.instructions || "",
-        points: task.points || 20,
-        config: task.config || {},
-      })) || [];
+    const formattedInteractiveTasks = moduleData.interactiveTasks?.map(task => {
+      if (task.type === "scenario-choice") {
+        return {
+          type: task.type || "scenario-choice",
+          title: task.title || "",
+          description: task.description || "",
+          instructions: task.instructions || "",
+          points: task.points || 20,
+          config: {
+            categories: task.config?.categories || [],
+            scenarios: task.config?.scenarios || [],
+            items: task.config?.items || [],
+            components: task.config?.components || [],
+            validationRules: task.config?.validationRules || []
+          }
+        };
+      } else if (task.type === "build-your-own") {
+        return {
+          type: task.type || "build-your-own",
+          title: task.title || "",
+          description: task.description || "",
+          instructions: task.instructions || "",
+          points: task.points || 20,
+          config: {
+            components: task.config?.components || [],
+            validationRules: task.config?.validationRules || [],
+            feedback: task.config?.feedback || {}
+          }
+        };
+      } else if (task.type === "sort-categories") {
+        return {
+          type: task.type || "sort-categories",
+          title: task.title || "",
+          description: task.description || "",
+          instructions: task.instructions || "",
+          points: task.points || 20,
+          config: {
+            items: task.config?.items || [],
+            categories: task.config?.categories || [],
+            correctMapping: task.config?.correctMapping || {}
+          }
+        };
+      } else {
+        return {
+          type: task.type || "sort-categories",
+          title: task.title || "",
+          description: task.description || "",
+          instructions: task.instructions || "",
+          points: task.points || 20,
+          config: task.config || {}
+        };
+      }
+    }) || [];
 
     // Format quiz
     const formattedQuiz = {
@@ -638,19 +682,21 @@ const Towmodules = () => {
             title: task.title,
             description: task.description,
             instructions: task.instructions,
-            points: 500, // Fixed value as per requirements
-            scenarios:
-              task.config.scenarios?.map((scenario) => ({
+            points: task.points || 20, // Use actual points from task
+            config: {
+              categories: task.config.categories || [],
+              scenarios: task.config.scenarios?.map((scenario) => ({
                 id: scenario.id,
-                situation: scenario.text,
-                options:
-                  scenario.responses?.map((response) => ({
-                    id: response.id,
-                    text: response.text,
-                    isCorrect: response.isCorrect,
-                    feedback: response.feedback,
-                  })) || [],
-              })) || [],
+                situation: scenario.situation || scenario.text,
+                hint: scenario.hint || "",
+                options: scenario.options?.map((option) => ({
+                  id: option.id,
+                  text: option.text,
+                  isCorrect: option.isCorrect,
+                  feedback: option.feedback
+                })) || []
+              })) || []
+            }
           };
         } else if (task.type === "build-your-own") {
           return {
@@ -1356,43 +1402,59 @@ const Towmodules = () => {
 
               {task.type === "scenario-choice" && (
                 <div className="mb-4">
-                  <div className="flex justify-between items-center mb-2">
-                    <h4 className="font-medium">Scenarios</h4>
+                  <h4 className="font-medium mb-2">Configuration</h4>
+
+                  <div className="mb-4">
+                    <h5 className="font-medium mb-1">Categories</h5>
+                    {task.config.categories?.map((category, catIndex) => (
+                      <div key={catIndex} className="flex items-center gap-2 mb-2">
+                        <input
+                          type="text"
+                          value={category.name}
+                          className="flex-1 p-2 border border-gray-300 rounded"
+                          readOnly
+                        />
+                        <span className="text-sm text-gray-500">ID: {category.id}</span>
+                      </div>
+                    ))}
                   </div>
 
-                  {task.config.scenarios?.map((scenario, scenarioIndex) => (
-                    <div
-                      key={scenarioIndex}
-                      className="mb-4 p-3 border border-gray-200 rounded"
-                    >
-                      <h5 className="font-medium mb-2">
-                        Scenario {scenarioIndex + 1}: {scenario.text}
-                      </h5>
+                  <div className="mb-4">
+                    <h5 className="font-medium mb-2">Scenarios</h5>
+                    {task.config.scenarios?.map((scenario, scenarioIndex) => (
+                      <div
+                        key={scenarioIndex}
+                        className="mb-4 p-3 border border-gray-200 rounded"
+                      >
+                        <h6 className="font-medium mb-2">
+                          Scenario {scenarioIndex + 1}: {scenario.situation || scenario.text}
+                        </h6>
 
-                      {scenario.responses?.map((response, responseIndex) => (
-                        <div
-                          key={responseIndex}
-                          className="flex items-center gap-2 mb-2"
-                        >
-                          <input
-                            type="text"
-                            value={response.text}
-                            className="flex-1 p-2 border border-gray-300 rounded"
-                            readOnly
-                          />
-                          <div className="flex items-center">
+                        {scenario.options?.map((option, optionIndex) => (
+                          <div
+                            key={optionIndex}
+                            className="flex items-center gap-2 mb-2"
+                          >
                             <input
-                              type="checkbox"
-                              checked={response.isCorrect}
-                              className="mr-1"
+                              type="text"
+                              value={option.text}
+                              className="flex-1 p-2 border border-gray-300 rounded"
                               readOnly
                             />
-                            <span className="text-sm">Correct</span>
+                            <div className="flex items-center">
+                              <input
+                                type="checkbox"
+                                checked={option.isCorrect}
+                                className="mr-1"
+                                readOnly
+                              />
+                              <span className="text-sm">Correct</span>
+                            </div>
                           </div>
-                        </div>
-                      ))}
-                    </div>
-                  ))}
+                        ))}
+                      </div>
+                    ))}
+                  </div>
                 </div>
               )}
 
