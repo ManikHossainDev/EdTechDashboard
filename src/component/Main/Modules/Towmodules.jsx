@@ -3,6 +3,7 @@ import {
   useGetModulesTwoByIdQuery,
   useUpdateModulesTwoMutation,
 } from "../../../redux/features/modules/modulesTwo";
+import MediaUploadModal from "./MediaUploadModal";
 
 const Towmodules = () => {
   const id = "69355455516c1602be8446a7";
@@ -13,6 +14,11 @@ const Towmodules = () => {
   // Handle form submission - moved to top to maintain consistent hook order
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [updateModuleTwo] = useUpdateModulesTwoMutation();
+
+  // Media upload modal state
+  const [isMediaModalOpen, setIsMediaModalOpen] = useState(false);
+  const [currentMediaField, setCurrentMediaField] = useState(null);
+  const [currentMediaType, setCurrentMediaType] = useState("image");
 
   // Optimized data transformation function
   const transformApiData = (apiData) => {
@@ -26,34 +32,36 @@ const Towmodules = () => {
 
     // Format learning content as content blocks
     const formattedContentBlocks =
-      moduleData.learningContent?.map((content, index) => ({
-        type: content.type || "text",
-        order: content.order || index + 1,
-        content: content.content?.text || "",
-        listItems: content.content?.listItems || [],
-      })) || [];
+      moduleData.learningContent?.map((content, index) => {
+        if (content.type === "image") {
+          return {
+            type: content.type,
+            order: content.order || index + 1,
+            content: content.content?.text || "",
+            image: content.content?.image || null,
+            alt: content.content?.image?.alt || "",
+            caption: content.content?.image?.caption || "",
+          };
+        } else {
+          return {
+            type: content.type || "text",
+            order: content.order || index + 1,
+            content: content.content?.text || "",
+            listItems: content.content?.listItems || [],
+          };
+        }
+      }) || [];
 
-    // Format interactive task
-    const formattedInteractiveTask = {
-      type: moduleData.interactiveTask?.type || "drag-drop",
-      title: moduleData.interactiveTask?.title || "",
-      description: moduleData.interactiveTask?.description || "",
-      instructions: moduleData.interactiveTask?.instructions || "",
-      points: moduleData.interactiveTask?.points || 20,
-      items:
-        moduleData.interactiveTask?.config?.items?.map((item) => ({
-          id: item.id,
-          text: item.text,
-          image: item.image,
-        })) || [],
-      categories:
-        moduleData.interactiveTask?.config?.categories?.map((category) => ({
-          id: category.id,
-          name: category.name,
-          description: category.description,
-        })) || [],
-      correctMapping: moduleData.interactiveTask?.config?.correctMapping || {},
-    };
+    // Format interactive tasks
+    const formattedInteractiveTasks =
+      moduleData.interactiveTasks?.map((task) => ({
+        type: task.type || "sort-categories",
+        title: task.title || "",
+        description: task.description || "",
+        instructions: task.instructions || "",
+        points: task.points || 20,
+        config: task.config || {},
+      })) || [];
 
     // Format quiz
     const formattedQuiz = {
@@ -107,7 +115,7 @@ const Towmodules = () => {
       },
       learningObjectives: formattedLearningObjectives,
       contentBlocks: formattedContentBlocks,
-      interactiveTask: formattedInteractiveTask,
+      interactiveTasks: formattedInteractiveTasks,
       quiz: formattedQuiz,
       parentTip: formattedParentTip,
       prerequisites: moduleData.prerequisites || [],
@@ -141,28 +149,16 @@ const Towmodules = () => {
       unlockConditions: { requiresPreviousModule: false },
       learningObjectives: [""],
       contentBlocks: [{ type: "text", order: 1, content: "", listItems: [] }],
-      interactiveTask: {
-        type: "drag-drop",
-        title: "",
-        description: "",
-        instructions: "",
-        points: 20,
-        items: [{ id: "1", text: "", image: null }],
-        categories: [
-          { id: "safe", name: "Safe", description: "This is okay" },
-          {
-            id: "unsure",
-            name: "Unsure",
-            description: "Not sure and confused",
-          },
-          {
-            id: "tell-adult",
-            name: "Tell an Adult",
-            description: "Talk to a trusted adult",
-          },
-        ],
-        correctMapping: {},
-      },
+      interactiveTasks: [
+        {
+          type: "sort-categories",
+          title: "",
+          description: "",
+          instructions: "",
+          points: 20,
+          config: {},
+        },
+      ],
       quiz: {
         title: "",
         description: "",
@@ -252,7 +248,7 @@ const Towmodules = () => {
     description: formattedData?.description,
     learningObjectives: formattedData?.learningObjectives,
     contentBlocks: formattedData?.contentBlocks,
-    interactiveTask: formattedData?.interactiveTask,
+    interactiveTasks: formattedData?.interactiveTasks,
     quiz: formattedData?.quiz,
     parentTip: formattedData?.parentTip,
   });
@@ -334,7 +330,7 @@ const Towmodules = () => {
       ...prev,
       contentBlocks: [
         ...prev.contentBlocks,
-        { type: "text", order: newOrder, content: "" },
+        { type: "text", order: newOrder, content: "", listItems: [] },
       ],
     }));
   };
@@ -347,122 +343,45 @@ const Towmodules = () => {
     }));
   };
 
-  // Handle interactive task changes
-  const handleInteractiveTaskChange = (field, value) => {
+  // Handle interactive tasks changes
+  const handleInteractiveTaskChange = (taskIndex, field, value) => {
+    const newTasks = [...formData.interactiveTasks];
+    newTasks[taskIndex][field] = value;
     setFormData((prev) => {
       const updatedData = {
         ...prev,
-        interactiveTask: {
-          ...prev.interactiveTask,
-          [field]: value,
-        },
+        interactiveTasks: newTasks,
       };
       // Console log the updated values when interactive task changes
       console.log("Updated interactive task field:", field, "to:", value);
-      console.log("Current interactive task:", updatedData.interactiveTask);
+      console.log("Current interactive tasks:", updatedData.interactiveTasks);
       return updatedData;
     });
   };
 
-  const handleInteractiveItemChange = (index, field, value) => {
-    const newItems = [...formData.interactiveTask.items];
-    newItems[index][field] = value;
-    setFormData((prev) => {
-      const updatedData = {
-        ...prev,
-        interactiveTask: {
-          ...prev.interactiveTask,
-          items: newItems,
-        },
-      };
-      // Console log the updated values when interactive item changes
-      console.log(
-        "Updated interactive item at index:",
-        index,
-        "field:",
-        field,
-        "to:",
-        value
-      );
-      console.log("Current interactive items:", newItems);
-      return updatedData;
-    });
-  };
-
-  const addInteractiveItem = () => {
-    const newId = (formData.interactiveTask.items.length + 1).toString();
+  const addInteractiveTask = () => {
     setFormData((prev) => ({
       ...prev,
-      interactiveTask: {
-        ...prev.interactiveTask,
-        items: [...prev.interactiveTask.items, { id: newId, text: "" }],
-      },
+      interactiveTasks: [
+        ...prev.interactiveTasks,
+        {
+          type: "sort-categories",
+          title: "",
+          description: "",
+          instructions: "",
+          points: 20,
+          config: {},
+        },
+      ],
     }));
   };
 
-  const removeInteractiveItem = (index) => {
-    const newItems = formData.interactiveTask.items.filter(
-      (_, i) => i !== index
-    );
+  const removeInteractiveTask = (index) => {
+    const newTasks = formData.interactiveTasks.filter((_, i) => i !== index);
     setFormData((prev) => ({
       ...prev,
-      interactiveTask: {
-        ...prev.interactiveTask,
-        items: newItems,
-      },
+      interactiveTasks: newTasks,
     }));
-  };
-
-  const handleCategoryChange = (index, field, value) => {
-    const newCategories = [...formData.interactiveTask.categories];
-    newCategories[index][field] = value;
-    setFormData((prev) => {
-      const updatedData = {
-        ...prev,
-        interactiveTask: {
-          ...prev.interactiveTask,
-          categories: newCategories,
-        },
-      };
-      // Console log the updated values when category changes
-      console.log(
-        "Updated category at index:",
-        index,
-        "field:",
-        field,
-        "to:",
-        value
-      );
-      console.log("Current categories:", newCategories);
-      return updatedData;
-    });
-  };
-
-  const handleCorrectMappingChange = (itemId, categoryId) => {
-    setFormData((prev) => {
-      const updatedData = {
-        ...prev,
-        interactiveTask: {
-          ...prev.interactiveTask,
-          correctMapping: {
-            ...prev.interactiveTask.correctMapping,
-            [itemId]: categoryId,
-          },
-        },
-      };
-      // Console log the updated values when correct mapping changes
-      console.log(
-        "Updated correct mapping for item:",
-        itemId,
-        "to category:",
-        categoryId
-      );
-      console.log(
-        "Current correct mapping:",
-        updatedData.interactiveTask.correctMapping
-      );
-      return updatedData;
-    });
   };
 
   // Handle quiz changes
@@ -615,84 +534,259 @@ const Towmodules = () => {
     });
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setIsSubmitting(true);
+  // Handle media upload
+  const openMediaUploadModal = (field, mediaType) => {
+    setCurrentMediaField(field);
+    setCurrentMediaType(mediaType);
+    setIsMediaModalOpen(true);
+  };
 
-    // Create the final data object in the required format
-    const updatedData = {
-      moduleNumber: parseInt(formData.moduleNumber),
+  const handleMediaUpload = (mediaData) => {
+    if (currentMediaField.startsWith("introVideo")) {
+      setFormData((prev) => ({
+        ...prev,
+        introVideo: mediaData,
+      }));
+    } else if (currentMediaField.startsWith("contentBlockImage")) {
+      const [, index] = currentMediaField.split("-");
+      const newBlocks = [...formData.contentBlocks];
+      newBlocks[index] = {
+        ...newBlocks[index],
+        image: mediaData,
+        type: "image",
+      };
+      setFormData((prev) => ({
+        ...prev,
+        contentBlocks: newBlocks,
+      }));
+    } else if (currentMediaField.startsWith("interactiveTaskItem")) {
+      const [, taskIndex, itemIndex] = currentMediaField.split("-");
+      const newTasks = [...formData.interactiveTasks];
+      const newItems = [...newTasks[taskIndex].config.items];
+      newItems[itemIndex] = {
+        ...newItems[itemIndex],
+        image: mediaData,
+      };
+      newTasks[taskIndex].config.items = newItems;
+      setFormData((prev) => ({
+        ...prev,
+        interactiveTasks: newTasks,
+      }));
+    } else if (currentMediaField.startsWith("interactiveTaskCategory")) {
+      const [, taskIndex, categoryIndex] = currentMediaField.split("-");
+      const newTasks = [...formData.interactiveTasks];
+      const newCategories = [...newTasks[taskIndex].config.categories];
+      newCategories[categoryIndex] = {
+        ...newCategories[categoryIndex],
+        image: mediaData,
+      };
+      newTasks[taskIndex].config.categories = newCategories;
+      setFormData((prev) => ({
+        ...prev,
+        interactiveTasks: newTasks,
+      }));
+    }
+    setIsMediaModalOpen(false);
+  };
+
+  // Format data for saving according to the exact required format
+  const formatForSave = () => {
+    // Extract the learning objectives from the text
+    const learningObjectives = formData.learningObjectives.filter(
+      (obj) => obj.trim() !== ""
+    );
+
+    // Format content blocks
+    const contentBlocks = formData.contentBlocks
+      .filter((block) => block.content.trim() !== "")
+      .map((block, index) => ({
+        type: block.type,
+        order: block.order || index + 1,
+        content: block.content,
+      }));
+
+    // Format interactive tasks
+    const interactiveTasks = formData.interactiveTasks
+      .map((task) => {
+        if (task.type === "sort-categories") {
+          return {
+            type: task.type,
+            title: task.title,
+            description: task.description,
+            instructions: task.instructions,
+            points: 800, // Fixed value as per requirements
+            items:
+              task.config.items
+                ?.filter((item) => item.text.trim() !== "")
+                .map((item) => ({
+                  id: item.id,
+                  text: item.text,
+                })) || [],
+            categories:
+              task.config.categories
+                ?.filter((cat) => cat.name.trim() !== "")
+                .map((category) => ({
+                  id: category.id,
+                  name: category.name,
+                  description: category.description,
+                })) || [],
+            correctMapping: task.config.correctMapping || {},
+          };
+        } else if (task.type === "scenario-choice") {
+          return {
+            type: task.type,
+            title: task.title,
+            description: task.description,
+            instructions: task.instructions,
+            points: 500, // Fixed value as per requirements
+            scenarios:
+              task.config.scenarios?.map((scenario) => ({
+                id: scenario.id,
+                situation: scenario.text,
+                options:
+                  scenario.responses?.map((response) => ({
+                    id: response.id,
+                    text: response.text,
+                    isCorrect: response.isCorrect,
+                    feedback: response.feedback,
+                  })) || [],
+              })) || [],
+          };
+        }
+        return task;
+      })
+      .filter((task) => task.title && task.title.trim() !== "");
+
+    // Format quiz questions
+    const quizQuestions = formData.quiz.questions
+      .filter((q) => q.question.trim() !== "")
+      .map((q, idx) => ({
+        questionNumber: idx + 1,
+        type: q.type,
+        question: q.question,
+        points: 5, // Fixed value as per requirements
+        explanation: q.explanation,
+        options: q.options
+          .filter((opt) => opt.text.trim() !== "")
+          .map((option) => ({
+            id: option.id,
+            text: option.text,
+            isCorrect: option.isCorrect,
+          })),
+      }));
+
+    // Return the exact format required
+    return {
+      moduleNumber: formData.moduleNumber,
       title: formData.title,
       theme: formData.theme,
       description: formData.description,
       slug: formData.slug,
-      status: formData.status,
-      order: parseInt(formData.order),
-      learningObjectives: formData.learningObjectives.filter(
-        (obj) => obj.trim() !== ""
-      ),
-      contentBlocks: formData.contentBlocks
-        .filter((block) => block.content.trim() !== "")
-        .map((block) => ({
-          type: block.type,
-          order: parseInt(block.order),
-          content: block.content,
-        })),
-      interactiveTask: {
-        type: formData.interactiveTask.type,
-        title: formData.interactiveTask.title,
-        description: formData.interactiveTask.description,
-        instructions: formData.interactiveTask.instructions,
-        points: parseInt(formData.interactiveTask.points),
-        items: formData.interactiveTask.items
-          .filter((item) => item.text.trim() !== "")
-          .map((item) => ({
-            id: item.id,
-            text: item.text,
-          })),
-        categories: formData.interactiveTask.categories
-          .filter((cat) => cat.name.trim() !== "")
-          .map((category) => ({
-            id: category.id,
-            name: category.name,
-            description: category.description,
-          })),
-        correctMapping: formData.interactiveTask.correctMapping,
-      },
+      status: "draft", // Always set to draft as per requirements
+      order: formData.order,
+      learningObjectives: learningObjectives,
+      contentBlocks: contentBlocks,
+      interactiveTasks: interactiveTasks,
       quiz: {
         title: formData.quiz.title,
         description: formData.quiz.description,
-        passingScore: parseInt(formData.quiz.passingScore),
-        totalPoints: 20, // Set to 20 as shown in the required format
+        passingScore: formData.quiz.passingScore,
         allowRetake: formData.quiz.allowRetake,
         showCorrectAnswers: formData.quiz.showCorrectAnswers,
-        questions: formData.quiz.questions
-          .filter((q) => q.question.trim() !== "")
-          .map((q, idx) => ({
-            questionNumber: idx + 1,
-            type: q.type,
-            question: q.question,
-            points: 10, // Set to 10 as shown in the required format
-            explanation: q.explanation,
-            options: q.options
-              .filter((opt) => opt.text.trim() !== "")
-              .map((option) => ({
-                id: option.id,
-                text: option.text,
-                isCorrect: option.isCorrect,
-              })),
-          })),
+        questions: quizQuestions,
       },
       parentTip: {
         title: formData.parentTip.title,
         content: formData.parentTip.content,
-        additionalResources: formData.parentTip.additionalResources,
       },
     };
+  };
 
-    console.log("Module Data:", updatedData);
+  // Helper function to add interactive items
+  const addInteractiveItem = (taskIndex) => {
+    const newTasks = [...formData.interactiveTasks];
+    const newId = `i${newTasks[taskIndex].config.items?.length + 1 || 1}`;
+    newTasks[taskIndex].config.items = [
+      ...(newTasks[taskIndex].config.items || []),
+      { id: newId, text: "", image: null },
+    ];
+    setFormData((prev) => ({
+      ...prev,
+      interactiveTasks: newTasks,
+    }));
+  };
+
+  // Helper function to remove interactive items
+  const removeInteractiveItem = (taskIndex, itemIndex) => {
+    const newTasks = [...formData.interactiveTasks];
+    newTasks[taskIndex].config.items = newTasks[taskIndex].config.items.filter(
+      (_, i) => i !== itemIndex
+    );
+    setFormData((prev) => ({
+      ...prev,
+      interactiveTasks: newTasks,
+    }));
+  };
+
+  // Helper function to update interactive item
+  const handleInteractiveItemChange = (taskIndex, itemIndex, field, value) => {
+    const newTasks = [...formData.interactiveTasks];
+    newTasks[taskIndex].config.items[itemIndex][field] = value;
+    setFormData((prev) => ({
+      ...prev,
+      interactiveTasks: newTasks,
+    }));
+  };
+
+  // Helper function to add categories
+  const addCategory = (taskIndex) => {
+    const newTasks = [...formData.interactiveTasks];
+    const newId = `cat${
+      newTasks[taskIndex].config.categories?.length + 1 || 1
+    }`;
+    newTasks[taskIndex].config.categories = [
+      ...(newTasks[taskIndex].config.categories || []),
+      { id: newId, name: "", description: "", image: null },
+    ];
+    setFormData((prev) => ({
+      ...prev,
+      interactiveTasks: newTasks,
+    }));
+  };
+
+  // Helper function to update category
+  const handleCategoryChange = (taskIndex, categoryIndex, field, value) => {
+    const newTasks = [...formData.interactiveTasks];
+    newTasks[taskIndex].config.categories[categoryIndex][field] = value;
+    setFormData((prev) => ({
+      ...prev,
+      interactiveTasks: newTasks,
+    }));
+  };
+
+  // Helper function to handle correct mapping changes
+  const handleCorrectMappingChange = (taskIndex, itemId, categoryId) => {
+    const newTasks = [...formData.interactiveTasks];
+    newTasks[taskIndex].config.correctMapping = {
+      ...newTasks[taskIndex].config.correctMapping,
+      [itemId]: categoryId,
+    };
+    setFormData((prev) => ({
+      ...prev,
+      interactiveTasks: newTasks,
+    }));
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setIsSubmitting(true);
+
+    // Format the data as required
+    const saveData = formatForSave();
+    console.log(saveData);
+
     try {
-      const res = await updateModuleTwo({ id, updatedData });
+      const res = await updateModuleTwo({ id, updatedData: saveData });
       console.log(res, "im the api response");
     } catch (error) {
       alert("Error to Update");
@@ -701,9 +795,35 @@ const Towmodules = () => {
     setIsSubmitting(false);
   };
 
+  // Render the form
   return (
     <div className="container mx-auto p-6 bg-white rounded-lg shadow-md">
-      <h2 className="text-2xl font-bold mb-6">Create Module</h2>
+      <h2 className="text-2xl font-bold mb-6">Module Editor</h2>
+
+      {/* Display intro video if available */}
+      {formData.introVideo && (
+        <div className="mb-6 p-4 border border-gray-200 rounded-lg">
+          <h3 className="text-lg font-semibold mb-2">Intro Video</h3>
+          <video
+            src={formData.introVideo.url}
+            controls
+            className="w-full max-w-lg rounded"
+          />
+          <div className="mt-2 text-sm text-gray-600">
+            Duration:{" "}
+            {formData.introVideo.duration
+              ? `${formData.introVideo.duration}s`
+              : "Unknown"}
+          </div>
+          <button
+            type="button"
+            onClick={() => openMediaUploadModal("introVideo", "video")}
+            className="mt-2 bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600 text-sm"
+          >
+            Replace Video
+          </button>
+        </div>
+      )}
 
       <form onSubmit={handleSubmit} className="space-y-8">
         {/* Basic Module Info */}
@@ -903,6 +1023,32 @@ const Towmodules = () => {
                 </div>
               </div>
 
+              {block.type === "image" && (
+                <div className="mt-2">
+                  {block.image && (
+                    <div className="mb-2">
+                      <img
+                        src={block.image.url}
+                        alt={block.alt || "Content block image"}
+                        className="max-w-xs rounded"
+                      />
+                    </div>
+                  )}
+                  <button
+                    type="button"
+                    onClick={() =>
+                      openMediaUploadModal(
+                        `contentBlockImage-${index}`,
+                        "image"
+                      )
+                    }
+                    className="bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600 text-sm"
+                  >
+                    {block.image ? "Replace Image" : "Add Image"}
+                  </button>
+                </div>
+              )}
+
               <div className="mt-2">
                 <label className="block text-sm font-medium mb-1">
                   Content
@@ -920,131 +1066,69 @@ const Towmodules = () => {
           ))}
         </div>
 
-        {/* Interactive Task */}
+        {/* Interactive Tasks */}
         <div className="border border-gray-200 rounded-lg p-4">
-          <h3 className="text-xl font-semibold mb-4">
-            Interactive Task (Drag-Drop)
-          </h3>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-            <div>
-              <label className="block text-sm font-medium mb-1">Title</label>
-              <input
-                type="text"
-                value={formData.interactiveTask.title}
-                onChange={(e) =>
-                  handleInteractiveTaskChange("title", e.target.value)
-                }
-                className="w-full p-2 border border-gray-300 rounded"
-              />
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium mb-1">
-                Description
-              </label>
-              <input
-                type="text"
-                value={formData.interactiveTask.description}
-                onChange={(e) =>
-                  handleInteractiveTaskChange("description", e.target.value)
-                }
-                className="w-full p-2 border border-gray-300 rounded"
-              />
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium mb-1">
-                Instructions
-              </label>
-              <input
-                type="text"
-                value={formData.interactiveTask.instructions}
-                onChange={(e) =>
-                  handleInteractiveTaskChange("instructions", e.target.value)
-                }
-                className="w-full p-2 border border-gray-300 rounded"
-              />
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium mb-1">Points</label>
-              <input
-                type="number"
-                value={formData.interactiveTask.points}
-                onChange={(e) =>
-                  handleInteractiveTaskChange("points", e.target.value)
-                }
-                className="w-full p-2 border border-gray-300 rounded"
-              />
-            </div>
+          <div className="flex justify-between items-center mb-4">
+            <h3 className="text-xl font-semibold">Interactive Tasks</h3>
+            <button
+              type="button"
+              onClick={addInteractiveTask}
+              className="bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600"
+            >
+              Add Task
+            </button>
           </div>
 
-          <div className="mb-4">
-            <div className="flex justify-between items-center mb-2">
-              <h4 className="font-medium">Items</h4>
-              <button
-                type="button"
-                onClick={addInteractiveItem}
-                className="bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600"
-              >
-                Add Item
-              </button>
-            </div>
-
-            {formData.interactiveTask.items.map((item, index) => (
-              <div key={item.id} className="flex gap-2 mb-2">
-                <input
-                  type="text"
-                  value={item.text}
-                  onChange={(e) =>
-                    handleInteractiveItemChange(index, "text", e.target.value)
-                  }
-                  className="flex-1 p-2 border border-gray-300 rounded"
-                  placeholder={`Item ${index + 1}`}
-                />
-                <select
-                  value={formData.interactiveTask.correctMapping[item.id] || ""}
-                  onChange={(e) =>
-                    handleCorrectMappingChange(item.id, e.target.value)
-                  }
-                  className="p-2 border border-gray-300 rounded"
-                >
-                  <option value="">Select Category</option>
-                  {formData.interactiveTask.categories.map((category) => (
-                    <option key={category.id} value={category.id}>
-                      {category.name}
-                    </option>
-                  ))}
-                </select>
-                {formData.interactiveTask.items.length > 1 && (
+          {formData.interactiveTasks.map((task, taskIndex) => (
+            <div
+              key={taskIndex}
+              className="mb-6 p-4 border border-gray-300 rounded"
+            >
+              <div className="flex justify-between items-center mb-4">
+                <span className="font-medium">Task {taskIndex + 1}</span>
+                {formData.interactiveTasks.length > 1 && (
                   <button
                     type="button"
-                    onClick={() => removeInteractiveItem(index)}
-                    className="bg-red-500 text-white px-2 py-1 rounded hover:bg-red-600"
+                    onClick={() => removeInteractiveTask(taskIndex)}
+                    className="bg-red-500 text-white px-2 py-1 rounded text-sm hover:bg-red-600"
                   >
-                    Remove
+                    Remove Task
                   </button>
                 )}
               </div>
-            ))}
-          </div>
 
-          <div>
-            <h4 className="font-medium mb-2">Categories</h4>
-
-            {formData.interactiveTask.categories.map((category, index) => (
-              <div
-                key={category.id}
-                className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-2"
-              >
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                 <div>
-                  <label className="block text-sm font-medium mb-1">Name</label>
+                  <label className="block text-sm font-medium mb-1">Type</label>
+                  <select
+                    value={task.type}
+                    onChange={(e) =>
+                      handleInteractiveTaskChange(
+                        taskIndex,
+                        "type",
+                        e.target.value
+                      )
+                    }
+                    className="w-full p-2 border border-gray-300 rounded"
+                  >
+                    <option value="sort-categories">Sort Categories</option>
+                    <option value="scenario-choice">Scenario Choice</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium mb-1">
+                    Title
+                  </label>
                   <input
                     type="text"
-                    value={category.name}
+                    value={task.title}
                     onChange={(e) =>
-                      handleCategoryChange(index, "name", e.target.value)
+                      handleInteractiveTaskChange(
+                        taskIndex,
+                        "title",
+                        e.target.value
+                      )
                     }
                     className="w-full p-2 border border-gray-300 rounded"
                   />
@@ -1056,22 +1140,251 @@ const Towmodules = () => {
                   </label>
                   <input
                     type="text"
-                    value={category.description}
+                    value={task.description}
                     onChange={(e) =>
-                      handleCategoryChange(index, "description", e.target.value)
+                      handleInteractiveTaskChange(
+                        taskIndex,
+                        "description",
+                        e.target.value
+                      )
                     }
                     className="w-full p-2 border border-gray-300 rounded"
                   />
                 </div>
 
-                <div className="flex items-end">
-                  <span className="text-sm text-gray-500">
-                    ID: {category.id}
-                  </span>
+                <div>
+                  <label className="block text-sm font-medium mb-1">
+                    Instructions
+                  </label>
+                  <input
+                    type="text"
+                    value={task.instructions}
+                    onChange={(e) =>
+                      handleInteractiveTaskChange(
+                        taskIndex,
+                        "instructions",
+                        e.target.value
+                      )
+                    }
+                    className="w-full p-2 border border-gray-300 rounded"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium mb-1">
+                    Points
+                  </label>
+                  <input
+                    type="number"
+                    value={task.points}
+                    onChange={(e) =>
+                      handleInteractiveTaskChange(
+                        taskIndex,
+                        "points",
+                        e.target.value
+                      )
+                    }
+                    className="w-full p-2 border border-gray-300 rounded"
+                  />
                 </div>
               </div>
-            ))}
-          </div>
+
+              {task.type === "sort-categories" && (
+                <>
+                  {/* Items for sort-categories */}
+                  <div className="mb-4">
+                    <div className="flex justify-between items-center mb-2">
+                      <h4 className="font-medium">Items</h4>
+                      <button
+                        type="button"
+                        onClick={() => addInteractiveItem(taskIndex)}
+                        className="bg-blue-500 text-white px-2 py-1 rounded text-sm hover:bg-blue-600"
+                      >
+                        Add Item
+                      </button>
+                    </div>
+
+                    {task.config.items?.map((item, itemIndex) => (
+                      <div key={itemIndex} className="flex gap-2 mb-2">
+                        <input
+                          type="text"
+                          value={item.text}
+                          onChange={(e) =>
+                            handleInteractiveItemChange(
+                              taskIndex,
+                              itemIndex,
+                              "text",
+                              e.target.value
+                            )
+                          }
+                          className="flex-1 p-2 border border-gray-300 rounded"
+                          placeholder={`Item ${itemIndex + 1}`}
+                        />
+                        <select
+                          value={task.config.correctMapping?.[item.id] || ""}
+                          onChange={(e) =>
+                            handleCorrectMappingChange(
+                              taskIndex,
+                              item.id,
+                              e.target.value
+                            )
+                          }
+                          className="p-2 border border-gray-300 rounded"
+                        >
+                          <option value="">Select Category</option>
+                          {task.config.categories?.map((category) => (
+                            <option key={category.id} value={category.id}>
+                              {category.name}
+                            </option>
+                          ))}
+                        </select>
+                        <button
+                          type="button"
+                          onClick={() =>
+                            openMediaUploadModal(
+                              `interactiveTaskItem-${taskIndex}-${itemIndex}`,
+                              "image"
+                            )
+                          }
+                          className="bg-blue-500 text-white px-2 py-1 rounded text-sm hover:bg-blue-600"
+                        >
+                          {item.image ? "Replace Image" : "Add Image"}
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() =>
+                            removeInteractiveItem(taskIndex, itemIndex)
+                          }
+                          className="bg-red-500 text-white px-2 py-1 rounded text-sm hover:bg-red-600"
+                        >
+                          Remove
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+
+                  {/* Categories for sort-categories */}
+                  <div>
+                    <div className="flex justify-between items-center mb-2">
+                      <h4 className="font-medium">Categories</h4>
+                      <button
+                        type="button"
+                        onClick={() => addCategory(taskIndex)}
+                        className="bg-blue-500 text-white px-2 py-1 rounded text-sm hover:bg-blue-600"
+                      >
+                        Add Category
+                      </button>
+                    </div>
+
+                    {task.config.categories?.map((category, categoryIndex) => (
+                      <div
+                        key={categoryIndex}
+                        className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-2"
+                      >
+                        <div>
+                          <label className="block text-sm font-medium mb-1">
+                            Name
+                          </label>
+                          <input
+                            type="text"
+                            value={category.name}
+                            onChange={(e) =>
+                              handleCategoryChange(
+                                taskIndex,
+                                categoryIndex,
+                                "name",
+                                e.target.value
+                              )
+                            }
+                            className="w-full p-2 border border-gray-300 rounded"
+                          />
+                        </div>
+
+                        <div>
+                          <label className="block text-sm font-medium mb-1">
+                            Description
+                          </label>
+                          <input
+                            type="text"
+                            value={category.description}
+                            onChange={(e) =>
+                              handleCategoryChange(
+                                taskIndex,
+                                categoryIndex,
+                                "description",
+                                e.target.value
+                              )
+                            }
+                            className="w-full p-2 border border-gray-300 rounded"
+                          />
+                        </div>
+
+                        <div className="flex items-center gap-2">
+                          <button
+                            type="button"
+                            onClick={() =>
+                              openMediaUploadModal(
+                                `interactiveTaskCategory-${taskIndex}-${categoryIndex}`,
+                                "image"
+                              )
+                            }
+                            className="bg-blue-500 text-white px-2 py-1 rounded text-sm hover:bg-blue-600"
+                          >
+                            {category.image ? "Replace Image" : "Add Image"}
+                          </button>
+                          <span className="text-sm text-gray-500">
+                            ID: {category.id}
+                          </span>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </>
+              )}
+
+              {task.type === "scenario-choice" && (
+                <div className="mb-4">
+                  <div className="flex justify-between items-center mb-2">
+                    <h4 className="font-medium">Scenarios</h4>
+                  </div>
+
+                  {task.config.scenarios?.map((scenario, scenarioIndex) => (
+                    <div
+                      key={scenarioIndex}
+                      className="mb-4 p-3 border border-gray-200 rounded"
+                    >
+                      <h5 className="font-medium mb-2">
+                        Scenario {scenarioIndex + 1}: {scenario.text}
+                      </h5>
+
+                      {scenario.responses?.map((response, responseIndex) => (
+                        <div
+                          key={responseIndex}
+                          className="flex items-center gap-2 mb-2"
+                        >
+                          <input
+                            type="text"
+                            value={response.text}
+                            className="flex-1 p-2 border border-gray-300 rounded"
+                            readOnly
+                          />
+                          <div className="flex items-center">
+                            <input
+                              type="checkbox"
+                              checked={response.isCorrect}
+                              className="mr-1"
+                              readOnly
+                            />
+                            <span className="text-sm">Correct</span>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          ))}
         </div>
 
         {/* Quiz Section */}
@@ -1391,6 +1704,14 @@ const Towmodules = () => {
           </button>
         </div>
       </form>
+
+      {/* Media Upload Modal */}
+      <MediaUploadModal
+        isOpen={isMediaModalOpen}
+        onClose={() => setIsMediaModalOpen(false)}
+        onUpload={handleMediaUpload}
+        mediaType={currentMediaType}
+      />
     </div>
   );
 };
