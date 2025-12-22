@@ -1,5 +1,8 @@
-import { useState } from "react";
-import { useGetModulesOneByIdQuery } from "../../../redux/features/modules/modulesOne";
+import { useState, useEffect } from "react";
+import {
+  useGetModulesOneByIdQuery,
+  useUpdateModulesOneMutation,
+} from "../../../redux/features/modules/modulesOne";
 
 const Onemodules = () => {
   const id = "69351cf24826bf0c83d19eef";
@@ -7,6 +10,7 @@ const Onemodules = () => {
 
   // Handle form submission - moved to top to maintain consistent hook order
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [updateModuleOne] = useUpdateModulesOneMutation();
 
   // Optimized data transformation function
   const transformApiData = (apiData) => {
@@ -187,6 +191,16 @@ const Onemodules = () => {
       id: null,
     };
   });
+
+  // Update form data when API data becomes available
+  useEffect(() => {
+    if (data && !isLoading && !isError) {
+      const transformedData = transformApiData(data);
+      if (transformedData) {
+        setFormData(transformedData);
+      }
+    }
+  }, [data, isLoading, isError]);
 
   // Show loading state
   if (isLoading) {
@@ -599,12 +613,12 @@ const Onemodules = () => {
     });
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setIsSubmitting(true);
 
     // Create the final data object in the required format
-    const finalData = {
+    const updatedData = {
       moduleNumber: parseInt(formData.moduleNumber),
       title: formData.title,
       theme: formData.theme,
@@ -618,40 +632,68 @@ const Onemodules = () => {
       contentBlocks: formData.contentBlocks
         .filter((block) => block.content.trim() !== "")
         .map((block) => ({
-          ...block,
+          type: block.type,
           order: parseInt(block.order),
+          content: block.content,
         })),
       interactiveTask: {
-        ...formData.interactiveTask,
+        type: formData.interactiveTask.type,
+        title: formData.interactiveTask.title,
+        description: formData.interactiveTask.description,
+        instructions: formData.interactiveTask.instructions,
         points: parseInt(formData.interactiveTask.points),
-        items: formData.interactiveTask.items.filter(
-          (item) => item.text.trim() !== ""
-        ),
-        categories: formData.interactiveTask.categories.filter(
-          (cat) => cat.name.trim() !== ""
-        ),
+        items: formData.interactiveTask.items
+          .filter((item) => item.text.trim() !== "")
+          .map((item) => ({
+            id: item.id,
+            text: item.text,
+          })),
+        categories: formData.interactiveTask.categories
+          .filter((cat) => cat.name.trim() !== "")
+          .map((category) => ({
+            id: category.id,
+            name: category.name,
+            description: category.description,
+          })),
         correctMapping: formData.interactiveTask.correctMapping,
       },
       quiz: {
-        ...formData.quiz,
+        title: formData.quiz.title,
+        description: formData.quiz.description,
         passingScore: parseInt(formData.quiz.passingScore),
-        totalPoints: parseInt(formData.quiz.totalPoints),
+        totalPoints: 20, // Set to 20 as shown in the required format
+        allowRetake: formData.quiz.allowRetake,
+        showCorrectAnswers: formData.quiz.showCorrectAnswers,
         questions: formData.quiz.questions
           .filter((q) => q.question.trim() !== "")
           .map((q, idx) => ({
-            ...q,
             questionNumber: idx + 1,
-            points: parseInt(q.points),
-            options: q.options.filter((opt) => opt.text.trim() !== ""),
+            type: q.type,
+            question: q.question,
+            points: 10, // Set to 10 as shown in the required format
+            explanation: q.explanation,
+            options: q.options
+              .filter((opt) => opt.text.trim() !== "")
+              .map((option) => ({
+                id: option.id,
+                text: option.text,
+                isCorrect: option.isCorrect,
+              })),
           })),
       },
       parentTip: {
-        ...formData.parentTip,
+        title: formData.parentTip.title,
+        content: formData.parentTip.content,
         additionalResources: formData.parentTip.additionalResources,
       },
     };
 
-    console.log("Module Data:", finalData);
+    console.log("Module Data:", updatedData);
+    try {
+      const res = await updateModuleOne({ id, updatedData });
+    } catch (error) {
+      alert("Error to Update");
+    }
     alert("Data logged to console!");
     setIsSubmitting(false);
   };
