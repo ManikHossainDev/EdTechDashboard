@@ -5,6 +5,9 @@ const Onemodules = () => {
   const id = '69351cf24826bf0c83d19eef'
   const {data, isLoading, isError, error} = useGetModulesOneByIdQuery(id)
 
+  // Handle form submission - moved to top to maintain consistent hook order
+  const [isSubmitting, setIsSubmitting] = useState(false)
+
   // Optimized data transformation function
   const transformApiData = (apiData) => {
     if (!apiData?.data) return null;
@@ -506,9 +509,6 @@ const Onemodules = () => {
       return updatedData;
     });
   };
-
-  // Handle form submission
-  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleSubmit = (e) => {
     e.preventDefault();
