@@ -8,9 +8,6 @@ import MediaUploadModal from "./MediaUploadModal";
 const Sevenmodules = () => {
   const id = "693670abf4d0d2d1e21e1d6d";
   const { data, isLoading, isError, error } = useGetModulesByIdQuery(id);
-
-  console.log(data, "module Two");
-
   // Handle form submission - moved to top to maintain consistent hook order
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [updateModuleTwo] = useUpdateModulesOneMutation();
@@ -692,53 +689,54 @@ const Sevenmodules = () => {
                   id: "screenshot",
                   name: "Screenshot",
                   description: "Capture evidence of the problem",
-                  icon: "📸"
+                  icon: "📸",
                 },
                 {
                   id: "block",
                   name: "Block User",
                   description: "Stop them from contacting you",
-                  icon: "🚫"
+                  icon: "🚫",
                 },
                 {
                   id: "report",
                   name: "Report",
                   description: "Notify the app about the problem",
-                  icon: "🚨"
+                  icon: "🚨",
                 },
                 {
                   id: "tell-adult",
                   name: "Tell Adult",
                   description: "Get help from a trusted grown-up",
-                  icon: "👨‍👩‍👧"
+                  icon: "👨‍👩‍👧",
                 },
                 {
                   id: "reply-kindly",
                   name: "Reply Kindly",
                   description: "Respond with respect and boundaries",
-                  icon: "💬"
+                  icon: "💬",
                 },
                 {
                   id: "delete",
                   name: "Delete",
                   description: "Remove the problematic content",
-                  icon: "🗑️"
-                }
+                  icon: "🗑️",
+                },
               ],
               // Format the scenarios
-              scenarios: task.config.scenarios?.map((scenario) => ({
-                id: scenario.id,
-                text: scenario.text,
-                situation: scenario.situation,
-                hint: scenario.hint,
-                options: scenario.options?.map((option) => ({
-                  id: option.id,
-                  text: option.text,
-                  isCorrect: option.isCorrect,
-                  feedback: option.feedback
-                }))
-              })) || []
-            }
+              scenarios:
+                task.config.scenarios?.map((scenario) => ({
+                  id: scenario.id,
+                  text: scenario.text,
+                  situation: scenario.situation,
+                  hint: scenario.hint,
+                  options: scenario.options?.map((option) => ({
+                    id: option.id,
+                    text: option.text,
+                    isCorrect: option.isCorrect,
+                    feedback: option.feedback,
+                  })),
+                })) || [],
+            },
           };
         } else if (task.type === "build-your-own") {
           return {

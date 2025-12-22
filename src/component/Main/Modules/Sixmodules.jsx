@@ -8,9 +8,6 @@ import MediaUploadModal from "./MediaUploadModal";
 const Sixmodules = () => {
   const id = "69366f0df4d0d2d1e21e1d67";
   const { data, isLoading, isError, error } = useGetModulesByIdQuery(id);
-
-  console.log(data, "module three");
-
   // Handle form submission - moved to top to maintain consistent hook order
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [updateModuleTwo] = useUpdateModulesOneMutation();
@@ -632,7 +629,10 @@ const Sixmodules = () => {
                 })) || [],
             correctMapping: task.config.correctMapping || {},
           };
-        } else if (task.type === "scenario-choice" || task.type === "chat-simulator") {
+        } else if (
+          task.type === "scenario-choice" ||
+          task.type === "chat-simulator"
+        ) {
           // Handle chat simulator type specifically
           return {
             type: task.type,
@@ -641,19 +641,21 @@ const Sixmodules = () => {
             instructions: task.instructions,
             points: task.points || 42.6, // Default to 42.6 as per example data
             config: {
-              scenarios: task.config.scenarios?.map((scenario) => ({
-                id: scenario.id,
-                text: scenario.text, // situation in the original data
-                situation: scenario.situation || scenario.text,
-                hint: scenario.hint || "",
-                responses: scenario.responses?.map((response) => ({
-                  id: response.id,
-                  text: response.text,
-                  feedback: response.feedback,
-                  isCorrect: response.isCorrect,
+              scenarios:
+                task.config.scenarios?.map((scenario) => ({
+                  id: scenario.id,
+                  text: scenario.text, // situation in the original data
+                  situation: scenario.situation || scenario.text,
+                  hint: scenario.hint || "",
+                  responses:
+                    scenario.responses?.map((response) => ({
+                      id: response.id,
+                      text: response.text,
+                      feedback: response.feedback,
+                      isCorrect: response.isCorrect,
+                    })) || [],
                 })) || [],
-              })) || [],
-            }
+            },
           };
         }
         return task;
@@ -797,12 +799,12 @@ const Sixmodules = () => {
       status: "draft", // Always draft as per requirements
       order: saveData.order,
       learningObjectives: saveData.learningObjectives,
-      contentBlocks: saveData.contentBlocks.map(block => ({
+      contentBlocks: saveData.contentBlocks.map((block) => ({
         type: block.type,
         order: block.order,
-        content: block.content
+        content: block.content,
       })),
-      interactiveTasks: saveData.interactiveTasks.map(task => {
+      interactiveTasks: saveData.interactiveTasks.map((task) => {
         if (task.type === "chat-simulator") {
           // Format chat simulator task to match required format
           return {
@@ -812,19 +814,19 @@ const Sixmodules = () => {
             instructions: task.instructions,
             points: task.points,
             config: {
-              scenarios: task.config.scenarios.map(scenario => ({
+              scenarios: task.config.scenarios.map((scenario) => ({
                 id: scenario.id,
                 text: scenario.text,
                 situation: scenario.situation,
                 hint: scenario.hint,
-                responses: scenario.responses.map(response => ({
+                responses: scenario.responses.map((response) => ({
                   id: response.id,
                   text: response.text,
                   feedback: response.feedback,
-                  isCorrect: response.isCorrect
-                }))
-              }))
-            }
+                  isCorrect: response.isCorrect,
+                })),
+              })),
+            },
           };
         }
         // For other task types, return them as they are
@@ -834,7 +836,7 @@ const Sixmodules = () => {
           description: task.description,
           instructions: task.instructions,
           points: task.points,
-          ...task.config ? { config: task.config } : {}
+          ...(task.config ? { config: task.config } : {}),
         };
       }),
       quiz: {
@@ -843,22 +845,22 @@ const Sixmodules = () => {
         passingScore: saveData.quiz.passingScore,
         allowRetake: saveData.quiz.allowRetake,
         showCorrectAnswers: saveData.quiz.showCorrectAnswers,
-        questions: saveData.quiz.questions.map(q => ({
+        questions: saveData.quiz.questions.map((q) => ({
           questionNumber: q.questionNumber,
           type: q.type,
           question: q.question,
           explanation: q.explanation,
-          options: q.options.map(opt => ({
+          options: q.options.map((opt) => ({
             id: opt.id,
             text: opt.text,
-            isCorrect: opt.isCorrect
-          }))
-        }))
+            isCorrect: opt.isCorrect,
+          })),
+        })),
       },
       parentTip: {
         title: saveData.parentTip.title,
-        content: saveData.parentTip.content
-      }
+        content: saveData.parentTip.content,
+      },
     };
 
     console.log(requiredFormat);
@@ -910,7 +912,10 @@ const Sixmodules = () => {
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <label htmlFor="moduleNumber" className="block text-sm font-medium mb-1">
+              <label
+                htmlFor="moduleNumber"
+                className="block text-sm font-medium mb-1"
+              >
                 Module Number
               </label>
               <input
@@ -923,11 +928,15 @@ const Sixmodules = () => {
                 required
                 aria-describedby="moduleNumberHelp"
               />
-              <p id="moduleNumberHelp" className="mt-1 text-xs text-gray-500">Enter the module number (e.g., 1, 2, 3)</p>
+              <p id="moduleNumberHelp" className="mt-1 text-xs text-gray-500">
+                Enter the module number (e.g., 1, 2, 3)
+              </p>
             </div>
 
             <div>
-              <label htmlFor="title" className="block text-sm font-medium mb-1">Title</label>
+              <label htmlFor="title" className="block text-sm font-medium mb-1">
+                Title
+              </label>
               <input
                 id="title"
                 type="text"
@@ -938,11 +947,15 @@ const Sixmodules = () => {
                 required
                 aria-describedby="titleHelp"
               />
-              <p id="titleHelp" className="mt-1 text-xs text-gray-500">Enter the module title</p>
+              <p id="titleHelp" className="mt-1 text-xs text-gray-500">
+                Enter the module title
+              </p>
             </div>
 
             <div>
-              <label htmlFor="theme" className="block text-sm font-medium mb-1">Theme</label>
+              <label htmlFor="theme" className="block text-sm font-medium mb-1">
+                Theme
+              </label>
               <input
                 id="theme"
                 type="text"
@@ -953,11 +966,16 @@ const Sixmodules = () => {
                 required
                 aria-describedby="themeHelp"
               />
-              <p id="themeHelp" className="mt-1 text-xs text-gray-500">Enter the module theme</p>
+              <p id="themeHelp" className="mt-1 text-xs text-gray-500">
+                Enter the module theme
+              </p>
             </div>
 
             <div>
-              <label htmlFor="description" className="block text-sm font-medium mb-1">
+              <label
+                htmlFor="description"
+                className="block text-sm font-medium mb-1"
+              >
                 Description
               </label>
               <textarea
@@ -970,11 +988,15 @@ const Sixmodules = () => {
                 required
                 aria-describedby="descriptionHelp"
               ></textarea>
-              <p id="descriptionHelp" className="mt-1 text-xs text-gray-500">Enter the module description</p>
+              <p id="descriptionHelp" className="mt-1 text-xs text-gray-500">
+                Enter the module description
+              </p>
             </div>
 
             <div>
-              <label htmlFor="slug" className="block text-sm font-medium mb-1">Slug</label>
+              <label htmlFor="slug" className="block text-sm font-medium mb-1">
+                Slug
+              </label>
               <input
                 id="slug"
                 type="text"
@@ -985,11 +1007,18 @@ const Sixmodules = () => {
                 required
                 aria-describedby="slugHelp"
               />
-              <p id="slugHelp" className="mt-1 text-xs text-gray-500">URL-friendly identifier (e.g., respectful-communication)</p>
+              <p id="slugHelp" className="mt-1 text-xs text-gray-500">
+                URL-friendly identifier (e.g., respectful-communication)
+              </p>
             </div>
 
             <div>
-              <label htmlFor="status" className="block text-sm font-medium mb-1">Status</label>
+              <label
+                htmlFor="status"
+                className="block text-sm font-medium mb-1"
+              >
+                Status
+              </label>
               <select
                 id="status"
                 name="status"
@@ -1002,11 +1031,15 @@ const Sixmodules = () => {
                 <option value="published">Published</option>
                 <option value="archived">Archived</option>
               </select>
-              <p id="statusHelp" className="mt-1 text-xs text-gray-500">Set the module status</p>
+              <p id="statusHelp" className="mt-1 text-xs text-gray-500">
+                Set the module status
+              </p>
             </div>
 
             <div>
-              <label htmlFor="order" className="block text-sm font-medium mb-1">Order</label>
+              <label htmlFor="order" className="block text-sm font-medium mb-1">
+                Order
+              </label>
               <input
                 id="order"
                 type="number"
@@ -1017,7 +1050,9 @@ const Sixmodules = () => {
                 required
                 aria-describedby="orderHelp"
               />
-              <p id="orderHelp" className="mt-1 text-xs text-gray-500">Enter the order number for this module</p>
+              <p id="orderHelp" className="mt-1 text-xs text-gray-500">
+                Enter the order number for this module
+              </p>
             </div>
           </div>
         </div>
@@ -1110,7 +1145,12 @@ const Sixmodules = () => {
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <label htmlFor={`content-block-type-${index}`} className="block text-sm font-medium mb-1">Type</label>
+                  <label
+                    htmlFor={`content-block-type-${index}`}
+                    className="block text-sm font-medium mb-1"
+                  >
+                    Type
+                  </label>
                   <select
                     id={`content-block-type-${index}`}
                     value={block.type}
@@ -1125,13 +1165,19 @@ const Sixmodules = () => {
                     <option value="video">Video</option>
                     <option value="audio">Audio</option>
                   </select>
-                  <p id={`content-block-type-${index}-help`} className="sr-only">
+                  <p
+                    id={`content-block-type-${index}-help`}
+                    className="sr-only"
+                  >
                     Select the type of content block
                   </p>
                 </div>
 
                 <div>
-                  <label htmlFor={`content-block-order-${index}`} className="block text-sm font-medium mb-1">
+                  <label
+                    htmlFor={`content-block-order-${index}`}
+                    className="block text-sm font-medium mb-1"
+                  >
                     Order
                   </label>
                   <input
@@ -1144,7 +1190,10 @@ const Sixmodules = () => {
                     className="w-full p-2 border border-gray-300 rounded focus:ring-blue-500 focus:border-blue-500"
                     aria-describedby={`content-block-order-${index}-help`}
                   />
-                  <p id={`content-block-order-${index}-help`} className="sr-only">
+                  <p
+                    id={`content-block-order-${index}-help`}
+                    className="sr-only"
+                  >
                     Set the order of this content block
                   </p>
                 </div>
@@ -1178,7 +1227,10 @@ const Sixmodules = () => {
               )}
 
               <div className="mt-2">
-                <label htmlFor={`content-block-content-${index}`} className="block text-sm font-medium mb-1">
+                <label
+                  htmlFor={`content-block-content-${index}`}
+                  className="block text-sm font-medium mb-1"
+                >
                   Content
                 </label>
                 <textarea
@@ -1191,7 +1243,10 @@ const Sixmodules = () => {
                   rows="3"
                   aria-describedby={`content-block-content-${index}-help`}
                 ></textarea>
-                <p id={`content-block-content-${index}-help`} className="sr-only">
+                <p
+                  id={`content-block-content-${index}-help`}
+                  className="sr-only"
+                >
                   Enter the content for this block
                 </p>
               </div>
@@ -1221,7 +1276,10 @@ const Sixmodules = () => {
               aria-labelledby={`interactive-task-${taskIndex}-label`}
             >
               <div className="flex justify-between items-center mb-4">
-                <h4 id={`interactive-task-${taskIndex}-label`} className="font-medium">
+                <h4
+                  id={`interactive-task-${taskIndex}-label`}
+                  className="font-medium"
+                >
                   Task {taskIndex + 1}
                 </h4>
                 {formData.interactiveTasks.length > 1 && (
@@ -1238,7 +1296,12 @@ const Sixmodules = () => {
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                 <div>
-                  <label htmlFor={`interactive-task-type-${taskIndex}`} className="block text-sm font-medium mb-1">Type</label>
+                  <label
+                    htmlFor={`interactive-task-type-${taskIndex}`}
+                    className="block text-sm font-medium mb-1"
+                  >
+                    Type
+                  </label>
                   <select
                     id={`interactive-task-type-${taskIndex}`}
                     value={task.type}
@@ -1256,13 +1319,19 @@ const Sixmodules = () => {
                     <option value="scenario-choice">Scenario Choice</option>
                     <option value="chat-simulator">Chat Simulator</option>
                   </select>
-                  <p id={`interactive-task-type-${taskIndex}-help`} className="sr-only">
+                  <p
+                    id={`interactive-task-type-${taskIndex}-help`}
+                    className="sr-only"
+                  >
                     Select the type of interactive task
                   </p>
                 </div>
 
                 <div>
-                  <label htmlFor={`interactive-task-title-${taskIndex}`} className="block text-sm font-medium mb-1">
+                  <label
+                    htmlFor={`interactive-task-title-${taskIndex}`}
+                    className="block text-sm font-medium mb-1"
+                  >
                     Title
                   </label>
                   <input
@@ -1279,13 +1348,19 @@ const Sixmodules = () => {
                     className="w-full p-2 border border-gray-300 rounded focus:ring-blue-500 focus:border-blue-500"
                     aria-describedby={`interactive-task-title-${taskIndex}-help`}
                   />
-                  <p id={`interactive-task-title-${taskIndex}-help`} className="sr-only">
+                  <p
+                    id={`interactive-task-title-${taskIndex}-help`}
+                    className="sr-only"
+                  >
                     Enter the title for this interactive task
                   </p>
                 </div>
 
                 <div>
-                  <label htmlFor={`interactive-task-description-${taskIndex}`} className="block text-sm font-medium mb-1">
+                  <label
+                    htmlFor={`interactive-task-description-${taskIndex}`}
+                    className="block text-sm font-medium mb-1"
+                  >
                     Description
                   </label>
                   <input
@@ -1302,13 +1377,19 @@ const Sixmodules = () => {
                     className="w-full p-2 border border-gray-300 rounded focus:ring-blue-500 focus:border-blue-500"
                     aria-describedby={`interactive-task-description-${taskIndex}-help`}
                   />
-                  <p id={`interactive-task-description-${taskIndex}-help`} className="sr-only">
+                  <p
+                    id={`interactive-task-description-${taskIndex}-help`}
+                    className="sr-only"
+                  >
                     Enter the description for this interactive task
                   </p>
                 </div>
 
                 <div>
-                  <label htmlFor={`interactive-task-instructions-${taskIndex}`} className="block text-sm font-medium mb-1">
+                  <label
+                    htmlFor={`interactive-task-instructions-${taskIndex}`}
+                    className="block text-sm font-medium mb-1"
+                  >
                     Instructions
                   </label>
                   <input
@@ -1325,13 +1406,19 @@ const Sixmodules = () => {
                     className="w-full p-2 border border-gray-300 rounded focus:ring-blue-500 focus:border-blue-500"
                     aria-describedby={`interactive-task-instructions-${taskIndex}-help`}
                   />
-                  <p id={`interactive-task-instructions-${taskIndex}-help`} className="sr-only">
+                  <p
+                    id={`interactive-task-instructions-${taskIndex}-help`}
+                    className="sr-only"
+                  >
                     Enter the instructions for this interactive task
                   </p>
                 </div>
 
                 <div>
-                  <label htmlFor={`interactive-task-points-${taskIndex}`} className="block text-sm font-medium mb-1">
+                  <label
+                    htmlFor={`interactive-task-points-${taskIndex}`}
+                    className="block text-sm font-medium mb-1"
+                  >
                     Points
                   </label>
                   <input
@@ -1348,7 +1435,10 @@ const Sixmodules = () => {
                     className="w-full p-2 border border-gray-300 rounded focus:ring-blue-500 focus:border-blue-500"
                     aria-describedby={`interactive-task-points-${taskIndex}-help`}
                   />
-                  <p id={`interactive-task-points-${taskIndex}-help`} className="sr-only">
+                  <p
+                    id={`interactive-task-points-${taskIndex}-help`}
+                    className="sr-only"
+                  >
                     Enter the points for this interactive task
                   </p>
                 </div>
@@ -1564,17 +1654,22 @@ const Sixmodules = () => {
                           situation: "",
                           hint: "",
                           responses: [
-                            { id: "r1", text: "", feedback: "", isCorrect: false }
-                          ]
+                            {
+                              id: "r1",
+                              text: "",
+                              feedback: "",
+                              isCorrect: false,
+                            },
+                          ],
                         });
                         const newTasks = [...formData.interactiveTasks];
                         newTasks[taskIndex].config = {
                           ...newTasks[taskIndex].config,
-                          scenarios: newScenarios
+                          scenarios: newScenarios,
                         };
-                        setFormData(prev => ({
+                        setFormData((prev) => ({
                           ...prev,
-                          interactiveTasks: newTasks
+                          interactiveTasks: newTasks,
                         }));
                       }}
                       className="bg-blue-500 text-white px-2 py-1 rounded text-sm hover:bg-blue-600"
@@ -1598,10 +1693,12 @@ const Sixmodules = () => {
                             value={scenario.text}
                             onChange={(e) => {
                               const newTasks = [...formData.interactiveTasks];
-                              newTasks[taskIndex].config.scenarios[scenarioIndex].text = e.target.value;
-                              setFormData(prev => ({
+                              newTasks[taskIndex].config.scenarios[
+                                scenarioIndex
+                              ].text = e.target.value;
+                              setFormData((prev) => ({
                                 ...prev,
-                                interactiveTasks: newTasks
+                                interactiveTasks: newTasks,
                               }));
                             }}
                             className="w-full p-2 border border-gray-300 rounded"
@@ -1617,10 +1714,12 @@ const Sixmodules = () => {
                             value={scenario.hint}
                             onChange={(e) => {
                               const newTasks = [...formData.interactiveTasks];
-                              newTasks[taskIndex].config.scenarios[scenarioIndex].hint = e.target.value;
-                              setFormData(prev => ({
+                              newTasks[taskIndex].config.scenarios[
+                                scenarioIndex
+                              ].hint = e.target.value;
+                              setFormData((prev) => ({
                                 ...prev,
-                                interactiveTasks: newTasks
+                                interactiveTasks: newTasks,
                               }));
                             }}
                             className="w-full p-2 border border-gray-300 rounded"
@@ -1637,10 +1736,12 @@ const Sixmodules = () => {
                           value={scenario.situation}
                           onChange={(e) => {
                             const newTasks = [...formData.interactiveTasks];
-                            newTasks[taskIndex].config.scenarios[scenarioIndex].situation = e.target.value;
-                            setFormData(prev => ({
+                            newTasks[taskIndex].config.scenarios[
+                              scenarioIndex
+                            ].situation = e.target.value;
+                            setFormData((prev) => ({
                               ...prev,
-                              interactiveTasks: newTasks
+                              interactiveTasks: newTasks,
                             }));
                           }}
                           className="w-full p-2 border border-gray-300 rounded"
@@ -1656,18 +1757,24 @@ const Sixmodules = () => {
                             type="button"
                             onClick={() => {
                               const newTasks = [...formData.interactiveTasks];
-                              const newResponses = [...(newTasks[taskIndex].config.scenarios[scenarioIndex].responses || [])];
+                              const newResponses = [
+                                ...(newTasks[taskIndex].config.scenarios[
+                                  scenarioIndex
+                                ].responses || []),
+                              ];
                               const newId = `r${newResponses.length + 1}`;
                               newResponses.push({
                                 id: newId,
                                 text: "",
                                 feedback: "",
-                                isCorrect: false
+                                isCorrect: false,
                               });
-                              newTasks[taskIndex].config.scenarios[scenarioIndex].responses = newResponses;
-                              setFormData(prev => ({
+                              newTasks[taskIndex].config.scenarios[
+                                scenarioIndex
+                              ].responses = newResponses;
+                              setFormData((prev) => ({
                                 ...prev,
-                                interactiveTasks: newTasks
+                                interactiveTasks: newTasks,
                               }));
                             }}
                             className="bg-blue-500 text-white px-2 py-1 rounded text-sm hover:bg-blue-600"
@@ -1689,11 +1796,16 @@ const Sixmodules = () => {
                                 type="text"
                                 value={response.text}
                                 onChange={(e) => {
-                                  const newTasks = [...formData.interactiveTasks];
-                                  newTasks[taskIndex].config.scenarios[scenarioIndex].responses[responseIndex].text = e.target.value;
-                                  setFormData(prev => ({
+                                  const newTasks = [
+                                    ...formData.interactiveTasks,
+                                  ];
+                                  newTasks[taskIndex].config.scenarios[
+                                    scenarioIndex
+                                  ].responses[responseIndex].text =
+                                    e.target.value;
+                                  setFormData((prev) => ({
                                     ...prev,
-                                    interactiveTasks: newTasks
+                                    interactiveTasks: newTasks,
                                   }));
                                 }}
                                 className="w-full p-2 border border-gray-300 rounded"
@@ -1708,11 +1820,16 @@ const Sixmodules = () => {
                                 type="text"
                                 value={response.feedback}
                                 onChange={(e) => {
-                                  const newTasks = [...formData.interactiveTasks];
-                                  newTasks[taskIndex].config.scenarios[scenarioIndex].responses[responseIndex].feedback = e.target.value;
-                                  setFormData(prev => ({
+                                  const newTasks = [
+                                    ...formData.interactiveTasks,
+                                  ];
+                                  newTasks[taskIndex].config.scenarios[
+                                    scenarioIndex
+                                  ].responses[responseIndex].feedback =
+                                    e.target.value;
+                                  setFormData((prev) => ({
                                     ...prev,
-                                    interactiveTasks: newTasks
+                                    interactiveTasks: newTasks,
                                   }));
                                 }}
                                 className="w-full p-2 border border-gray-300 rounded"
@@ -1726,11 +1843,16 @@ const Sixmodules = () => {
                                   id={`correct-${taskIndex}-${scenarioIndex}-${responseIndex}`}
                                   checked={response.isCorrect}
                                   onChange={(e) => {
-                                    const newTasks = [...formData.interactiveTasks];
-                                    newTasks[taskIndex].config.scenarios[scenarioIndex].responses[responseIndex].isCorrect = e.target.checked;
-                                    setFormData(prev => ({
+                                    const newTasks = [
+                                      ...formData.interactiveTasks,
+                                    ];
+                                    newTasks[taskIndex].config.scenarios[
+                                      scenarioIndex
+                                    ].responses[responseIndex].isCorrect =
+                                      e.target.checked;
+                                    setFormData((prev) => ({
                                       ...prev,
-                                      interactiveTasks: newTasks
+                                      interactiveTasks: newTasks,
                                     }));
                                   }}
                                   className="mr-1 h-4 w-4 text-blue-600"
@@ -1746,12 +1868,22 @@ const Sixmodules = () => {
                                 type="button"
                                 onClick={() => {
                                   if (scenario.responses.length > 1) {
-                                    const newTasks = [...formData.interactiveTasks];
-                                    const newResponses = [...newTasks[taskIndex].config.scenarios[scenarioIndex].responses];
-                                    newTasks[taskIndex].config.scenarios[scenarioIndex].responses = newResponses.filter((_, i) => i !== responseIndex);
-                                    setFormData(prev => ({
+                                    const newTasks = [
+                                      ...formData.interactiveTasks,
+                                    ];
+                                    const newResponses = [
+                                      ...newTasks[taskIndex].config.scenarios[
+                                        scenarioIndex
+                                      ].responses,
+                                    ];
+                                    newTasks[taskIndex].config.scenarios[
+                                      scenarioIndex
+                                    ].responses = newResponses.filter(
+                                      (_, i) => i !== responseIndex
+                                    );
+                                    setFormData((prev) => ({
                                       ...prev,
-                                      interactiveTasks: newTasks
+                                      interactiveTasks: newTasks,
                                     }));
                                   }
                                 }}
@@ -1769,10 +1901,14 @@ const Sixmodules = () => {
                         type="button"
                         onClick={() => {
                           const newTasks = [...formData.interactiveTasks];
-                          newTasks[taskIndex].config.scenarios = newTasks[taskIndex].config.scenarios.filter((_, i) => i !== scenarioIndex);
-                          setFormData(prev => ({
+                          newTasks[taskIndex].config.scenarios = newTasks[
+                            taskIndex
+                          ].config.scenarios.filter(
+                            (_, i) => i !== scenarioIndex
+                          );
+                          setFormData((prev) => ({
                             ...prev,
-                            interactiveTasks: newTasks
+                            interactiveTasks: newTasks,
                           }));
                         }}
                         className="bg-red-500 text-white px-2 py-1 rounded text-sm hover:bg-red-600"
@@ -1803,7 +1939,10 @@ const Sixmodules = () => {
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
             <div>
-              <label htmlFor="quiz-title" className="block text-sm font-medium mb-1">
+              <label
+                htmlFor="quiz-title"
+                className="block text-sm font-medium mb-1"
+              >
                 Quiz Title
               </label>
               <input
@@ -1820,7 +1959,10 @@ const Sixmodules = () => {
             </div>
 
             <div>
-              <label htmlFor="quiz-description" className="block text-sm font-medium mb-1">
+              <label
+                htmlFor="quiz-description"
+                className="block text-sm font-medium mb-1"
+              >
                 Description
               </label>
               <input
@@ -1839,7 +1981,10 @@ const Sixmodules = () => {
             </div>
 
             <div>
-              <label htmlFor="quiz-passing-score" className="block text-sm font-medium mb-1">
+              <label
+                htmlFor="quiz-passing-score"
+                className="block text-sm font-medium mb-1"
+              >
                 Passing Score (%)
               </label>
               <input
@@ -1858,7 +2003,10 @@ const Sixmodules = () => {
             </div>
 
             <div>
-              <label htmlFor="quiz-total-points" className="block text-sm font-medium mb-1">
+              <label
+                htmlFor="quiz-total-points"
+                className="block text-sm font-medium mb-1"
+              >
                 Total Points
               </label>
               <input
@@ -1918,7 +2066,10 @@ const Sixmodules = () => {
               aria-labelledby={`quiz-question-${qIndex}-label`}
             >
               <div className="flex justify-between items-center mb-2">
-                <h4 id={`quiz-question-${qIndex}-label`} className="font-medium">
+                <h4
+                  id={`quiz-question-${qIndex}-label`}
+                  className="font-medium"
+                >
                   Question {qIndex + 1}
                 </h4>
                 {formData.quiz.questions.length > 1 && (
@@ -1935,7 +2086,10 @@ const Sixmodules = () => {
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                 <div>
-                  <label htmlFor={`quiz-question-text-${qIndex}`} className="block text-sm font-medium mb-1">
+                  <label
+                    htmlFor={`quiz-question-text-${qIndex}`}
+                    className="block text-sm font-medium mb-1"
+                  >
                     Question
                   </label>
                   <textarea
@@ -1948,13 +2102,19 @@ const Sixmodules = () => {
                     rows="2"
                     aria-describedby={`quiz-question-text-${qIndex}-help`}
                   ></textarea>
-                  <p id={`quiz-question-text-${qIndex}-help`} className="sr-only">
+                  <p
+                    id={`quiz-question-text-${qIndex}-help`}
+                    className="sr-only"
+                  >
                     Enter the question text
                   </p>
                 </div>
 
                 <div>
-                  <label htmlFor={`quiz-question-explanation-${qIndex}`} className="block text-sm font-medium mb-1">
+                  <label
+                    htmlFor={`quiz-question-explanation-${qIndex}`}
+                    className="block text-sm font-medium mb-1"
+                  >
                     Explanation
                   </label>
                   <textarea
@@ -1971,13 +2131,21 @@ const Sixmodules = () => {
                     rows="2"
                     aria-describedby={`quiz-question-explanation-${qIndex}-help`}
                   ></textarea>
-                  <p id={`quiz-question-explanation-${qIndex}-help`} className="sr-only">
+                  <p
+                    id={`quiz-question-explanation-${qIndex}-help`}
+                    className="sr-only"
+                  >
                     Enter the explanation for this question
                   </p>
                 </div>
 
                 <div>
-                  <label htmlFor={`quiz-question-type-${qIndex}`} className="block text-sm font-medium mb-1">Type</label>
+                  <label
+                    htmlFor={`quiz-question-type-${qIndex}`}
+                    className="block text-sm font-medium mb-1"
+                  >
+                    Type
+                  </label>
                   <select
                     id={`quiz-question-type-${qIndex}`}
                     value={question.type}
@@ -1991,13 +2159,19 @@ const Sixmodules = () => {
                     <option value="true-false">True/False</option>
                     <option value="short-answer">Short Answer</option>
                   </select>
-                  <p id={`quiz-question-type-${qIndex}-help`} className="sr-only">
+                  <p
+                    id={`quiz-question-type-${qIndex}-help`}
+                    className="sr-only"
+                  >
                     Select the question type
                   </p>
                 </div>
 
                 <div>
-                  <label htmlFor={`quiz-question-points-${qIndex}`} className="block text-sm font-medium mb-1">
+                  <label
+                    htmlFor={`quiz-question-points-${qIndex}`}
+                    className="block text-sm font-medium mb-1"
+                  >
                     Points
                   </label>
                   <input
@@ -2010,7 +2184,10 @@ const Sixmodules = () => {
                     className="w-full p-2 border border-gray-300 rounded focus:ring-blue-500 focus:border-blue-500"
                     aria-describedby={`quiz-question-points-${qIndex}-help`}
                   />
-                  <p id={`quiz-question-points-${qIndex}-help`} className="sr-only">
+                  <p
+                    id={`quiz-question-points-${qIndex}-help`}
+                    className="sr-only"
+                  >
                     Enter the points for this question
                   </p>
                 </div>
@@ -2032,7 +2209,10 @@ const Sixmodules = () => {
                 {question.options.map((option, oIndex) => (
                   <div key={oIndex} className="flex gap-2 mb-2">
                     <div className="flex-1">
-                      <label htmlFor={`quiz-question-option-${qIndex}-${oIndex}`} className="sr-only">
+                      <label
+                        htmlFor={`quiz-question-option-${qIndex}-${oIndex}`}
+                        className="sr-only"
+                      >
                         Option {String.fromCharCode(65 + oIndex)}
                       </label>
                       <input
@@ -2048,10 +2228,15 @@ const Sixmodules = () => {
                           )
                         }
                         className="w-full p-2 border border-gray-300 rounded focus:ring-blue-500 focus:border-blue-500"
-                        placeholder={`Option ${String.fromCharCode(65 + oIndex)}`}
+                        placeholder={`Option ${String.fromCharCode(
+                          65 + oIndex
+                        )}`}
                         aria-describedby={`quiz-question-option-${qIndex}-${oIndex}-help`}
                       />
-                      <p id={`quiz-question-option-${qIndex}-${oIndex}-help`} className="sr-only">
+                      <p
+                        id={`quiz-question-option-${qIndex}-${oIndex}-help`}
+                        className="sr-only"
+                      >
                         Enter option {String.fromCharCode(65 + oIndex)} text
                       </p>
                     </div>
@@ -2082,7 +2267,9 @@ const Sixmodules = () => {
                         type="button"
                         onClick={() => removeOption(qIndex, oIndex)}
                         className="bg-red-500 text-white px-2 py-1 rounded text-sm hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2"
-                        aria-label={`Remove option ${String.fromCharCode(65 + oIndex)}`}
+                        aria-label={`Remove option ${String.fromCharCode(
+                          65 + oIndex
+                        )}`}
                       >
                         Remove
                       </button>
@@ -2100,7 +2287,12 @@ const Sixmodules = () => {
 
           <div className="grid grid-cols-1 gap-4">
             <div>
-              <label htmlFor="parent-tip-title" className="block text-sm font-medium mb-1">Title</label>
+              <label
+                htmlFor="parent-tip-title"
+                className="block text-sm font-medium mb-1"
+              >
+                Title
+              </label>
               <input
                 id="parent-tip-title"
                 type="text"
@@ -2115,7 +2307,12 @@ const Sixmodules = () => {
             </div>
 
             <div>
-              <label htmlFor="parent-tip-content" className="block text-sm font-medium mb-1">Content</label>
+              <label
+                htmlFor="parent-tip-content"
+                className="block text-sm font-medium mb-1"
+              >
+                Content
+              </label>
               <textarea
                 id="parent-tip-content"
                 value={formData.parentTip.content}

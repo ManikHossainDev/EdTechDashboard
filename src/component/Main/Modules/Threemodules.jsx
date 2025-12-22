@@ -8,9 +8,6 @@ import MediaUploadModal from "./MediaUploadModal";
 const Threemodules = () => {
   const id = "6936619e511d202f50100576";
   const { data, isLoading, isError, error } = useGetModulesByIdQuery(id);
-
-  console.log(data, "module three");
-
   // Handle form submission - moved to top to maintain consistent hook order
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [updateModuleTwo] = useUpdateModulesOneMutation();

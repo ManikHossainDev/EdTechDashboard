@@ -8,9 +8,6 @@ import MediaUploadModal from "./MediaUploadModal";
 const Towmodules = () => {
   const id = "69355455516c1602be8446a7";
   const { data, isLoading, isError, error } = useGetModulesTwoByIdQuery(id);
-
-  console.log(data, "module Two");
-
   // Handle form submission - moved to top to maintain consistent hook order
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [updateModuleTwo] = useUpdateModulesTwoMutation();
@@ -53,59 +50,60 @@ const Towmodules = () => {
       }) || [];
 
     // Format interactive tasks
-    const formattedInteractiveTasks = moduleData.interactiveTasks?.map(task => {
-      if (task.type === "scenario-choice") {
-        return {
-          type: task.type || "scenario-choice",
-          title: task.title || "",
-          description: task.description || "",
-          instructions: task.instructions || "",
-          points: task.points || 20,
-          config: {
-            categories: task.config?.categories || [],
-            scenarios: task.config?.scenarios || [],
-            items: task.config?.items || [],
-            components: task.config?.components || [],
-            validationRules: task.config?.validationRules || []
-          }
-        };
-      } else if (task.type === "build-your-own") {
-        return {
-          type: task.type || "build-your-own",
-          title: task.title || "",
-          description: task.description || "",
-          instructions: task.instructions || "",
-          points: task.points || 20,
-          config: {
-            components: task.config?.components || [],
-            validationRules: task.config?.validationRules || [],
-            feedback: task.config?.feedback || {}
-          }
-        };
-      } else if (task.type === "sort-categories") {
-        return {
-          type: task.type || "sort-categories",
-          title: task.title || "",
-          description: task.description || "",
-          instructions: task.instructions || "",
-          points: task.points || 20,
-          config: {
-            items: task.config?.items || [],
-            categories: task.config?.categories || [],
-            correctMapping: task.config?.correctMapping || {}
-          }
-        };
-      } else {
-        return {
-          type: task.type || "sort-categories",
-          title: task.title || "",
-          description: task.description || "",
-          instructions: task.instructions || "",
-          points: task.points || 20,
-          config: task.config || {}
-        };
-      }
-    }) || [];
+    const formattedInteractiveTasks =
+      moduleData.interactiveTasks?.map((task) => {
+        if (task.type === "scenario-choice") {
+          return {
+            type: task.type || "scenario-choice",
+            title: task.title || "",
+            description: task.description || "",
+            instructions: task.instructions || "",
+            points: task.points || 20,
+            config: {
+              categories: task.config?.categories || [],
+              scenarios: task.config?.scenarios || [],
+              items: task.config?.items || [],
+              components: task.config?.components || [],
+              validationRules: task.config?.validationRules || [],
+            },
+          };
+        } else if (task.type === "build-your-own") {
+          return {
+            type: task.type || "build-your-own",
+            title: task.title || "",
+            description: task.description || "",
+            instructions: task.instructions || "",
+            points: task.points || 20,
+            config: {
+              components: task.config?.components || [],
+              validationRules: task.config?.validationRules || [],
+              feedback: task.config?.feedback || {},
+            },
+          };
+        } else if (task.type === "sort-categories") {
+          return {
+            type: task.type || "sort-categories",
+            title: task.title || "",
+            description: task.description || "",
+            instructions: task.instructions || "",
+            points: task.points || 20,
+            config: {
+              items: task.config?.items || [],
+              categories: task.config?.categories || [],
+              correctMapping: task.config?.correctMapping || {},
+            },
+          };
+        } else {
+          return {
+            type: task.type || "sort-categories",
+            title: task.title || "",
+            description: task.description || "",
+            instructions: task.instructions || "",
+            points: task.points || 20,
+            config: task.config || {},
+          };
+        }
+      }) || [];
 
     // Format quiz
     const formattedQuiz = {
@@ -685,18 +683,20 @@ const Towmodules = () => {
             points: task.points || 20, // Use actual points from task
             config: {
               categories: task.config.categories || [],
-              scenarios: task.config.scenarios?.map((scenario) => ({
-                id: scenario.id,
-                situation: scenario.situation || scenario.text,
-                hint: scenario.hint || "",
-                options: scenario.options?.map((option) => ({
-                  id: option.id,
-                  text: option.text,
-                  isCorrect: option.isCorrect,
-                  feedback: option.feedback
-                })) || []
-              })) || []
-            }
+              scenarios:
+                task.config.scenarios?.map((scenario) => ({
+                  id: scenario.id,
+                  situation: scenario.situation || scenario.text,
+                  hint: scenario.hint || "",
+                  options:
+                    scenario.options?.map((option) => ({
+                      id: option.id,
+                      text: option.text,
+                      isCorrect: option.isCorrect,
+                      feedback: option.feedback,
+                    })) || [],
+                })) || [],
+            },
           };
         } else if (task.type === "build-your-own") {
           return {
@@ -707,8 +707,8 @@ const Towmodules = () => {
             config: {
               components: task.config.components || [],
               validationRules: task.config.validationRules || [],
-              feedback: task.config.feedback || {}
-            }
+              feedback: task.config.feedback || {},
+            },
           };
         }
         return task;
@@ -1407,14 +1407,19 @@ const Towmodules = () => {
                   <div className="mb-4">
                     <h5 className="font-medium mb-1">Categories</h5>
                     {task.config.categories?.map((category, catIndex) => (
-                      <div key={catIndex} className="flex items-center gap-2 mb-2">
+                      <div
+                        key={catIndex}
+                        className="flex items-center gap-2 mb-2"
+                      >
                         <input
                           type="text"
                           value={category.name}
                           className="flex-1 p-2 border border-gray-300 rounded"
                           readOnly
                         />
-                        <span className="text-sm text-gray-500">ID: {category.id}</span>
+                        <span className="text-sm text-gray-500">
+                          ID: {category.id}
+                        </span>
                       </div>
                     ))}
                   </div>
@@ -1427,7 +1432,8 @@ const Towmodules = () => {
                         className="mb-4 p-3 border border-gray-200 rounded"
                       >
                         <h6 className="font-medium mb-2">
-                          Scenario {scenarioIndex + 1}: {scenario.situation || scenario.text}
+                          Scenario {scenarioIndex + 1}:{" "}
+                          {scenario.situation || scenario.text}
                         </h6>
 
                         {scenario.options?.map((option, optionIndex) => (
@@ -1465,14 +1471,19 @@ const Towmodules = () => {
                   <div className="mb-4">
                     <h5 className="font-medium mb-1">Components</h5>
                     {task.config.components?.map((component, compIndex) => (
-                      <div key={compIndex} className="flex items-center gap-2 mb-2">
+                      <div
+                        key={compIndex}
+                        className="flex items-center gap-2 mb-2"
+                      >
                         <input
                           type="text"
                           value={component.text}
                           className="flex-1 p-2 border border-gray-300 rounded"
                           readOnly
                         />
-                        <span className="text-sm text-gray-500">ID: {component.id}</span>
+                        <span className="text-sm text-gray-500">
+                          ID: {component.id}
+                        </span>
                       </div>
                     ))}
                   </div>
@@ -1493,7 +1504,9 @@ const Towmodules = () => {
 
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                     <div>
-                      <label className="block text-sm font-medium mb-1">Weak Feedback</label>
+                      <label className="block text-sm font-medium mb-1">
+                        Weak Feedback
+                      </label>
                       <input
                         type="text"
                         value={task.config.feedback?.weak || ""}
@@ -1502,7 +1515,9 @@ const Towmodules = () => {
                       />
                     </div>
                     <div>
-                      <label className="block text-sm font-medium mb-1">Moderate Feedback</label>
+                      <label className="block text-sm font-medium mb-1">
+                        Moderate Feedback
+                      </label>
                       <input
                         type="text"
                         value={task.config.feedback?.moderate || ""}
@@ -1511,7 +1526,9 @@ const Towmodules = () => {
                       />
                     </div>
                     <div>
-                      <label className="block text-sm font-medium mb-1">Strong Feedback</label>
+                      <label className="block text-sm font-medium mb-1">
+                        Strong Feedback
+                      </label>
                       <input
                         type="text"
                         value={task.config.feedback?.strong || ""}
