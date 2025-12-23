@@ -11,9 +11,9 @@ const modulesOne = baseApi.injectEndpoints({
       transformResponse: (response) => response,
     }),
     updateModulesOne: builder.mutation({
-      query: ({id, updatedData}) => {
+      query: ({ id, updatedData }) => {
         return {
-          url: `/admin/modulesOne/${id}`,
+          url: `/admin/modules/${id}`,
           method: "PATCH",
           body: updatedData,
         };
@@ -23,7 +23,5 @@ const modulesOne = baseApi.injectEndpoints({
   }),
 });
 
-export const {
-  useGetModulesOneByIdQuery,
-  useUpdateModulesOneMutation,
-} = modulesOne;
+export const { useGetModulesOneByIdQuery, useUpdateModulesOneMutation } =
+  modulesOne;

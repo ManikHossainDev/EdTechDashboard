@@ -13,7 +13,7 @@ const modulesOne = baseApi.injectEndpoints({
     updateModulesTwo: builder.mutation({
       query: ({ id, updatedData }) => {
         return {
-          url: `/admin/modulesOne/${id}`,
+          url: `/admin/modules/${id}`,
           method: "PATCH",
           body: updatedData,
         };
