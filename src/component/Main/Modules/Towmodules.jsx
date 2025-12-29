@@ -1061,8 +1061,6 @@ const Towmodules = () => {
                   >
                     <option value="text">Text</option>
                     <option value="image">Image</option>
-                    <option value="video">Video</option>
-                    <option value="audio">Audio</option>
                   </select>
                 </div>
 
