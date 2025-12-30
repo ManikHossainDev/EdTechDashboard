@@ -2,19 +2,21 @@ import { baseApi } from "../../baseApi/baseApi";
 
 const settingApi = baseApi.injectEndpoints({
   endpoints: (builder) => ({
-    getTermsCondition: builder.query({
-      query: () => ({
-        url: "/info/terms-condition",
+    getSettingContentWithType: builder.query({
+      query: (type) => ({
+        url: `/admin/settings/content/${type}`,
         method: "GET",
       }),
-      transformResponse: (response) => response?.data?.attributes,
+      transformResponse: (response) => response?.data,
+      providesTags: ["privacy_update"],
     }),
-    getPrivacyPolicy: builder.query({
-      query: () => ({
-        url: "/info/privacy-policy",
-        method: "GET",
+    updateContent: builder.mutation({
+      query: (updateBody) => ({
+        url: `/admin/settings/content`,
+        method: "POST",
+        body: updateBody,
       }),
-      transformResponse: (response) => response?.data?.attributes,
+      invalidatesTags: ["privacy_update"],
     }),
     getAboutUs: builder.query({
       query: () => ({
@@ -27,7 +29,9 @@ const settingApi = baseApi.injectEndpoints({
 });
 
 export const {
-  useGetTermsConditionQuery,
-  useGetPrivacyPolicyQuery,
+  useGetSettingContentWithTypeQuery,
   useGetAboutUsQuery,
+  useUpdateContentMutation,
 } = settingApi;
+
+// about_us contact_us privacy_policy terms_conditions

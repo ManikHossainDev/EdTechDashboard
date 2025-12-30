@@ -1,10 +1,13 @@
-
 import { IoChevronBack } from "react-icons/io5";
 import { TbEdit } from "react-icons/tb";
 import { Link } from "react-router-dom";
 import CustomButton from "../../utils/CustomButton";
+import { useGetSettingContentWithTypeQuery } from "../../redux/features/setting/settingApi";
 
 const PrivacyPolicyPage = () => {
+  const { data: privacyPolicy } =
+    useGetSettingContentWithTypeQuery("privacy_policy");
+
   return (
     <section className="w-full h-full min-h-screen">
       <div className="flex justify-between items-center py-5">
@@ -23,21 +26,14 @@ const PrivacyPolicyPage = () => {
       </div>
 
       <div>
-        <p className="text-lg text-black px-5">
-          {/* {privacy.content} */}
-          Lorem, ipsum dolor sit amet consectetur adipisicing elit.
-          Reprehenderit ex ad voluptate dolores, debitis qui vitae nobis! Sit
-          hic eligendi qui cumque mollitia illum fuga fugit dolores odio,
-          commodi placeat omnis? Ratione pariatur dolor consequatur eligendi
-          aliquid at recusandae maiores adipisci, laboriosam corrupti excepturi
-          ad dolorum? Minima corrupti deserunt ipsum, illum eum et numquam nihil
-          alias exercitationem! Minus voluptate, commodi quod laborum expedita
-          hic officiis doloremque voluptatum nesciunt minima id ratione neque,
-          impedit unde possimus, veniam architecto harum nostrum quibusdam
-          voluptas eius magnam itaque animi quo. Fugiat id explicabo repellendus
-          saepe excepturi nam cumque necessitatibus enim aperiam impedit? Aut,
-          dolorem!
-        </p>
+        {privacyPolicy ? (
+          <div
+            className="text-lg text-black px-5 prose max-w-none"
+            dangerouslySetInnerHTML={{ __html: privacyPolicy.content }}
+          />
+        ) : (
+          <p className="text-lg text-black px-5">Loading privacy policy...</p>
+        )}
       </div>
     </section>
   );

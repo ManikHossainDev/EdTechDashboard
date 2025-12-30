@@ -1,21 +1,46 @@
 import { IoChevronBack } from "react-icons/io5";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import ReactQuill from "react-quill"; // Import React Quill
 import "react-quill/dist/quill.snow.css"; // Import Quill styles
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import CustomButton from "../../utils/CustomButton";
 import { Button, Form } from "antd";
+import {
+  useGetSettingContentWithTypeQuery,
+  useUpdateContentMutation,
+} from "../../redux/features/setting/settingApi";
 
 const EditPrivacyPolicy = () => {
+  const type = "privacy_policy";
   const [form] = Form.useForm();
-  const [content, setContent] = useState(
-    "<h1>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Suspendisse at adipiscing proin et.</h1>"
-  ); // Default content for the privacy policy
+  const navigate = useNavigate();
 
-  const handleSubmit = () => {
-    console.log("Updated Privacy Policy Content:", content);
-    // Handle form submission, e.g., update the privacy policy in the backend
+  const { data: privacyPolicy } = useGetSettingContentWithTypeQuery(type);
+  const [updatePrivacy] = useUpdateContentMutation();
+  const [content, setContent] = useState(privacyPolicy?.content);
+
+  const handleSubmit = async () => {
+    const format = {
+      type,
+      title: "Privacy Policy",
+      content,
+    };
+
+    try {
+      const res = await updatePrivacy(format);
+
+      if (res.data?.code == 200) {
+        alert("Update Done");
+        navigate("/settings/privacy-policy");
+      }
+    } catch (error) {
+      console.error(error);
+    }
   };
+
+  useEffect(() => {
+    setContent(privacyPolicy?.content);
+  }, [privacyPolicy]);
 
   return (
     <section className="w-full h-full min-h-screen ">
@@ -55,19 +80,19 @@ const EditPrivacyPolicy = () => {
               style={{ height: "300px" }} // Set the increased height
             />
           </Form.Item>
-          
+
           {/* Update Button */}
-         <div className="w-full flex justify-end mt-20 md:mt-16">
-         <Button
-          type="primary"
-          htmlType="submit"
-          icon={<i className="fas fa-sync-alt"></i>} // Example FontAwesome icon
-          className="mt-1 px-5 rounded-lg bg-gray-500 py-5  border-none"
-        >
-          Cancel 
-        </Button>
-         <CustomButton className="p-1" >Update</CustomButton>
-         </div>
+          <div className="w-full flex justify-end mt-20 md:mt-16">
+            <Button
+              type="primary"
+              htmlType="submit"
+              icon={<i className="fas fa-sync-alt"></i>} // Example FontAwesome icon
+              className="mt-1 px-5 rounded-lg bg-gray-500 py-5  border-none"
+            >
+              Cancel
+            </Button>
+            <CustomButton className="p-1">Update</CustomButton>
+          </div>
         </Form>
       </div>
     </section>
