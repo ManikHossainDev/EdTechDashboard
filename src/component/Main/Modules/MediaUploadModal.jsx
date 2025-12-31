@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 
 const MediaUploadModal = ({ isOpen, onClose, onUpload, mediaType }) => {
   const [file, setFile] = useState(null);
@@ -62,10 +62,7 @@ const MediaUploadModal = ({ isOpen, onClose, onUpload, mediaType }) => {
     >
       <div className="bg-white rounded-lg p-6 w-full max-w-md mx-4 shadow-xl">
         <div className="flex justify-between items-center mb-4">
-          <h3
-            id="media-upload-modal-title"
-            className="text-lg font-semibold"
-          >
+          <h3 id="media-upload-modal-title" className="text-lg font-semibold">
             Upload {mediaType === "video" ? "Video" : "Image"}
           </h3>
           <button

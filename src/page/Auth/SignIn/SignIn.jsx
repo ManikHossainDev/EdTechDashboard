@@ -9,7 +9,6 @@ import { useDispatch } from "react-redux";
 import { loggedUser } from "../../../redux/features/auth/authSlice";
 
 const SignIn = () => {
-
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const [login, { isLoading }] = useLoginMutation();
@@ -18,17 +17,17 @@ const SignIn = () => {
     const { email, password } = values;
     try {
       const res = await login({ email, password }).unwrap();
-      console.log(res)
-      console.log(res?.data?.user)
-      if(res?.code === 200){
-         dispatch(
-        loggedUser({
-          token: res?.data?.accessToken,
-          user: res?.data?.user,
-        })
-      );
-       toast.success(res?.message || "Login successful");
-       navigate("/");
+      console.log(res);
+      console.log(res?.data?.user);
+      if (res?.code === 200) {
+        dispatch(
+          loggedUser({
+            token: res?.data?.accessToken,
+            user: res?.data?.user,
+          })
+        );
+        navigate("/");
+        toast.success(res?.message || "Login successful");
       }
     } catch (error) {
       toast.error(error?.data?.message || "Something went wrong");
@@ -38,7 +37,6 @@ const SignIn = () => {
   return (
     <div className="w-full h-full md:h-screen md:flex justify-around">
       <div className="w-full max-w-7xl mx-auto rounded-md h-[70%] md:my-28 grid grid-cols-1 md:grid-cols-2 place-content-center px-5 py-10 md:mx-10">
-        
         {/* Left Image */}
         <div className="bg-[#ffffff] hidden md:block">
           <img
@@ -104,10 +102,7 @@ const SignIn = () => {
                 </Checkbox>
               </Form.Item>
 
-              <Link
-                to="/auth/forget-password"
-                className="underline text-white"
-              >
+              <Link to="/auth/forget-password" className="underline text-white">
                 Forgot password?
               </Link>
             </div>
