@@ -1,9 +1,8 @@
 import { useState } from "react";
+import PropTypes from "prop-types";
 
 const MediaUploadModal = ({ isOpen, onClose, onUpload, mediaType }) => {
   const [file, setFile] = useState(null);
-  const [externalUrl, setExternalUrl] = useState("");
-  const [uploadMethod, setUploadMethod] = useState("internal"); // "internal" or "external"
   const [uploading, setUploading] = useState(false);
 
   const handleFileChange = (e) => {
@@ -15,7 +14,7 @@ const MediaUploadModal = ({ isOpen, onClose, onUpload, mediaType }) => {
     setUploading(true);
 
     try {
-      if (uploadMethod === "internal" && file) {
+      if (file) {
         // Simulate upload process
         const reader = new FileReader();
         reader.onloadend = () => {
@@ -31,18 +30,6 @@ const MediaUploadModal = ({ isOpen, onClose, onUpload, mediaType }) => {
           onClose();
         };
         reader.readAsDataURL(file);
-      } else if (uploadMethod === "external" && externalUrl) {
-        // External URL provided
-        const uploadedData = {
-          url: externalUrl,
-          publicId: `external_${Date.now()}`,
-          alt: `${mediaType} from external URL`,
-          caption: "",
-          duration: mediaType === "video" ? 30 : undefined, // Placeholder duration for videos
-        };
-        onUpload(uploadedData);
-        setUploading(false);
-        onClose();
       }
     } catch (error) {
       console.error("Upload error:", error);
@@ -76,69 +63,22 @@ const MediaUploadModal = ({ isOpen, onClose, onUpload, mediaType }) => {
 
         <form onSubmit={handleSubmit}>
           <div className="mb-4">
-            <div className="flex space-x-4 mb-4">
-              <label className="flex items-center cursor-pointer">
-                <input
-                  type="radio"
-                  name="uploadMethod"
-                  value="internal"
-                  checked={uploadMethod === "internal"}
-                  onChange={() => setUploadMethod("internal")}
-                  className="mr-2 h-4 w-4 text-blue-600 focus:ring-blue-500"
-                  aria-label="Upload file from device"
-                />
-                <span>Upload File</span>
+            <div>
+              <label
+                htmlFor="media-file-upload"
+                className="block text-sm font-medium mb-2"
+              >
+                Select {mediaType === "video" ? "Video" : "Image"} File
               </label>
-              <label className="flex items-center cursor-pointer">
-                <input
-                  type="radio"
-                  name="uploadMethod"
-                  value="external"
-                  checked={uploadMethod === "external"}
-                  onChange={() => setUploadMethod("external")}
-                  className="mr-2 h-4 w-4 text-blue-600 focus:ring-blue-500"
-                  aria-label="Use external URL"
-                />
-                <span>External URL</span>
-              </label>
+              <input
+                id="media-file-upload"
+                type="file"
+                accept={mediaType === "video" ? "video/*" : "image/*"}
+                onChange={handleFileChange}
+                className="w-full p-2 border border-gray-300 rounded focus:ring-blue-500 focus:border-blue-500"
+                required
+              />
             </div>
-
-            {uploadMethod === "internal" ? (
-              <div>
-                <label
-                  htmlFor="media-file-upload"
-                  className="block text-sm font-medium mb-2"
-                >
-                  Select {mediaType === "video" ? "Video" : "Image"} File
-                </label>
-                <input
-                  id="media-file-upload"
-                  type="file"
-                  accept={mediaType === "video" ? "video/*" : "image/*"}
-                  onChange={handleFileChange}
-                  className="w-full p-2 border border-gray-300 rounded focus:ring-blue-500 focus:border-blue-500"
-                  required
-                />
-              </div>
-            ) : (
-              <div>
-                <label
-                  htmlFor="external-url-input"
-                  className="block text-sm font-medium mb-2"
-                >
-                  Enter {mediaType === "video" ? "Video" : "Image"} URL
-                </label>
-                <input
-                  id="external-url-input"
-                  type="url"
-                  value={externalUrl}
-                  onChange={(e) => setExternalUrl(e.target.value)}
-                  className="w-full p-2 border border-gray-300 rounded focus:ring-blue-500 focus:border-blue-500"
-                  placeholder={`https://example.com/${mediaType}.ext`}
-                  required
-                />
-              </div>
-            )}
           </div>
 
           <div className="flex justify-end space-x-3">
@@ -190,6 +130,13 @@ const MediaUploadModal = ({ isOpen, onClose, onUpload, mediaType }) => {
       </div>
     </div>
   );
+};
+
+MediaUploadModal.propTypes = {
+  isOpen: PropTypes.bool.isRequired,
+  onClose: PropTypes.func.isRequired,
+  onUpload: PropTypes.func.isRequired,
+  mediaType: PropTypes.string.isRequired,
 };
 
 export default MediaUploadModal;
