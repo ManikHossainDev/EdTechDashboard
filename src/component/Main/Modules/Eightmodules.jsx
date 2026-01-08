@@ -6,6 +6,7 @@ import {
 import MediaUploadModal from "./MediaUploadModal";
 
 const Eightmodules = () => {
+  // module id eight
   const id = "6936776976dca28d7e43e6c7";
   const { data, isLoading, isError, error } = useGetModulesByIdQuery(id);
   // Handle form submission - moved to top to maintain consistent hook order
@@ -672,7 +673,7 @@ const Eightmodules = () => {
         }
         return null; // Only include build-your-own tasks as per required format
       })
-      .filter(task => task !== null);
+      .filter((task) => task !== null);
 
     // Format quiz questions
     const quizQuestions = formData.quiz.questions
@@ -1428,49 +1429,61 @@ const Eightmodules = () => {
 
                   <div className="mb-4">
                     <h5 className="font-medium mb-1">Activity Toolbox</h5>
-                    {task.config.activityToolbox?.map((activity, activityIndex) => (
-                      <div
-                        key={activityIndex}
-                        className="grid grid-cols-1 md:grid-cols-4 gap-2 mb-2 p-2 border border-gray-200 rounded"
-                      >
-                        <div>
-                          <label className="block text-xs font-medium mb-1">ID</label>
-                          <input
-                            type="text"
-                            value={activity.id || ""}
-                            className="w-full p-1 text-xs border border-gray-300 rounded"
-                            readOnly
-                          />
+                    {task.config.activityToolbox?.map(
+                      (activity, activityIndex) => (
+                        <div
+                          key={activityIndex}
+                          className="grid grid-cols-1 md:grid-cols-4 gap-2 mb-2 p-2 border border-gray-200 rounded"
+                        >
+                          <div>
+                            <label className="block text-xs font-medium mb-1">
+                              ID
+                            </label>
+                            <input
+                              type="text"
+                              value={activity.id || ""}
+                              className="w-full p-1 text-xs border border-gray-300 rounded"
+                              readOnly
+                            />
+                          </div>
+                          <div>
+                            <label className="block text-xs font-medium mb-1">
+                              Name
+                            </label>
+                            <input
+                              type="text"
+                              value={activity.name || ""}
+                              className="w-full p-1 text-xs border border-gray-300 rounded"
+                              readOnly
+                            />
+                          </div>
+                          <div>
+                            <label className="block text-xs font-medium mb-1">
+                              Icon
+                            </label>
+                            <input
+                              type="text"
+                              value={activity.icon || ""}
+                              className="w-full p-1 text-xs border border-gray-300 rounded text-center"
+                              readOnly
+                            />
+                          </div>
+                          <div>
+                            <label className="block text-xs font-medium mb-1">
+                              Min/Max
+                            </label>
+                            <input
+                              type="text"
+                              value={`${activity.min || 0}-${
+                                activity.max || 10
+                              }`}
+                              className="w-full p-1 text-xs border border-gray-300 rounded text-center"
+                              readOnly
+                            />
+                          </div>
                         </div>
-                        <div>
-                          <label className="block text-xs font-medium mb-1">Name</label>
-                          <input
-                            type="text"
-                            value={activity.name || ""}
-                            className="w-full p-1 text-xs border border-gray-300 rounded"
-                            readOnly
-                          />
-                        </div>
-                        <div>
-                          <label className="block text-xs font-medium mb-1">Icon</label>
-                          <input
-                            type="text"
-                            value={activity.icon || ""}
-                            className="w-full p-1 text-xs border border-gray-300 rounded text-center"
-                            readOnly
-                          />
-                        </div>
-                        <div>
-                          <label className="block text-xs font-medium mb-1">Min/Max</label>
-                          <input
-                            type="text"
-                            value={`${activity.min || 0}-${activity.max || 10}`}
-                            className="w-full p-1 text-xs border border-gray-300 rounded text-center"
-                            readOnly
-                          />
-                        </div>
-                      </div>
-                    ))}
+                      )
+                    )}
                   </div>
 
                   <div className="mb-4">
@@ -1481,7 +1494,9 @@ const Eightmodules = () => {
                         className="grid grid-cols-1 md:grid-cols-3 gap-2 mb-2 p-2 border border-gray-200 rounded"
                       >
                         <div>
-                          <label className="block text-xs font-medium mb-1">Activity</label>
+                          <label className="block text-xs font-medium mb-1">
+                            Activity
+                          </label>
                           <input
                             type="text"
                             value={tip.activity || ""}
@@ -1490,7 +1505,9 @@ const Eightmodules = () => {
                           />
                         </div>
                         <div>
-                          <label className="block text-xs font-medium mb-1">Status</label>
+                          <label className="block text-xs font-medium mb-1">
+                            Status
+                          </label>
                           <input
                             type="text"
                             value={tip.status || ""}
@@ -1499,7 +1516,9 @@ const Eightmodules = () => {
                           />
                         </div>
                         <div>
-                          <label className="block text-xs font-medium mb-1">Message</label>
+                          <label className="block text-xs font-medium mb-1">
+                            Message
+                          </label>
                           <input
                             type="text"
                             value={tip.message || ""}
@@ -1519,7 +1538,9 @@ const Eightmodules = () => {
                         className="grid grid-cols-1 md:grid-cols-3 gap-2 mb-2 p-2 border border-gray-200 rounded"
                       >
                         <div>
-                          <label className="block text-xs font-medium mb-1">ID</label>
+                          <label className="block text-xs font-medium mb-1">
+                            ID
+                          </label>
                           <input
                             type="text"
                             value={badge.id || ""}
@@ -1528,7 +1549,9 @@ const Eightmodules = () => {
                           />
                         </div>
                         <div>
-                          <label className="block text-xs font-medium mb-1">Name</label>
+                          <label className="block text-xs font-medium mb-1">
+                            Name
+                          </label>
                           <input
                             type="text"
                             value={badge.name || ""}
@@ -1537,7 +1560,9 @@ const Eightmodules = () => {
                           />
                         </div>
                         <div>
-                          <label className="block text-xs font-medium mb-1">Icon</label>
+                          <label className="block text-xs font-medium mb-1">
+                            Icon
+                          </label>
                           <input
                             type="text"
                             value={badge.icon || ""}

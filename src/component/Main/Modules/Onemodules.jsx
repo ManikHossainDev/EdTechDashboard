@@ -5,7 +5,8 @@ import {
 } from "../../../redux/features/modules/modulesOne";
 
 const Onemodules = () => {
-  const id = "69351cf24826bf0c83d19eef";
+  // module id one
+  const id = "695b946312423eb787bb458d";
   const { data, isLoading, isError, error } = useGetModulesOneByIdQuery(id);
 
   // Handle form submission - moved to top to maintain consistent hook order

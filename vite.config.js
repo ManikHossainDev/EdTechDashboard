@@ -7,6 +7,6 @@ export default defineConfig({
   server: {
     allowedHosts: ["mobilklar.merinasib.shop"],
     host: "0.0.0.0",
-    port: 3060,
+    port: 9500,
   },
 });

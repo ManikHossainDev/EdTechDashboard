@@ -7,7 +7,7 @@ const modulesOne = baseApi.injectEndpoints({
         url: `/admin/modules/${id}`,
         method: "GET",
       }),
-      providesTags: ["modulesOnes"],
+      providesTags: ["modules"],
       transformResponse: (response) => response,
     }),
     updateModulesOne: builder.mutation({
@@ -18,7 +18,7 @@ const modulesOne = baseApi.injectEndpoints({
           body: updatedData,
         };
       },
-      invalidatesTags: ["modulesOnes"],
+      invalidatesTags: ["modules"],
     }),
   }),
 });
