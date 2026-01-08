@@ -1,13 +1,6 @@
 /* eslint-disable no-unused-vars */
 import { useState } from "react";
-import {
-  ConfigProvider,
-  Modal,
-  Table,
-  Form,
-  Input,
-  Avatar,
-} from "antd";
+import { ConfigProvider, Modal, Table, Form, Input, Avatar } from "antd";
 import moment from "moment";
 import { IoEyeSharp } from "react-icons/io5";
 import { useGetAllParentsQuery } from "../../../redux/features/parents/parents";
@@ -25,7 +18,7 @@ const Users = () => {
     search: searchText,
   });
 
-  console.log(data)
+  console.log(data);
 
   const parents = data?.data || [];
   const meta = data?.meta || {};
@@ -51,7 +44,11 @@ const Users = () => {
       dataIndex: "name",
       render: (text, record) => (
         <div className="flex items-center gap-3">
-          <img src={record.profilePicture} alt="image" />
+          <img
+            src={record.profilePicture}
+            alt="image"
+            className="w-[50px] h-[50px] rounded-md"
+          />
           <span>{text}</span>
         </div>
       ),
@@ -69,14 +66,12 @@ const Users = () => {
     {
       title: "Children",
       dataIndex: "childrenNames",
-      render: (children) =>
-        children?.length ? children.join(", ") : "N/A",
+      render: (children) => (children?.length ? children.join(", ") : "N/A"),
     },
     {
       title: "Joined Date",
       dataIndex: "joinedAt",
-      render: (date) =>
-        date ? moment(date).format("DD MMM YYYY") : "N/A",
+      render: (date) => (date ? moment(date).format("DD MMM YYYY") : "N/A"),
     },
     {
       title: "Action",
@@ -146,15 +141,21 @@ const Users = () => {
             <Avatar size={80} src={selectedUser?.profilePicture}>
               {selectedUser?.name?.charAt(0)}
             </Avatar>
-            <h2 className="text-xl font-semibold mt-2">
-              {selectedUser?.name}
-            </h2>
+            <h2 className="text-xl font-semibold mt-2">{selectedUser?.name}</h2>
           </div>
 
-          <p><strong>Email:</strong> {selectedUser?.email}</p>
-          <p><strong>Phone:</strong> {selectedUser?.phoneNumber}</p>
-          <p><strong>Address:</strong> {selectedUser?.address}</p>
-          <p><strong>Children Count:</strong> {selectedUser?.childrenCount}</p>
+          <p>
+            <strong>Email:</strong> {selectedUser?.email}
+          </p>
+          <p>
+            <strong>Phone:</strong> {selectedUser?.phoneNumber}
+          </p>
+          <p>
+            <strong>Address:</strong> {selectedUser?.address}
+          </p>
+          <p>
+            <strong>Children Count:</strong> {selectedUser?.childrenCount}
+          </p>
           <p>
             <strong>Joined:</strong>{" "}
             {moment(selectedUser?.joinedAt).format("DD MMM YYYY")}
