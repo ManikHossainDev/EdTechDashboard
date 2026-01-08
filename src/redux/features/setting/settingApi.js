@@ -25,6 +25,39 @@ const settingApi = baseApi.injectEndpoints({
       }),
       transformResponse: (response) => response?.data?.attributes,
     }),
+    getFaq: builder.query({
+      query: () => ({
+        url: "/admin/faqs",
+        method: "GET",
+      }),
+      transformResponse: (response) => response?.data,
+    }),
+    updateFaq: builder.mutation({
+      query: ({ faqId, updateBody }) => ({
+        url: `/admin/faqs/${faqId}`,
+        method: "PATCH", // Changed to PATCH for updates
+        body: updateBody,
+      }),
+      transformResponse: (response) => response?.data,
+      invalidatesTags: ["faqs"],
+    }),
+    createFaq: builder.mutation({
+      query: (newFaq) => ({
+        url: `/admin/faqs`,
+        method: "POST",
+        body: newFaq,
+      }),
+      transformResponse: (response) => response?.data,
+      invalidatesTags: ["faqs"],
+    }),
+    deleteFaq: builder.mutation({
+      query: (faqId) => ({
+        url: `/admin/faqs/${faqId}`,
+        method: "DELETE",
+      }),
+      transformResponse: (response) => response?.data,
+      invalidatesTags: ["faqs"],
+    }),
   }),
 });
 
@@ -32,6 +65,10 @@ export const {
   useGetSettingContentWithTypeQuery,
   useGetAboutUsQuery,
   useUpdateContentMutation,
+  useGetFaqQuery,
+  useUpdateFaqMutation,
+  useCreateFaqMutation,
+  useDeleteFaqMutation,
 } = settingApi;
 
 // about_us contact_us privacy_policy terms_conditions
