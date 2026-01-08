@@ -1,21 +1,46 @@
 import { IoChevronBack } from "react-icons/io5";
-import { Link } from "react-router-dom";
-import { Button, Form } from "antd";
+import { Link, useNavigate } from "react-router-dom";
 import ReactQuill from "react-quill"; // Import React Quill
 import "react-quill/dist/quill.snow.css"; // Import Quill styles
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import CustomButton from "../../utils/CustomButton";
+import { Button, Form } from "antd";
+import {
+  useGetSettingContentWithTypeQuery,
+  useUpdateContentMutation,
+} from "../../redux/features/setting/settingApi";
 
 const EditAboutUs = () => {
+  const type = "about_us";
   const [form] = Form.useForm();
-  const [content, setContent] = useState(
-    "<p>Enter your 'About Us' content here.</p>"
-  ); // Default content for the About Us section
+  const navigate = useNavigate();
 
-  const handleSubmit = () => {
-    console.log("Updated About Us Content:", content);
-    // Handle form submission, e.g., update the about us section in the backend
+  const { data: aboutUsContent } = useGetSettingContentWithTypeQuery(type);
+  const [updateAboutUs] = useUpdateContentMutation();
+  const [content, setContent] = useState(aboutUsContent?.content);
+
+  const handleSubmit = async () => {
+    const format = {
+      type,
+      title: "About Us",
+      content,
+    };
+
+    try {
+      const res = await updateAboutUs(format);
+
+      if (res.data?.code == 200) {
+        alert("Update Done");
+        navigate("/settings/about-us");
+      }
+    } catch (error) {
+      console.error(error);
+    }
   };
+
+  useEffect(() => {
+    setContent(aboutUsContent?.content);
+  }, [aboutUsContent]);
 
   return (
     <section className="w-full h-full min-h-screen ">
@@ -57,17 +82,17 @@ const EditAboutUs = () => {
           </Form.Item>
 
           {/* Update Button */}
-            <div className="w-full flex justify-end mt-20 md:mt-16">
+          <div className="w-full flex justify-end mt-20 md:mt-16">
             <Button
               type="primary"
               htmlType="submit"
               icon={<i className="fas fa-sync-alt"></i>} // Example FontAwesome icon
               className="mt-1 px-5 rounded-lg bg-gray-500 py-5  border-none"
             >
-              Cancel 
+              Cancel
             </Button>
-            <CustomButton className="p-1" >Update</CustomButton>
-            </div>
+            <CustomButton className="p-1">Update</CustomButton>
+          </div>
         </Form>
       </div>
     </section>
