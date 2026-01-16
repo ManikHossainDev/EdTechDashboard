@@ -9,6 +9,7 @@ const Sixmodules = () => {
   // module id six
   const id = "69366f0df4d0d2d1e21e1d67";
   const { data, isLoading, isError, error } = useGetModulesByIdQuery(id);
+  console.log(data);
   // Handle form submission - moved to top to maintain consistent hook order
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [updateModuleTwo] = useUpdateModulesOneMutation();
@@ -20,13 +21,13 @@ const Sixmodules = () => {
 
   // Optimized data transformation function
   const transformApiData = (apiData) => {
-    if (!apiData?.data) return null;
+    if (!apiData) return null;
 
-    const moduleData = apiData.data;
+    const moduleData = apiData;
 
     // Format learning objectives
     const formattedLearningObjectives =
-      moduleData.learningObjectives?.map((obj) => obj.text) || [];
+      moduleData.learningObjectives?.map((obj) => typeof obj === 'string' ? obj : obj.text) || [];
 
     // Format learning content as content blocks
     const formattedContentBlocks =
@@ -35,10 +36,8 @@ const Sixmodules = () => {
           return {
             type: content.type,
             order: content.order || index + 1,
-            content: content.content?.text || "",
-            image: content.content?.image || null,
-            alt: content.content?.image?.alt || "",
-            caption: content.content?.image?.caption || "",
+            content: content.content || "",
+            image: content.image || null,
           };
         } else {
           return {
@@ -52,14 +51,51 @@ const Sixmodules = () => {
 
     // Format interactive tasks
     const formattedInteractiveTasks =
-      moduleData.interactiveTasks?.map((task) => ({
-        type: task.type || "sort-categories",
-        title: task.title || "",
-        description: task.description || "",
-        instructions: task.instructions || "",
-        points: task.points || 20,
-        config: task.config || {},
-      })) || [];
+      moduleData.interactiveTasks?.map((task) => {
+        if (task.type === "chat-simulator") {
+          return {
+            type: task.type,
+            title: task.title || "",
+            description: task.description || "",
+            instructions: task.instructions || "",
+            points: task.points || 42.6,
+            config: {
+              moodMeter: task.config?.moodMeter || {
+                states: [
+                  { id: "happy", name: "Happy", emoji: "😄", color: "#4CAF50", order: 1 },
+                  { id: "neutral", name: "Neutral", emoji: "😐", color: "#FFC107", order: 2 },
+                  { id: "angry", name: "Angry", emoji: "😠", color: "#F44336", order: 3 }
+                ],
+                initialState: "neutral",
+                showMeter: true
+              },
+              scenarios: task.config?.scenarios || [],
+              friends: task.config?.friends || [],
+            }
+          };
+        } else if (task.type === "scenario-choice") {
+          return {
+            type: task.type,
+            title: task.title || "",
+            description: task.description || "",
+            instructions: task.instructions || "",
+            points: task.points || 500,
+            config: {
+              categories: task.config?.categories || [],
+              scenarios: task.config?.scenarios || [],
+            }
+          };
+        } else {
+          return {
+            type: task.type || "sort-categories",
+            title: task.title || "",
+            description: task.description || "",
+            instructions: task.instructions || "",
+            points: task.points || 20,
+            config: task.config || {},
+          };
+        }
+      }) || [];
 
     // Format quiz
     const formattedQuiz = {
@@ -149,12 +185,29 @@ const Sixmodules = () => {
       contentBlocks: [{ type: "text", order: 1, content: "", listItems: [] }],
       interactiveTasks: [
         {
-          type: "sort-categories",
+          type: "chat-simulator",
           title: "",
           description: "",
           instructions: "",
-          points: 20,
-          config: {},
+          points: 42.6,
+          config: {
+            moodMeter: {
+              states: [
+                { id: "happy", name: "Happy", emoji: "😄", color: "#4CAF50", order: 1 },
+                { id: "neutral", name: "Neutral", emoji: "😐", color: "#FFC107", order: 2 },
+                { id: "angry", name: "Angry", emoji: "😠", color: "#F44336", order: 3 }
+              ],
+              initialState: "neutral",
+              showMeter: true
+            },
+            scenarios: [],
+            friends: [
+              { id: "emma", name: "Emma", emoji: "🦄", icon: "🦄" },
+              { id: "noah", name: "Noah", emoji: "⚽", icon: "⚽" },
+              { id: "mia", name: "Mia", emoji: "✈️", icon: "✈️" },
+              { id: "alex", name: "Alex", emoji: "🎮", icon: "🎮" }
+            ],
+          },
         },
       ],
       quiz: {
@@ -169,9 +222,13 @@ const Sixmodules = () => {
             questionNumber: 1,
             type: "multiple-choice",
             question: "",
-            points: 10,
+            points: 5,
             explanation: "",
-            options: [{ id: "A", text: "", isCorrect: false }],
+            options: [
+              { id: "A", text: "", isCorrect: false },
+              { id: "B", text: "", isCorrect: false },
+              { id: "C", text: "", isCorrect: false }
+            ],
           },
         ],
       },
@@ -231,29 +288,15 @@ const Sixmodules = () => {
     );
   }
 
-  // Console log the original data
-  console.log("Original API Data:", data);
-
-  // Transform the data
-  const formattedData = transformApiData(data);
-
-  // Console log the transformed data
-  console.log("Formatted Data:", formattedData);
-
-  // Log the updated values after transformation
-  console.log("Updated values after transformation:", {
-    title: formattedData?.title,
-    description: formattedData?.description,
-    learningObjectives: formattedData?.learningObjectives,
-    contentBlocks: formattedData?.contentBlocks,
-    interactiveTasks: formattedData?.interactiveTasks,
-    quiz: formattedData?.quiz,
-    parentTip: formattedData?.parentTip,
-  });
-
   // Handle main form changes
   const handleMainChange = (e) => {
     const { name, value } = e.target;
+
+    // Prevent changes to moduleNumber and order
+    if (name === 'moduleNumber' || name === 'order') {
+      return;
+    }
+
     setFormData((prev) => {
       const updatedData = {
         ...prev,
@@ -363,12 +406,29 @@ const Sixmodules = () => {
       interactiveTasks: [
         ...prev.interactiveTasks,
         {
-          type: "sort-categories",
+          type: "chat-simulator",
           title: "",
           description: "",
           instructions: "",
-          points: 20,
-          config: {},
+          points: 42.6,
+          config: {
+            moodMeter: {
+              states: [
+                { id: "happy", name: "Happy", emoji: "😄", color: "#4CAF50", order: 1 },
+                { id: "neutral", name: "Neutral", emoji: "😐", color: "#FFC107", order: 2 },
+                { id: "angry", name: "Angry", emoji: "😠", color: "#F44336", order: 3 }
+              ],
+              initialState: "neutral",
+              showMeter: true
+            },
+            scenarios: [],
+            friends: [
+              { id: "emma", name: "Emma", emoji: "🦄", icon: "🦄" },
+              { id: "noah", name: "Noah", emoji: "⚽", icon: "⚽" },
+              { id: "mia", name: "Mia", emoji: "✈️", icon: "✈️" },
+              { id: "alex", name: "Alex", emoji: "🎮", icon: "🎮" }
+            ],
+          },
         },
       ],
     }));
@@ -426,6 +486,14 @@ const Sixmodules = () => {
 
   const handleOptionChange = (questionIndex, optionIndex, field, value) => {
     const newQuestions = [...formData.quiz.questions];
+    if (field === "isCorrect" && value) {
+      // If setting an option as correct, uncheck all other options for this question
+      newQuestions[questionIndex].options.forEach((opt, idx) => {
+        if (idx !== optionIndex) {
+          opt.isCorrect = false;
+        }
+      });
+    }
     newQuestions[questionIndex].options[optionIndex][field] = value;
     setFormData((prev) => {
       const updatedData = {
@@ -463,9 +531,13 @@ const Sixmodules = () => {
             questionNumber: newNumber,
             type: "multiple-choice",
             question: "",
-            points: 10,
+            points: 5, // Default to 5 points as per requirements
             explanation: "",
-            options: [{ id: "A", text: "", isCorrect: false }],
+            options: [
+              { id: "A", text: "", isCorrect: false },
+              { id: "B", text: "", isCorrect: false },
+              { id: "C", text: "", isCorrect: false }
+            ],
           },
         ],
       },
@@ -590,18 +662,33 @@ const Sixmodules = () => {
   // Format data for saving according to the exact required format
   const formatForSave = () => {
     // Extract the learning objectives from the text
-    const learningObjectives = formData.learningObjectives.filter(
-      (obj) => obj.trim() !== ""
-    );
+    const learningObjectives = formData.learningObjectives.map((text, index) => ({
+      text: text,
+      order: index + 1
+    })).filter(obj => obj.text.trim() !== "");
 
     // Format content blocks
     const contentBlocks = formData.contentBlocks
-      .filter((block) => block.content.trim() !== "")
-      .map((block, index) => ({
-        type: block.type,
-        order: block.order || index + 1,
-        content: block.content,
-      }));
+      .filter((block) => block.content.trim() !== "" || (block.type === "image" && block.image))
+      .map((block, index) => {
+        if (block.type === "image") {
+          return {
+            type: block.type,
+            order: block.order || index + 1,
+            content: block.content,
+            image: block.image,
+          };
+        } else {
+          return {
+            type: block.type,
+            order: block.order || index + 1,
+            content: {
+              text: block.content,
+              listItems: block.listItems || [],
+            },
+          };
+        }
+      });
 
     // Format interactive tasks
     const interactiveTasks = formData.interactiveTasks
@@ -613,28 +700,56 @@ const Sixmodules = () => {
             description: task.description,
             instructions: task.instructions,
             points: 800, // Fixed value as per requirements
-            items:
-              task.config.items
-                ?.filter((item) => item.text.trim() !== "")
-                .map((item) => ({
-                  id: item.id,
-                  text: item.text,
-                })) || [],
-            categories:
-              task.config.categories
-                ?.filter((cat) => cat.name.trim() !== "")
-                .map((category) => ({
+            config: {
+              items:
+                task.config.items
+                  ?.filter((item) => item.text.trim() !== "")
+                  .map((item) => ({
+                    id: item.id,
+                    text: item.text,
+                  })) || [],
+              categories:
+                task.config.categories
+                  ?.filter((cat) => cat.name.trim() !== "")
+                  .map((category) => ({
+                    id: category.id,
+                    name: category.name,
+                    description: category.description,
+                  })) || [],
+              correctMapping: task.config.correctMapping || {},
+            }
+          };
+        } else if (task.type === "scenario-choice") {
+          return {
+            type: task.type,
+            title: task.title,
+            description: task.description,
+            instructions: task.instructions,
+            points: 500, // Fixed value as per requirements
+            config: {
+              categories:
+                task.config.categories?.map((category) => ({
                   id: category.id,
                   name: category.name,
                   description: category.description,
                 })) || [],
-            correctMapping: task.config.correctMapping || {},
+              scenarios:
+                task.config.scenarios?.map((scenario) => ({
+                  id: scenario.id,
+                  situation: scenario.situation,
+                  hint: scenario.hint,
+                  options:
+                    scenario.options?.map((option) => ({
+                      id: option.id,
+                      text: option.text,
+                      isCorrect: option.isCorrect,
+                      feedback: option.feedback,
+                    })) || [],
+                  responses: scenario.responses || [],
+                })) || [],
+            }
           };
-        } else if (
-          task.type === "scenario-choice" ||
-          task.type === "chat-simulator"
-        ) {
-          // Handle chat simulator type specifically
+        } else if (task.type === "chat-simulator") {
           return {
             type: task.type,
             title: task.title,
@@ -645,7 +760,7 @@ const Sixmodules = () => {
               scenarios:
                 task.config.scenarios?.map((scenario) => ({
                   id: scenario.id,
-                  text: scenario.text, // situation in the original data
+                  text: scenario.text,
                   situation: scenario.situation || scenario.text,
                   hint: scenario.hint || "",
                   responses:
@@ -668,8 +783,9 @@ const Sixmodules = () => {
       .filter((q) => q.question.trim() !== "")
       .map((q, idx) => ({
         questionNumber: idx + 1,
-        type: q.type,
+        type: q.type || "multiple-choice", // Default to multiple-choice
         question: q.question,
+        points: q.points || 5, // Use provided points or default to 5
         explanation: q.explanation,
         options: q.options
           .filter((opt) => opt.text.trim() !== "")
@@ -704,6 +820,10 @@ const Sixmodules = () => {
         title: formData.parentTip.title,
         content: formData.parentTip.content,
       },
+      unlockConditions: formData.unlockConditions || {
+        requiresPreviousModule: true,
+        minimumPreviousScore: 70
+      }
     };
   };
 
@@ -788,89 +908,14 @@ const Sixmodules = () => {
 
     // Format the data as required
     const saveData = formatForSave();
-    console.log(saveData);
-
-    // Log the data in the exact required format
-    const requiredFormat = {
-      moduleNumber: saveData.moduleNumber,
-      title: saveData.title,
-      theme: saveData.theme,
-      description: saveData.description,
-      slug: saveData.slug,
-      status: "draft", // Always draft as per requirements
-      order: saveData.order,
-      learningObjectives: saveData.learningObjectives,
-      contentBlocks: saveData.contentBlocks.map((block) => ({
-        type: block.type,
-        order: block.order,
-        content: block.content,
-      })),
-      interactiveTasks: saveData.interactiveTasks.map((task) => {
-        if (task.type === "chat-simulator") {
-          // Format chat simulator task to match required format
-          return {
-            type: task.type,
-            title: task.title,
-            description: task.description,
-            instructions: task.instructions,
-            points: task.points,
-            config: {
-              scenarios: task.config.scenarios.map((scenario) => ({
-                id: scenario.id,
-                text: scenario.text,
-                situation: scenario.situation,
-                hint: scenario.hint,
-                responses: scenario.responses.map((response) => ({
-                  id: response.id,
-                  text: response.text,
-                  feedback: response.feedback,
-                  isCorrect: response.isCorrect,
-                })),
-              })),
-            },
-          };
-        }
-        // For other task types, return them as they are
-        return {
-          type: task.type,
-          title: task.title,
-          description: task.description,
-          instructions: task.instructions,
-          points: task.points,
-          ...(task.config ? { config: task.config } : {}),
-        };
-      }),
-      quiz: {
-        title: saveData.quiz.title,
-        description: saveData.quiz.description,
-        passingScore: saveData.quiz.passingScore,
-        allowRetake: saveData.quiz.allowRetake,
-        showCorrectAnswers: saveData.quiz.showCorrectAnswers,
-        questions: saveData.quiz.questions.map((q) => ({
-          questionNumber: q.questionNumber,
-          type: q.type,
-          question: q.question,
-          explanation: q.explanation,
-          options: q.options.map((opt) => ({
-            id: opt.id,
-            text: opt.text,
-            isCorrect: opt.isCorrect,
-          })),
-        })),
-      },
-      parentTip: {
-        title: saveData.parentTip.title,
-        content: saveData.parentTip.content,
-      },
-    };
-
-    console.log(requiredFormat);
+    console.log("Formatted save data:", saveData);
 
     try {
       const res = await updateModuleTwo({ id, updatedData: saveData });
       console.log(res, "im the api response");
     } catch (error) {
-      alert("Error to Update");
+      console.error("Update error:", error);
+      alert("Error to Update: " + (error?.message || "Unknown error"));
     }
     alert("Data logged to console!");
     setIsSubmitting(false);
@@ -924,8 +969,8 @@ const Sixmodules = () => {
                 type="number"
                 name="moduleNumber"
                 value={formData.moduleNumber}
-                onChange={handleMainChange}
-                className="w-full p-2 border border-gray-300 rounded focus:ring-blue-500 focus:border-blue-500"
+                readOnly
+                className="w-full p-2 border border-gray-300 rounded focus:ring-blue-500 focus:border-blue-500 bg-gray-100"
                 required
                 aria-describedby="moduleNumberHelp"
               />
@@ -1046,8 +1091,8 @@ const Sixmodules = () => {
                 type="number"
                 name="order"
                 value={formData.order}
-                onChange={handleMainChange}
-                className="w-full p-2 border border-gray-300 rounded focus:ring-blue-500 focus:border-blue-500"
+                readOnly
+                className="w-full p-2 border border-gray-300 rounded focus:ring-blue-500 focus:border-blue-500 bg-gray-100"
                 required
                 aria-describedby="orderHelp"
               />
@@ -2155,8 +2200,6 @@ const Sixmodules = () => {
                     aria-describedby={`quiz-question-type-${qIndex}-help`}
                   >
                     <option value="multiple-choice">Multiple Choice</option>
-                    <option value="true-false">True/False</option>
-                    <option value="short-answer">Short Answer</option>
                   </select>
                   <p
                     id={`quiz-question-type-${qIndex}-help`}
