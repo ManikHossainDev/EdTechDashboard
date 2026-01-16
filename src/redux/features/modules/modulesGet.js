@@ -8,7 +8,7 @@ const modulesOne = baseApi.injectEndpoints({
         method: "GET",
       }),
       providesTags: ["modules"],
-      transformResponse: (response) => response,
+      transformResponse: (response) => response?.data,
     }),
     updateModulesOne: builder.mutation({
       query: ({ id, updatedData }) => {
@@ -20,8 +20,21 @@ const modulesOne = baseApi.injectEndpoints({
       },
       invalidatesTags: ["modules"],
     }),
+    uploadContentImage: builder.mutation({
+      query: (body) => {
+        return {
+          url: `/admin/upload-image`,
+          method: "POST",
+          body: body,
+        };
+      },
+      transformResponse: (res) => res?.data,
+    }),
   }),
 });
 
-export const { useGetModulesByIdQuery, useUpdateModulesOneMutation } =
-  modulesOne;
+export const {
+  useGetModulesByIdQuery,
+  useUpdateModulesOneMutation,
+  useUploadContentImageMutation,
+} = modulesOne;

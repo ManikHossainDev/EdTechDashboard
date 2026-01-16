@@ -1,9 +1,11 @@
 import { useState } from "react";
 import PropTypes from "prop-types";
+import { useUploadContentImageMutation } from "../../../redux/features/modules/modulesGet";
 
 const MediaUploadModal = ({ isOpen, onClose, onUpload, mediaType }) => {
   const [file, setFile] = useState(null);
   const [uploading, setUploading] = useState(false);
+  const [uploadGeniticImage] = useUploadContentImageMutation();
 
   const handleFileChange = (e) => {
     setFile(e.target.files[0]);
@@ -15,26 +17,26 @@ const MediaUploadModal = ({ isOpen, onClose, onUpload, mediaType }) => {
 
     try {
       if (file) {
-        // Simulate upload process
-        const reader = new FileReader();
-        reader.onloadend = () => {
-          const uploadedData = {
-            url: reader.result,
-            publicId: `temp_${Date.now()}`,
-            alt: file.name || `${mediaType} file`,
-            caption: "",
-            duration: mediaType === "video" ? 30 : undefined, // Placeholder duration for videos
-          };
-          onUpload(uploadedData);
-          setUploading(false);
-          onClose();
+        // Use the actual upload mutation
+        const uploadResult = await uploadGeniticImage({ image: file }).unwrap();
+
+        // Create the uploaded data object with the actual URL from the API response
+        const uploadedData = {
+          url: uploadResult.url,
+          publicId: uploadResult.publicId || `temp_${Date.now()}`,
+          alt: file.name || `${mediaType} file`,
+          caption: "",
+          duration: mediaType === "video" ? (uploadResult.duration || 30) : undefined, // Use duration from API if available
         };
-        reader.readAsDataURL(file);
+
+        onUpload(uploadedData);
+        setUploading(false);
+        onClose();
       }
     } catch (error) {
       console.error("Upload error:", error);
       setUploading(false);
-      alert("Error uploading media. Please try again.");
+      alert(`Error uploading media: ${error?.data?.message || error.message || "Please try again."}`);
     }
   };
 
