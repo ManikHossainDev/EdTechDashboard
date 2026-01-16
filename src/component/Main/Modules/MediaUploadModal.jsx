@@ -17,16 +17,23 @@ const MediaUploadModal = ({ isOpen, onClose, onUpload, mediaType }) => {
 
     try {
       if (file) {
-        // Use the actual upload mutation
-        const uploadResult = await uploadGeniticImage({ image: file }).unwrap();
+        // Create FormData
+        const formData = new FormData();
+        formData.append("image", file); // 'image' is the field your backend expects
 
-        // Create the uploaded data object with the actual URL from the API response
+        console.log("Uploading file:", file);
+
+        // Call the upload mutation with FormData
+        const uploadResult = await uploadGeniticImage(formData).unwrap();
+
+        // Build uploaded data object
         const uploadedData = {
           url: uploadResult.url,
           publicId: uploadResult.publicId || `temp_${Date.now()}`,
           alt: file.name || `${mediaType} file`,
           caption: "",
-          duration: mediaType === "video" ? (uploadResult.duration || 30) : undefined, // Use duration from API if available
+          duration:
+            mediaType === "video" ? uploadResult.duration || 30 : undefined,
         };
 
         onUpload(uploadedData);
@@ -36,7 +43,11 @@ const MediaUploadModal = ({ isOpen, onClose, onUpload, mediaType }) => {
     } catch (error) {
       console.error("Upload error:", error);
       setUploading(false);
-      alert(`Error uploading media: ${error?.data?.message || error.message || "Please try again."}`);
+      alert(
+        `Error uploading media: ${
+          error?.data?.message || error.message || "Please try again."
+        }`
+      );
     }
   };
 

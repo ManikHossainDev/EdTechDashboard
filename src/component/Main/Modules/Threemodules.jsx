@@ -9,9 +9,12 @@ const Threemodules = () => {
   // module id three
   const id = "6936619e511d202f50100576";
   const { data, isLoading, isError, error } = useGetModulesByIdQuery(id);
+
+  console.log(data);
+
   // Handle form submission - moved to top to maintain consistent hook order
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [updateModuleTwo] = useUpdateModulesOneMutation();
+  const [updateModuleThree] = useUpdateModulesOneMutation();
 
   // Media upload modal state
   const [isMediaModalOpen, setIsMediaModalOpen] = useState(false);
@@ -20,46 +23,102 @@ const Threemodules = () => {
 
   // Optimized data transformation function
   const transformApiData = (apiData) => {
-    if (!apiData?.data) return null;
+    if (!apiData) return null;
 
-    const moduleData = apiData.data;
+    const moduleData = apiData;
 
     // Format learning objectives
     const formattedLearningObjectives =
       moduleData.learningObjectives?.map((obj) => obj.text) || [];
 
-    // Format learning content as content blocks
-    const formattedContentBlocks =
+    // Format learning content as learningContent (matching API format)
+    const formattedLearningContent =
       moduleData.learningContent?.map((content, index) => {
         if (content.type === "image") {
           return {
             type: content.type,
             order: content.order || index + 1,
-            content: content.content?.text || "",
-            image: content.content?.image || null,
-            alt: content.content?.image?.alt || "",
-            caption: content.content?.image?.caption || "",
+            content: content.content || "",
+            image: content.image || content.image, // Use the image object from API
+            _id: content._id || `temp_${index}`,
           };
         } else {
           return {
             type: content.type || "text",
             order: content.order || index + 1,
-            content: content.content?.text || "",
-            listItems: content.content?.listItems || [],
+            content:
+              typeof content.content === "object"
+                ? content.content.text || ""
+                : content.content || "",
+            listItems:
+              typeof content.content === "object"
+                ? content.content.listItems || []
+                : [],
+            _id: content._id || `temp_${index}`,
           };
         }
       }) || [];
 
     // Format interactive tasks
     const formattedInteractiveTasks =
-      moduleData.interactiveTasks?.map((task) => ({
-        type: task.type || "sort-categories",
-        title: task.title || "",
-        description: task.description || "",
-        instructions: task.instructions || "",
-        points: task.points || 20,
-        config: task.config || {},
-      })) || [];
+      moduleData.interactiveTasks?.map((task) => {
+        if (task.type === "scenario-choice") {
+          return {
+            type: task.type || "scenario-choice",
+            title: task.title || "",
+            description: task.description || "",
+            instructions: task.instructions || "",
+            points: task.points || 20,
+            config: task.config || {
+              categories: [],
+              scenarios: [],
+              items: [],
+              components: [],
+              validationRules: [],
+              moodMeter: { states: [] },
+            },
+          };
+        } else if (task.type === "build-your-own") {
+          return {
+            type: task.type || "build-your-own",
+            title: task.title || "",
+            description: task.description || "",
+            instructions: task.instructions || "",
+            points: task.points || 20,
+            config: task.config || {
+              components: [],
+              validationRules: [],
+              feedback: {},
+              moodMeter: { states: [] },
+            },
+          };
+        } else if (task.type === "sort-categories") {
+          return {
+            type: task.type || "sort-categories",
+            title: task.title || "",
+            description: task.description || "",
+            instructions: task.instructions || "",
+            points: task.points || 20,
+            config: task.config || {
+              items: [],
+              categories: [],
+              correctMapping: {},
+              moodMeter: { states: [] },
+            },
+          };
+        } else {
+          return {
+            type: task.type || "sort-categories",
+            title: task.title || "",
+            description: task.description || "",
+            instructions: task.instructions || "",
+            points: task.points || 20,
+            config: task.config || {
+              moodMeter: { states: [] },
+            },
+          };
+        }
+      }) || [];
 
     // Format quiz
     const formattedQuiz = {
@@ -87,6 +146,7 @@ const Threemodules = () => {
             points: question.points || 10,
             explanation: question.explanation || "",
             options: options,
+            correctAnswer: question.correctAnswer || "",
           };
         }) || [],
     };
@@ -112,7 +172,7 @@ const Threemodules = () => {
         requiresPreviousModule: false,
       },
       learningObjectives: formattedLearningObjectives,
-      contentBlocks: formattedContentBlocks,
+      learningContent: formattedLearningContent, // Changed from contentBlocks to learningContent
       interactiveTasks: formattedInteractiveTasks,
       quiz: formattedQuiz,
       parentTip: formattedParentTip,
@@ -146,7 +206,15 @@ const Threemodules = () => {
       introVideo: null,
       unlockConditions: { requiresPreviousModule: false },
       learningObjectives: [""],
-      contentBlocks: [{ type: "text", order: 1, content: "", listItems: [] }],
+      learningContent: [
+        {
+          type: "text",
+          order: 1,
+          content: { text: "", listItems: [] },
+          listItems: [],
+          _id: `temp_0`,
+        },
+      ],
       interactiveTasks: [
         {
           type: "sort-categories",
@@ -154,7 +222,12 @@ const Threemodules = () => {
           description: "",
           instructions: "",
           points: 20,
-          config: {},
+          config: {
+            items: [],
+            categories: [],
+            correctMapping: {},
+            moodMeter: { states: [] },
+          },
         },
       ],
       quiz: {
@@ -172,6 +245,7 @@ const Threemodules = () => {
             points: 10,
             explanation: "",
             options: [{ id: "A", text: "", isCorrect: false }],
+            correctAnswer: "",
           },
         ],
       },
@@ -231,29 +305,15 @@ const Threemodules = () => {
     );
   }
 
-  // Console log the original data
-  console.log("Original API Data:", data);
-
-  // Transform the data
-  const formattedData = transformApiData(data);
-
-  // Console log the transformed data
-  console.log("Formatted Data:", formattedData);
-
-  // Log the updated values after transformation
-  console.log("Updated values after transformation:", {
-    title: formattedData?.title,
-    description: formattedData?.description,
-    learningObjectives: formattedData?.learningObjectives,
-    contentBlocks: formattedData?.contentBlocks,
-    interactiveTasks: formattedData?.interactiveTasks,
-    quiz: formattedData?.quiz,
-    parentTip: formattedData?.parentTip,
-  });
-
   // Handle main form changes
   const handleMainChange = (e) => {
     const { name, value } = e.target;
+
+    // Prevent changes to moduleNumber and order as per requirements
+    if (name === "moduleNumber" || name === "order") {
+      return;
+    }
+
     setFormData((prev) => {
       const updatedData = {
         ...prev,
@@ -301,12 +361,29 @@ const Threemodules = () => {
 
   // Handle content blocks changes
   const handleContentBlockChange = (index, field, value) => {
-    const newBlocks = [...formData.contentBlocks];
-    newBlocks[index][field] = value;
+    const newBlocks = [...formData.learningContent];
+
+    // Special handling for image content blocks
+    if (field === "image") {
+      newBlocks[index] = {
+        ...newBlocks[index],
+        image: value,
+        type: "image",
+      };
+    } else if (field === "content" && typeof value === "object") {
+      // Handle content as an object (for text type)
+      newBlocks[index] = {
+        ...newBlocks[index],
+        content: value,
+      };
+    } else {
+      newBlocks[index][field] = value;
+    }
+
     setFormData((prev) => {
       const updatedData = {
         ...prev,
-        contentBlocks: newBlocks,
+        learningContent: newBlocks,
       };
       // Console log the updated values when content blocks change
       console.log(
@@ -323,21 +400,31 @@ const Threemodules = () => {
   };
 
   const addContentBlock = () => {
-    const newOrder = formData.contentBlocks.length + 1;
+    const newOrder = formData.learningContent.length + 1;
+    const newId = `temp_${Date.now()}_${newOrder}`;
     setFormData((prev) => ({
       ...prev,
-      contentBlocks: [
-        ...prev.contentBlocks,
-        { type: "text", order: newOrder, content: "", listItems: [] },
+      learningContent: [
+        ...prev.learningContent,
+        {
+          type: "text",
+          order: newOrder,
+          content: { text: "", listItems: [] },
+          listItems: [],
+          _id: newId,
+        },
       ],
     }));
   };
 
   const removeContentBlock = (index) => {
-    const newBlocks = formData.contentBlocks.filter((_, i) => i !== index);
+    const newBlocks = formData.learningContent.filter((_, i) => i !== index);
     setFormData((prev) => ({
       ...prev,
-      contentBlocks: newBlocks.map((block, i) => ({ ...block, order: i + 1 })),
+      learningContent: newBlocks.map((block, i) => ({
+        ...block,
+        order: i + 1,
+      })),
     }));
   };
 
@@ -368,7 +455,12 @@ const Threemodules = () => {
           description: "",
           instructions: "",
           points: 20,
-          config: {},
+          config: {
+            items: [],
+            categories: [],
+            correctMapping: {},
+            moodMeter: { states: [] },
+          },
         },
       ],
     }));
@@ -426,7 +518,29 @@ const Threemodules = () => {
 
   const handleOptionChange = (questionIndex, optionIndex, field, value) => {
     const newQuestions = [...formData.quiz.questions];
-    newQuestions[questionIndex].options[optionIndex][field] = value;
+
+    if (field === "isCorrect") {
+      // For the isCorrect field, we need to ensure only one option is selected
+      // Reset all options to false first
+      newQuestions[questionIndex].options = newQuestions[
+        questionIndex
+      ].options.map((opt, idx) => ({
+        ...opt,
+        isCorrect: idx === optionIndex ? value : false,
+      }));
+
+      // Update the correctAnswer field based on the selected option
+      if (value) {
+        newQuestions[questionIndex].correctAnswer =
+          newQuestions[questionIndex].options[optionIndex].id;
+      } else {
+        newQuestions[questionIndex].correctAnswer = "";
+      }
+    } else {
+      // For other fields, just update the specific field
+      newQuestions[questionIndex].options[optionIndex][field] = value;
+    }
+
     setFormData((prev) => {
       const updatedData = {
         ...prev,
@@ -466,6 +580,7 @@ const Threemodules = () => {
             points: 10,
             explanation: "",
             options: [{ id: "A", text: "", isCorrect: false }],
+            correctAnswer: "",
           },
         ],
       },
@@ -503,9 +618,17 @@ const Threemodules = () => {
 
   const removeOption = (questionIndex, optionIndex) => {
     const newQuestions = [...formData.quiz.questions];
+    const removedOptionId = newQuestions[questionIndex].options[optionIndex].id;
+
     newQuestions[questionIndex].options = newQuestions[
       questionIndex
     ].options.filter((_, i) => i !== optionIndex);
+
+    // If the removed option was the correct answer, reset the correctAnswer field
+    if (newQuestions[questionIndex].correctAnswer === removedOptionId) {
+      newQuestions[questionIndex].correctAnswer = "";
+    }
+
     setFormData((prev) => ({
       ...prev,
       quiz: {
@@ -540,22 +663,27 @@ const Threemodules = () => {
   };
 
   const handleMediaUpload = (mediaData) => {
+    // mediaData now contains the full media object with url, publicId, etc.
+    const imageUrl = mediaData.url;
+
+    console.log(imageUrl);
+
     if (currentMediaField.startsWith("introVideo")) {
       setFormData((prev) => ({
         ...prev,
-        introVideo: mediaData,
+        introVideo: imageUrl,
       }));
     } else if (currentMediaField.startsWith("contentBlockImage")) {
       const [, index] = currentMediaField.split("-");
-      const newBlocks = [...formData.contentBlocks];
+      const newBlocks = [...formData.learningContent];
       newBlocks[index] = {
         ...newBlocks[index],
-        image: mediaData,
+        image: { url: imageUrl },
         type: "image",
       };
       setFormData((prev) => ({
         ...prev,
-        contentBlocks: newBlocks,
+        learningContent: newBlocks,
       }));
     } else if (currentMediaField.startsWith("interactiveTaskItem")) {
       const [, taskIndex, itemIndex] = currentMediaField.split("-");
@@ -563,7 +691,7 @@ const Threemodules = () => {
       const newItems = [...newTasks[taskIndex].config.items];
       newItems[itemIndex] = {
         ...newItems[itemIndex],
-        image: mediaData,
+        image: imageUrl,
       };
       newTasks[taskIndex].config.items = newItems;
       setFormData((prev) => ({
@@ -576,7 +704,7 @@ const Threemodules = () => {
       const newCategories = [...newTasks[taskIndex].config.categories];
       newCategories[categoryIndex] = {
         ...newCategories[categoryIndex],
-        image: mediaData,
+        image: imageUrl,
       };
       newTasks[taskIndex].config.categories = newCategories;
       setFormData((prev) => ({
@@ -590,18 +718,48 @@ const Threemodules = () => {
   // Format data for saving according to the exact required format
   const formatForSave = () => {
     // Extract the learning objectives from the text
-    const learningObjectives = formData.learningObjectives.filter(
-      (obj) => obj.trim() !== ""
-    );
-
-    // Format content blocks
-    const contentBlocks = formData.contentBlocks
-      .filter((block) => block.content.trim() !== "")
-      .map((block, index) => ({
-        type: block.type,
-        order: block.order || index + 1,
-        content: block.content,
+    const learningObjectives = formData.learningObjectives
+      .filter((obj) => obj.trim() !== "")
+      .map((text, index) => ({
+        text: text,
+        order: index + 1,
       }));
+
+    // Format learning content (using the correct field name)
+    const learningContent = formData.learningContent
+      .filter(
+        (block) =>
+          (block.type === "text" &&
+            typeof block.content === "object" &&
+            block.content.text.trim() !== "") ||
+          (block.type === "image" &&
+            (block.content?.trim() !== "" || block.image?.url))
+      )
+      .map((block, index) => {
+        if (block.type === "image") {
+          return {
+            type: block.type,
+            order: block.order || index + 1,
+            content: block.content, // For image type, content is a string (caption/description)
+            image: block.image?.url || null,
+          };
+        } else {
+          return {
+            type: block.type,
+            order: block.order || index + 1,
+            content: {
+              text:
+                typeof block.content === "object"
+                  ? block.content.text
+                  : block.content,
+              listItems:
+                typeof block.content === "object"
+                  ? block.content.listItems || []
+                  : [],
+            },
+          };
+        }
+      });
 
     // Format interactive tasks
     const interactiveTasks = formData.interactiveTasks
@@ -612,23 +770,23 @@ const Threemodules = () => {
             title: task.title,
             description: task.description,
             instructions: task.instructions,
-            points: 800, // Fixed value as per requirements
-            items:
-              task.config.items
-                ?.filter((item) => item.text.trim() !== "")
-                .map((item) => ({
-                  id: item.id,
-                  text: item.text,
-                })) || [],
-            categories:
-              task.config.categories
-                ?.filter((cat) => cat.name.trim() !== "")
-                .map((category) => ({
-                  id: category.id,
-                  name: category.name,
-                  description: category.description,
-                })) || [],
-            correctMapping: task.config.correctMapping || {},
+            points: task.points || 20,
+            config: {
+              items: task.config.items || [],
+              categories: task.config.categories || [],
+              correctMapping: task.config.correctMapping || {},
+              scenarios: task.config.scenarios || [],
+              friends: task.config.friends || [],
+              components: task.config.components || [],
+              validationRules: task.config.validationRules || [],
+              activityToolbox: task.config.activityToolbox || [],
+              balanceTips: task.config.balanceTips || [],
+              badges: task.config.badges || [],
+              badgeMappings: task.config.badgeMappings || [],
+              moodMeter: {
+                states: task.config.moodMeter?.states || [],
+              },
+            },
           };
         } else if (task.type === "scenario-choice") {
           return {
@@ -636,19 +794,47 @@ const Threemodules = () => {
             title: task.title,
             description: task.description,
             instructions: task.instructions,
-            points: 500, // Fixed value as per requirements
-            scenarios:
-              task.config.scenarios?.map((scenario) => ({
-                id: scenario.id,
-                situation: scenario.text,
-                options:
-                  scenario.responses?.map((response) => ({
-                    id: response.id,
-                    text: response.text,
-                    isCorrect: response.isCorrect,
-                    feedback: response.feedback,
-                  })) || [],
-              })) || [],
+            points: task.points || 20,
+            config: {
+              categories: task.config.categories || [],
+              scenarios: task.config.scenarios || [],
+              items: task.config.items || [],
+              friends: task.config.friends || [],
+              components: task.config.components || [],
+              validationRules: task.config.validationRules || [],
+              activityToolbox: task.config.activityToolbox || [],
+              balanceTips: task.config.balanceTips || [],
+              badges: task.config.badges || [],
+              badgeMappings: task.config.badgeMappings || [],
+              moodMeter: {
+                states: task.config.moodMeter?.states || [],
+              },
+            },
+          };
+        } else if (task.type === "build-your-own") {
+          return {
+            type: task.type,
+            title: task.title,
+            description: task.description,
+            instructions: task.instructions,
+            points: task.points || 20,
+            config: {
+              components: task.config.components || [],
+              validationRules: task.config.validationRules || [],
+              feedback: task.config.feedback || {},
+              items: task.config.items || [],
+              categories: task.config.categories || [],
+              correctMapping: task.config.correctMapping || {},
+              scenarios: task.config.scenarios || [],
+              friends: task.config.friends || [],
+              activityToolbox: task.config.activityToolbox || [],
+              balanceTips: task.config.balanceTips || [],
+              badges: task.config.badges || [],
+              badgeMappings: task.config.badgeMappings || [],
+              moodMeter: {
+                states: task.config.moodMeter?.states || [],
+              },
+            },
           };
         }
         return task;
@@ -660,9 +846,9 @@ const Threemodules = () => {
       .filter((q) => q.question.trim() !== "")
       .map((q, idx) => ({
         questionNumber: idx + 1,
-        type: q.type,
+        type: q.type || "multiple-choice", // Default to multiple-choice
         question: q.question,
-        points: 5, // Fixed value as per requirements
+        points: q.points || 10,
         explanation: q.explanation,
         options: q.options
           .filter((opt) => opt.text.trim() !== "")
@@ -671,6 +857,7 @@ const Threemodules = () => {
             text: option.text,
             isCorrect: option.isCorrect,
           })),
+        correctAnswer: q.options.find((opt) => opt.isCorrect)?.id || "",
       }));
 
     // Return the exact format required
@@ -680,15 +867,16 @@ const Threemodules = () => {
       theme: formData.theme,
       description: formData.description,
       slug: formData.slug,
-      status: "draft", // Always set to draft as per requirements
+      status: formData.status, // Use actual status instead of hardcoded "draft"
       order: formData.order,
       learningObjectives: learningObjectives,
-      contentBlocks: contentBlocks,
+      learningContent: learningContent, // Changed to match API format
       interactiveTasks: interactiveTasks,
       quiz: {
         title: formData.quiz.title,
         description: formData.quiz.description,
         passingScore: formData.quiz.passingScore,
+        totalPoints: formData.quiz.totalPoints,
         allowRetake: formData.quiz.allowRetake,
         showCorrectAnswers: formData.quiz.showCorrectAnswers,
         questions: quizQuestions,
@@ -696,7 +884,12 @@ const Threemodules = () => {
       parentTip: {
         title: formData.parentTip.title,
         content: formData.parentTip.content,
+        additionalResources: formData.parentTip.additionalResources || [],
       },
+      unlockConditions: formData.unlockConditions || {
+        requiresPreviousModule: false,
+      },
+      prerequisites: formData.prerequisites || [],
     };
   };
 
@@ -784,7 +977,7 @@ const Threemodules = () => {
     console.log(saveData);
 
     try {
-      const res = await updateModuleTwo({ id, updatedData: saveData });
+      const res = await updateModuleThree({ id, updatedData: saveData });
       console.log(res, "im the api response");
     } catch (error) {
       alert("Error to Update");
@@ -837,9 +1030,8 @@ const Threemodules = () => {
                 type="number"
                 name="moduleNumber"
                 value={formData.moduleNumber}
-                onChange={handleMainChange}
-                className="w-full p-2 border border-gray-300 rounded"
-                required
+                className="w-full p-2 border border-gray-300 rounded bg-gray-100"
+                disabled
               />
             </div>
 
@@ -913,9 +1105,8 @@ const Threemodules = () => {
                 type="number"
                 name="order"
                 value={formData.order}
-                onChange={handleMainChange}
-                className="w-full p-2 border border-gray-300 rounded"
-                required
+                className="w-full p-2 border border-gray-300 rounded bg-gray-100"
+                disabled
               />
             </div>
           </div>
@@ -958,27 +1149,27 @@ const Threemodules = () => {
           ))}
         </div>
 
-        {/* Content Blocks */}
+        {/* Learning Content */}
         <div className="border border-gray-200 rounded-lg p-4">
           <div className="flex justify-between items-center mb-4">
-            <h3 className="text-xl font-semibold">Content Blocks</h3>
+            <h3 className="text-xl font-semibold">Learning Content</h3>
             <button
               type="button"
               onClick={addContentBlock}
               className="bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600"
             >
-              Add Block
+              Add Content
             </button>
           </div>
 
-          {formData.contentBlocks.map((block, index) => (
+          {formData.learningContent.map((block, index) => (
             <div
               key={index}
               className="mb-4 p-4 border border-gray-200 rounded"
             >
               <div className="flex justify-between items-center mb-2">
-                <span className="font-medium">Block {index + 1}</span>
-                {formData.contentBlocks.length > 1 && (
+                <span className="font-medium">Content {index + 1}</span>
+                {formData.learningContent.length > 1 && (
                   <button
                     type="button"
                     onClick={() => removeContentBlock(index)}
@@ -1019,13 +1210,56 @@ const Threemodules = () => {
                 </div>
               </div>
 
+              {block.type === "text" && (
+                <div className="mt-2">
+                  <label className="block text-sm font-medium mb-1">
+                    Content
+                  </label>
+                  <textarea
+                    value={
+                      typeof block.content === "object"
+                        ? block.content.text || ""
+                        : block.content || ""
+                    }
+                    onChange={(e) =>
+                      handleContentBlockChange(index, "content", {
+                        text: e.target.value,
+                        listItems: Array.isArray(block.content?.listItems)
+                          ? block.content.listItems
+                          : [],
+                      })
+                    }
+                    className="w-full p-2 border border-gray-300 rounded"
+                    rows="3"
+                  ></textarea>
+                </div>
+              )}
+
               {block.type === "image" && (
                 <div className="mt-2">
+                  <div className="mb-2">
+                    <label className="block text-sm font-medium mb-1">
+                      Caption/Description
+                    </label>
+                    <textarea
+                      value={block.content || ""}
+                      onChange={(e) =>
+                        handleContentBlockChange(
+                          index,
+                          "content",
+                          e.target.value
+                        )
+                      }
+                      className="w-full p-2 border border-gray-300 rounded"
+                      rows="2"
+                    ></textarea>
+                  </div>
+
                   {block.image && (
                     <div className="mb-2">
                       <img
-                        src={block.image.url}
-                        alt={block.alt || "Content block image"}
+                        src={block.image?.url}
+                        alt="Content block image"
                         className="max-w-xs rounded"
                       />
                     </div>
@@ -1044,20 +1278,6 @@ const Threemodules = () => {
                   </button>
                 </div>
               )}
-
-              <div className="mt-2">
-                <label className="block text-sm font-medium mb-1">
-                  Content
-                </label>
-                <textarea
-                  value={block.content}
-                  onChange={(e) =>
-                    handleContentBlockChange(index, "content", e.target.value)
-                  }
-                  className="w-full p-2 border border-gray-300 rounded"
-                  rows="3"
-                ></textarea>
-              </div>
             </div>
           ))}
         </div>
@@ -1109,6 +1329,7 @@ const Threemodules = () => {
                   >
                     <option value="sort-categories">Sort Categories</option>
                     <option value="scenario-choice">Scenario Choice</option>
+                    <option value="build-your-own">Build Your Own</option>
                   </select>
                 </div>
 
@@ -1340,43 +1561,141 @@ const Threemodules = () => {
 
               {task.type === "scenario-choice" && (
                 <div className="mb-4">
-                  <div className="flex justify-between items-center mb-2">
-                    <h4 className="font-medium">Scenarios</h4>
+                  <h4 className="font-medium mb-2">Configuration</h4>
+
+                  <div className="mb-4">
+                    <h5 className="font-medium mb-1">Categories</h5>
+                    {task.config.categories?.map((category, catIndex) => (
+                      <div
+                        key={catIndex}
+                        className="flex items-center gap-2 mb-2"
+                      >
+                        <input
+                          type="text"
+                          value={category.name}
+                          className="flex-1 p-2 border border-gray-300 rounded"
+                          readOnly
+                        />
+                        <span className="text-sm text-gray-500">
+                          ID: {category.id}
+                        </span>
+                      </div>
+                    ))}
                   </div>
 
-                  {task.config.scenarios?.map((scenario, scenarioIndex) => (
-                    <div
-                      key={scenarioIndex}
-                      className="mb-4 p-3 border border-gray-200 rounded"
-                    >
-                      <h5 className="font-medium mb-2">
-                        Scenario {scenarioIndex + 1}: {scenario.text}
-                      </h5>
+                  <div className="mb-4">
+                    <h5 className="font-medium mb-2">Scenarios</h5>
+                    {task.config.scenarios?.map((scenario, scenarioIndex) => (
+                      <div
+                        key={scenarioIndex}
+                        className="mb-4 p-3 border border-gray-200 rounded"
+                      >
+                        <h6 className="font-medium mb-2">
+                          Scenario {scenarioIndex + 1}:{" "}
+                          {scenario.situation || scenario.text}
+                        </h6>
 
-                      {scenario.responses?.map((response, responseIndex) => (
-                        <div
-                          key={responseIndex}
-                          className="flex items-center gap-2 mb-2"
-                        >
-                          <input
-                            type="text"
-                            value={response.text}
-                            className="flex-1 p-2 border border-gray-300 rounded"
-                            readOnly
-                          />
-                          <div className="flex items-center">
+                        {scenario.options?.map((option, optionIndex) => (
+                          <div
+                            key={optionIndex}
+                            className="flex items-center gap-2 mb-2"
+                          >
                             <input
-                              type="checkbox"
-                              checked={response.isCorrect}
-                              className="mr-1"
+                              type="text"
+                              value={option.text}
+                              className="flex-1 p-2 border border-gray-300 rounded"
                               readOnly
                             />
-                            <span className="text-sm">Correct</span>
+                            <div className="flex items-center">
+                              <input
+                                type="checkbox"
+                                checked={option.isCorrect}
+                                className="mr-1"
+                                readOnly
+                              />
+                              <span className="text-sm">Correct</span>
+                            </div>
                           </div>
-                        </div>
-                      ))}
+                        ))}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {task.type === "build-your-own" && (
+                <div className="mb-4">
+                  <h4 className="font-medium mb-2">Configuration</h4>
+
+                  <div className="mb-4">
+                    <h5 className="font-medium mb-1">Components</h5>
+                    {task.config.components?.map((component, compIndex) => (
+                      <div
+                        key={compIndex}
+                        className="flex items-center gap-2 mb-2"
+                      >
+                        <input
+                          type="text"
+                          value={component.text}
+                          className="flex-1 p-2 border border-gray-300 rounded"
+                          readOnly
+                        />
+                        <span className="text-sm text-gray-500">
+                          ID: {component.id}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+
+                  <div className="mb-4">
+                    <h5 className="font-medium mb-1">Validation Rules</h5>
+                    {task.config.validationRules?.map((rule, ruleIndex) => (
+                      <div key={ruleIndex} className="mb-2">
+                        <input
+                          type="text"
+                          value={rule}
+                          className="w-full p-2 border border-gray-300 rounded"
+                          readOnly
+                        />
+                      </div>
+                    ))}
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div>
+                      <label className="block text-sm font-medium mb-1">
+                        Weak Feedback
+                      </label>
+                      <input
+                        type="text"
+                        value={task.config.feedback?.weak || ""}
+                        className="w-full p-2 border border-gray-300 rounded"
+                        readOnly
+                      />
                     </div>
-                  ))}
+                    <div>
+                      <label className="block text-sm font-medium mb-1">
+                        Moderate Feedback
+                      </label>
+                      <input
+                        type="text"
+                        value={task.config.feedback?.moderate || ""}
+                        className="w-full p-2 border border-gray-300 rounded"
+                        readOnly
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium mb-1">
+                        Strong Feedback
+                      </label>
+                      <input
+                        type="text"
+                        value={task.config.feedback?.strong || ""}
+                        className="w-full p-2 border border-gray-300 rounded"
+                        readOnly
+                      />
+                    </div>
+                  </div>
                 </div>
               )}
             </div>
@@ -1539,15 +1858,14 @@ const Threemodules = () => {
                 <div>
                   <label className="block text-sm font-medium mb-1">Type</label>
                   <select
-                    value={question.type}
+                    value="multiple-choice" // Always default to multiple-choice
                     onChange={(e) =>
                       handleQuestionChange(qIndex, "type", e.target.value)
                     }
                     className="w-full p-2 border border-gray-300 rounded"
+                    disabled // Disable to prevent changing from multiple-choice
                   >
                     <option value="multiple-choice">Multiple Choice</option>
-                    <option value="true-false">True/False</option>
-                    <option value="short-answer">Short Answer</option>
                   </select>
                 </div>
 
@@ -1596,17 +1914,37 @@ const Threemodules = () => {
                     />
                     <div className="flex items-center">
                       <input
-                        type="checkbox"
+                        type="radio"
                         id={`correct-${qIndex}-${oIndex}`}
+                        name={`correct-${qIndex}`}
                         checked={option.isCorrect}
-                        onChange={(e) =>
-                          handleOptionChange(
-                            qIndex,
-                            oIndex,
-                            "isCorrect",
-                            e.target.checked
-                          )
-                        }
+                        onChange={(e) => {
+                          // Uncheck all other options first
+                          const newQuestions = [...formData.quiz.questions];
+                          newQuestions[qIndex].options.forEach((opt) => {
+                            opt.isCorrect = false;
+                          });
+
+                          // Then check the selected option
+                          newQuestions[qIndex].options[oIndex].isCorrect =
+                            e.target.checked;
+
+                          // Update the correctAnswer field
+                          if (e.target.checked) {
+                            newQuestions[qIndex].correctAnswer =
+                              newQuestions[qIndex].options[oIndex].id;
+                          } else {
+                            newQuestions[qIndex].correctAnswer = "";
+                          }
+
+                          setFormData((prev) => ({
+                            ...prev,
+                            quiz: {
+                              ...prev.quiz,
+                              questions: newQuestions,
+                            },
+                          }));
+                        }}
                         className="mr-1"
                       />
                       <label
