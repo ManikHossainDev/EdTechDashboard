@@ -9,6 +9,7 @@ const Sevenmodules = () => {
   // module id seven
   const id = "693670abf4d0d2d1e21e1d6d";
   const { data, isLoading, isError, error } = useGetModulesByIdQuery(id);
+  console.log(data);
   // Handle form submission - moved to top to maintain consistent hook order
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [updateModuleTwo] = useUpdateModulesOneMutation();
@@ -20,13 +21,13 @@ const Sevenmodules = () => {
 
   // Optimized data transformation function
   const transformApiData = (apiData) => {
-    if (!apiData?.data) return null;
+    if (!apiData) return null;
 
-    const moduleData = apiData.data;
+    const moduleData = apiData;
 
     // Format learning objectives
     const formattedLearningObjectives =
-      moduleData.learningObjectives?.map((obj) => obj.text) || [];
+      moduleData.learningObjectives?.map((obj) => typeof obj === 'string' ? obj : obj.text) || [];
 
     // Format learning content as content blocks
     const formattedContentBlocks =
@@ -35,10 +36,8 @@ const Sevenmodules = () => {
           return {
             type: content.type,
             order: content.order || index + 1,
-            content: content.content?.text || "",
-            image: content.content?.image || null,
-            alt: content.content?.image?.alt || "",
-            caption: content.content?.image?.caption || "",
+            content: content.content || "",
+            image: content.image || null,
           };
         } else {
           return {
@@ -59,13 +58,19 @@ const Sevenmodules = () => {
             title: task.title || "",
             description: task.description || "",
             instructions: task.instructions || "",
-            points: task.points || 20,
+            points: task.points || 38.5,
             config: {
               categories: task.config?.categories || [],
               scenarios: task.config?.scenarios || [],
               items: task.config?.items || [],
               components: task.config?.components || [],
               validationRules: task.config?.validationRules || [],
+              moodMeter: task.config?.moodMeter || { states: [] },
+              friends: task.config?.friends || [],
+              activityToolbox: task.config?.activityToolbox || [],
+              balanceTips: task.config?.balanceTips || [],
+              badges: task.config?.badges || [],
+              badgeMappings: task.config?.badgeMappings || [],
             },
           };
         } else if (task.type === "build-your-own") {
@@ -194,12 +199,24 @@ const Sevenmodules = () => {
       contentBlocks: [{ type: "text", order: 1, content: "", listItems: [] }],
       interactiveTasks: [
         {
-          type: "sort-categories",
+          type: "scenario-choice",
           title: "",
           description: "",
           instructions: "",
-          points: 20,
-          config: {},
+          points: 38.5,
+          config: {
+            categories: [],
+            scenarios: [],
+            items: [],
+            components: [],
+            validationRules: [],
+            moodMeter: { states: [] },
+            friends: [],
+            activityToolbox: [],
+            balanceTips: [],
+            badges: [],
+            badgeMappings: [],
+          },
         },
       ],
       quiz: {
@@ -214,9 +231,13 @@ const Sevenmodules = () => {
             questionNumber: 1,
             type: "multiple-choice",
             question: "",
-            points: 10,
+            points: 5,
             explanation: "",
-            options: [{ id: "A", text: "", isCorrect: false }],
+            options: [
+              { id: "A", text: "", isCorrect: false },
+              { id: "B", text: "", isCorrect: false },
+              { id: "C", text: "", isCorrect: false }
+            ],
           },
         ],
       },
@@ -276,29 +297,15 @@ const Sevenmodules = () => {
     );
   }
 
-  // Console log the original data
-  console.log("Original API Data:", data);
-
-  // Transform the data
-  const formattedData = transformApiData(data);
-
-  // Console log the transformed data
-  console.log("Formatted Data:", formattedData);
-
-  // Log the updated values after transformation
-  console.log("Updated values after transformation:", {
-    title: formattedData?.title,
-    description: formattedData?.description,
-    learningObjectives: formattedData?.learningObjectives,
-    contentBlocks: formattedData?.contentBlocks,
-    interactiveTasks: formattedData?.interactiveTasks,
-    quiz: formattedData?.quiz,
-    parentTip: formattedData?.parentTip,
-  });
-
   // Handle main form changes
   const handleMainChange = (e) => {
     const { name, value } = e.target;
+
+    // Prevent changes to moduleNumber and order
+    if (name === 'moduleNumber' || name === 'order') {
+      return;
+    }
+
     setFormData((prev) => {
       const updatedData = {
         ...prev,
@@ -408,12 +415,24 @@ const Sevenmodules = () => {
       interactiveTasks: [
         ...prev.interactiveTasks,
         {
-          type: "sort-categories",
+          type: "scenario-choice",
           title: "",
           description: "",
           instructions: "",
-          points: 20,
-          config: {},
+          points: 38.5,
+          config: {
+            categories: [],
+            scenarios: [],
+            items: [],
+            components: [],
+            validationRules: [],
+            moodMeter: { states: [] },
+            friends: [],
+            activityToolbox: [],
+            balanceTips: [],
+            badges: [],
+            badgeMappings: [],
+          },
         },
       ],
     }));
@@ -471,6 +490,14 @@ const Sevenmodules = () => {
 
   const handleOptionChange = (questionIndex, optionIndex, field, value) => {
     const newQuestions = [...formData.quiz.questions];
+    if (field === "isCorrect" && value) {
+      // If setting an option as correct, uncheck all other options for this question
+      newQuestions[questionIndex].options.forEach((opt, idx) => {
+        if (idx !== optionIndex) {
+          opt.isCorrect = false;
+        }
+      });
+    }
     newQuestions[questionIndex].options[optionIndex][field] = value;
     setFormData((prev) => {
       const updatedData = {
@@ -635,18 +662,33 @@ const Sevenmodules = () => {
   // Format data for saving according to the exact required format
   const formatForSave = () => {
     // Extract the learning objectives from the text
-    const learningObjectives = formData.learningObjectives.filter(
-      (obj) => obj.trim() !== ""
-    );
+    const learningObjectives = formData.learningObjectives.map((text, index) => ({
+      text: text,
+      order: index + 1
+    })).filter(obj => obj.text.trim() !== "");
 
     // Format content blocks
     const contentBlocks = formData.contentBlocks
-      .filter((block) => block.content.trim() !== "")
-      .map((block, index) => ({
-        type: block.type,
-        order: block.order || index + 1,
-        content: block.content,
-      }));
+      .filter((block) => block.content.trim() !== "" || (block.type === "image" && block.image))
+      .map((block, index) => {
+        if (block.type === "image") {
+          return {
+            type: block.type,
+            order: block.order || index + 1,
+            content: block.content,
+            image: block.image,
+          };
+        } else {
+          return {
+            type: block.type,
+            order: block.order || index + 1,
+            content: {
+              text: block.content,
+              listItems: block.listItems || [],
+            },
+          };
+        }
+      });
 
     // Format interactive tasks
     const interactiveTasks = formData.interactiveTasks
@@ -658,22 +700,24 @@ const Sevenmodules = () => {
             description: task.description,
             instructions: task.instructions,
             points: 800, // Fixed value as per requirements
-            items:
-              task.config.items
-                ?.filter((item) => item.text.trim() !== "")
-                .map((item) => ({
-                  id: item.id,
-                  text: item.text,
-                })) || [],
-            categories:
-              task.config.categories
-                ?.filter((cat) => cat.name.trim() !== "")
-                .map((category) => ({
-                  id: category.id,
-                  name: category.name,
-                  description: category.description,
-                })) || [],
-            correctMapping: task.config.correctMapping || {},
+            config: {
+              items:
+                task.config.items
+                  ?.filter((item) => item.text.trim() !== "")
+                  .map((item) => ({
+                    id: item.id,
+                    text: item.text,
+                  })) || [],
+              categories:
+                task.config.categories
+                  ?.filter((cat) => cat.name.trim() !== "")
+                  .map((category) => ({
+                    id: category.id,
+                    name: category.name,
+                    description: category.description,
+                  })) || [],
+              correctMapping: task.config.correctMapping || {},
+            }
           };
         } else if (task.type === "scenario-choice") {
           // Format scenario-choice tasks with the required toolbox and scenarios structure
@@ -745,6 +789,7 @@ const Sevenmodules = () => {
             title: task.title,
             description: task.description,
             instructions: task.instructions,
+            points: task.points || 20,
             config: {
               components: task.config.components || [],
               validationRules: task.config.validationRules || [],
@@ -761,8 +806,9 @@ const Sevenmodules = () => {
       .filter((q) => q.question.trim() !== "")
       .map((q, idx) => ({
         questionNumber: idx + 1,
-        type: q.type,
+        type: q.type || "multiple-choice", // Default to multiple-choice
         question: q.question,
+        points: q.points || 5, // Use provided points or default to 5
         explanation: q.explanation,
         options: q.options
           .filter((opt) => opt.text.trim() !== "")
@@ -772,16 +818,6 @@ const Sevenmodules = () => {
             isCorrect: option.isCorrect,
           })),
       }));
-
-    // Update the quiz structure to match the required format
-    const formattedQuiz = {
-      title: formData.quiz.title,
-      description: formData.quiz.description,
-      passingScore: formData.quiz.passingScore,
-      allowRetake: formData.quiz.allowRetake,
-      showCorrectAnswers: formData.quiz.showCorrectAnswers,
-      questions: quizQuestions,
-    };
 
     // Return the exact format required
     return {
@@ -795,11 +831,22 @@ const Sevenmodules = () => {
       learningObjectives: learningObjectives,
       contentBlocks: contentBlocks,
       interactiveTasks: interactiveTasks,
-      quiz: formattedQuiz,
+      quiz: {
+        title: formData.quiz.title,
+        description: formData.quiz.description,
+        passingScore: formData.quiz.passingScore,
+        allowRetake: formData.quiz.allowRetake,
+        showCorrectAnswers: formData.quiz.showCorrectAnswers,
+        questions: quizQuestions,
+      },
       parentTip: {
         title: formData.parentTip.title,
         content: formData.parentTip.content,
       },
+      unlockConditions: formData.unlockConditions || {
+        requiresPreviousModule: true,
+        minimumPreviousScore: 70
+      }
     };
   };
 
@@ -884,13 +931,14 @@ const Sevenmodules = () => {
 
     // Format the data as required
     const saveData = formatForSave();
-    console.log(saveData);
+    console.log("Formatted save data:", saveData);
 
     try {
       const res = await updateModuleTwo({ id, updatedData: saveData });
       console.log(res, "im the api response");
     } catch (error) {
-      alert("Error to Update");
+      console.error("Update error:", error);
+      alert("Error to Update: " + (error?.message || "Unknown error"));
     }
     alert("Data logged to console!");
     setIsSubmitting(false);
@@ -940,8 +988,8 @@ const Sevenmodules = () => {
                 type="number"
                 name="moduleNumber"
                 value={formData.moduleNumber}
-                onChange={handleMainChange}
-                className="w-full p-2 border border-gray-300 rounded"
+                readOnly
+                className="w-full p-2 border border-gray-300 rounded bg-gray-100"
                 required
               />
             </div>
@@ -1016,8 +1064,8 @@ const Sevenmodules = () => {
                 type="number"
                 name="order"
                 value={formData.order}
-                onChange={handleMainChange}
-                className="w-full p-2 border border-gray-300 rounded"
+                readOnly
+                className="w-full p-2 border border-gray-300 rounded bg-gray-100"
                 required
               />
             </div>
@@ -1446,61 +1494,177 @@ const Sevenmodules = () => {
                   <h4 className="font-medium mb-2">Configuration</h4>
 
                   <div className="mb-4">
-                    <h5 className="font-medium mb-1">Categories</h5>
-                    {task.config.categories?.map((category, catIndex) => (
-                      <div
-                        key={catIndex}
-                        className="flex items-center gap-2 mb-2"
-                      >
-                        <input
-                          type="text"
-                          value={category.name}
-                          className="flex-1 p-2 border border-gray-300 rounded"
-                          readOnly
-                        />
-                        <span className="text-sm text-gray-500">
-                          ID: {category.id}
-                        </span>
-                      </div>
-                    ))}
-                  </div>
-
-                  <div className="mb-4">
                     <h5 className="font-medium mb-2">Scenarios</h5>
                     {task.config.scenarios?.map((scenario, scenarioIndex) => (
                       <div
                         key={scenarioIndex}
                         className="mb-4 p-3 border border-gray-200 rounded"
                       >
-                        <h6 className="font-medium mb-2">
-                          Scenario {scenarioIndex + 1}:{" "}
-                          {scenario.situation || scenario.text}
-                        </h6>
-
-                        {scenario.options?.map((option, optionIndex) => (
-                          <div
-                            key={optionIndex}
-                            className="flex items-center gap-2 mb-2"
-                          >
+                        <div className="grid grid-cols-1 gap-4">
+                          <div>
+                            <label className="block text-sm font-medium mb-1">
+                              Scenario Text
+                            </label>
                             <input
                               type="text"
-                              value={option.text}
-                              className="flex-1 p-2 border border-gray-300 rounded"
-                              readOnly
+                              value={scenario.text || ''}
+                              onChange={(e) => {
+                                const newTasks = [...formData.interactiveTasks];
+                                newTasks[taskIndex].config.scenarios[scenarioIndex].text = e.target.value;
+                                setFormData(prev => ({
+                                  ...prev,
+                                  interactiveTasks: newTasks
+                                }));
+                              }}
+                              className="w-full p-2 border border-gray-300 rounded"
+                              placeholder="Brief description of scenario"
                             />
-                            <div className="flex items-center">
-                              <input
-                                type="checkbox"
-                                checked={option.isCorrect}
-                                className="mr-1"
-                                readOnly
-                              />
-                              <span className="text-sm">Correct</span>
-                            </div>
                           </div>
-                        ))}
+
+                          <div>
+                            <label className="block text-sm font-medium mb-1">
+                              Situation
+                            </label>
+                            <textarea
+                              value={scenario.situation || ''}
+                              onChange={(e) => {
+                                const newTasks = [...formData.interactiveTasks];
+                                newTasks[taskIndex].config.scenarios[scenarioIndex].situation = e.target.value;
+                                setFormData(prev => ({
+                                  ...prev,
+                                  interactiveTasks: newTasks
+                                }));
+                              }}
+                              className="w-full p-2 border border-gray-300 rounded"
+                              rows="3"
+                              placeholder="Detailed scenario situation"
+                            />
+                          </div>
+
+                          <div>
+                            <label className="block text-sm font-medium mb-1">
+                              Hint
+                            </label>
+                            <input
+                              type="text"
+                              value={scenario.hint || ''}
+                              onChange={(e) => {
+                                const newTasks = [...formData.interactiveTasks];
+                                newTasks[taskIndex].config.scenarios[scenarioIndex].hint = e.target.value;
+                                setFormData(prev => ({
+                                  ...prev,
+                                  interactiveTasks: newTasks
+                                }));
+                              }}
+                              className="w-full p-2 border border-gray-300 rounded"
+                              placeholder="Helpful hint for this scenario"
+                            />
+                          </div>
+
+                          <div>
+                            <h6 className="font-medium mb-2">Options</h6>
+                            {scenario.options?.map((option, optionIndex) => (
+                              <div key={optionIndex} className="flex items-center gap-2 mb-2 p-2 bg-gray-50 rounded">
+                                <div className="flex-1">
+                                  <input
+                                    type="text"
+                                    value={option.text}
+                                    onChange={(e) => {
+                                      const newTasks = [...formData.interactiveTasks];
+                                      newTasks[taskIndex].config.scenarios[scenarioIndex].options[optionIndex].text = e.target.value;
+                                      setFormData(prev => ({
+                                        ...prev,
+                                        interactiveTasks: newTasks
+                                      }));
+                                    }}
+                                    className="w-full p-2 border border-gray-300 rounded"
+                                    placeholder={`Option ${option.id}`}
+                                  />
+                                </div>
+                                <div className="flex items-center">
+                                  <input
+                                    type="checkbox"
+                                    checked={option.isCorrect}
+                                    onChange={(e) => {
+                                      const newTasks = [...formData.interactiveTasks];
+                                      // Reset all other options to not correct for this question
+                                      newTasks[taskIndex].config.scenarios[scenarioIndex].options.forEach(opt => {
+                                        if (opt.id !== option.id) {
+                                          opt.isCorrect = false;
+                                        }
+                                      });
+                                      // Set this option as correct
+                                      newTasks[taskIndex].config.scenarios[scenarioIndex].options[optionIndex].isCorrect = e.target.checked;
+                                      setFormData(prev => ({
+                                        ...prev,
+                                        interactiveTasks: newTasks
+                                      }));
+                                    }}
+                                    className="mr-1"
+                                  />
+                                  <span className="text-sm">Correct</span>
+                                </div>
+                                <div className="text-sm text-gray-500">
+                                  ID: {option.id}
+                                </div>
+                              </div>
+                            ))}
+
+                            <button
+                              type="button"
+                              onClick={() => {
+                                const newTasks = [...formData.interactiveTasks];
+                                const newOptions = [...newTasks[taskIndex].config.scenarios[scenarioIndex].options];
+                                const newId = String.fromCharCode(65 + newOptions.length); // A, B, C, etc.
+                                newOptions.push({
+                                  id: newId,
+                                  text: '',
+                                  isCorrect: false,
+                                  feedback: ''
+                                });
+                                newTasks[taskIndex].config.scenarios[scenarioIndex].options = newOptions;
+                                setFormData(prev => ({
+                                  ...prev,
+                                  interactiveTasks: newTasks
+                                }));
+                              }}
+                              className="mt-2 bg-blue-500 text-white px-2 py-1 rounded text-sm hover:bg-blue-600"
+                            >
+                              Add Option
+                            </button>
+                          </div>
+                        </div>
                       </div>
                     ))}
+
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const newTasks = [...formData.interactiveTasks];
+                        const newId = `s${newTasks[taskIndex].config.scenarios?.length + 1 || 1}`;
+                        newTasks[taskIndex].config.scenarios = [
+                          ...(newTasks[taskIndex].config.scenarios || []),
+                          {
+                            id: newId,
+                            text: '',
+                            situation: '',
+                            hint: '',
+                            options: [
+                              { id: 'A', text: '', isCorrect: false, feedback: '' },
+                              { id: 'B', text: '', isCorrect: false, feedback: '' },
+                              { id: 'C', text: '', isCorrect: false, feedback: '' }
+                            ]
+                          }
+                        ];
+                        setFormData(prev => ({
+                          ...prev,
+                          interactiveTasks: newTasks
+                        }));
+                      }}
+                      className="bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600 text-sm"
+                    >
+                      Add Scenario
+                    </button>
                   </div>
                 </div>
               )}
@@ -1747,8 +1911,6 @@ const Sevenmodules = () => {
                     className="w-full p-2 border border-gray-300 rounded"
                   >
                     <option value="multiple-choice">Multiple Choice</option>
-                    <option value="true-false">True/False</option>
-                    <option value="short-answer">Short Answer</option>
                   </select>
                 </div>
 
