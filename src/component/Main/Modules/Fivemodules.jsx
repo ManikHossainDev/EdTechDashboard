@@ -9,6 +9,7 @@ const Fivemodules = () => {
   // module id five
   const id = "69366d40f4d0d2d1e21e1d61";
   const { data, isLoading, isError, error } = useGetModulesByIdQuery(id);
+  console.log(data?.data || data);
   // Handle form submission - moved to top to maintain consistent hook order
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [updateModuleTwo] = useUpdateModulesOneMutation();
@@ -20,13 +21,13 @@ const Fivemodules = () => {
 
   // Optimized data transformation function
   const transformApiData = (apiData) => {
-    if (!apiData?.data) return null;
+    if (!apiData) return null;
 
-    const moduleData = apiData.data;
+    const moduleData = apiData;
 
     // Format learning objectives
     const formattedLearningObjectives =
-      moduleData.learningObjectives?.map((obj) => obj.text) || [];
+      moduleData.learningObjectives?.map((obj) => typeof obj === 'string' ? obj : obj.text) || [];
 
     // Format learning content as content blocks
     const formattedContentBlocks =
@@ -35,10 +36,8 @@ const Fivemodules = () => {
           return {
             type: content.type,
             order: content.order || index + 1,
-            content: content.content?.text || "",
-            image: content.content?.image || null,
-            alt: content.content?.image?.alt || "",
-            caption: content.content?.image?.caption || "",
+            content: content.content || "",
+            image: content.image || null,
           };
         } else {
           return {
@@ -52,14 +51,30 @@ const Fivemodules = () => {
 
     // Format interactive tasks
     const formattedInteractiveTasks =
-      moduleData.interactiveTasks?.map((task) => ({
-        type: task.type || "sort-categories",
-        title: task.title || "",
-        description: task.description || "",
-        instructions: task.instructions || "",
-        points: task.points || 20,
-        config: task.config || {},
-      })) || [];
+      moduleData.interactiveTasks?.map((task) => {
+        if (task.type === "scenario-choice") {
+          return {
+            type: task.type,
+            title: task.title || "",
+            description: task.description || "",
+            instructions: task.instructions || "",
+            points: task.points || 500,
+            config: {
+              categories: task.config?.categories || [],
+              scenarios: task.config?.scenarios || [],
+            }
+          };
+        } else {
+          return {
+            type: task.type || "sort-categories",
+            title: task.title || "",
+            description: task.description || "",
+            instructions: task.instructions || "",
+            points: task.points || 20,
+            config: task.config || {},
+          };
+        }
+      }) || [];
 
     // Format quiz
     const formattedQuiz = {
@@ -128,7 +143,8 @@ const Fivemodules = () => {
   // We use the transformed data if available, otherwise default values
   const [formData, setFormData] = useState(() => {
     if (data && !isLoading && !isError) {
-      const transformedData = transformApiData(data);
+      const moduleData = data.data || data; // Handle both formats
+      const transformedData = transformApiData(moduleData);
       if (transformedData) {
         return transformedData;
       }
@@ -149,12 +165,15 @@ const Fivemodules = () => {
       contentBlocks: [{ type: "text", order: 1, content: "", listItems: [] }],
       interactiveTasks: [
         {
-          type: "sort-categories",
+          type: "scenario-choice",
           title: "",
           description: "",
           instructions: "",
-          points: 20,
-          config: {},
+          points: 500,
+          config: {
+            categories: [],
+            scenarios: [],
+          },
         },
       ],
       quiz: {
@@ -169,9 +188,13 @@ const Fivemodules = () => {
             questionNumber: 1,
             type: "multiple-choice",
             question: "",
-            points: 10,
+            points: 5,
             explanation: "",
-            options: [{ id: "A", text: "", isCorrect: false }],
+            options: [
+              { id: "A", text: "", isCorrect: false },
+              { id: "B", text: "", isCorrect: false },
+              { id: "C", text: "", isCorrect: false }
+            ],
           },
         ],
       },
@@ -191,7 +214,8 @@ const Fivemodules = () => {
   // Update form data when API data becomes available
   useEffect(() => {
     if (data && !isLoading && !isError) {
-      const transformedData = transformApiData(data);
+      const moduleData = data.data || data; // Handle both formats
+      const transformedData = transformApiData(moduleData);
       if (transformedData) {
         setFormData(transformedData);
       }
@@ -224,6 +248,7 @@ const Fivemodules = () => {
           <span className="block sm:inline">
             {error?.data?.message ||
               error?.error ||
+              error?.message ||
               "Failed to load module data"}
           </span>
         </div>
@@ -231,29 +256,15 @@ const Fivemodules = () => {
     );
   }
 
-  // Console log the original data
-  console.log("Original API Data:", data);
-
-  // Transform the data
-  const formattedData = transformApiData(data);
-
-  // Console log the transformed data
-  console.log("Formatted Data:", formattedData);
-
-  // Log the updated values after transformation
-  console.log("Updated values after transformation:", {
-    title: formattedData?.title,
-    description: formattedData?.description,
-    learningObjectives: formattedData?.learningObjectives,
-    contentBlocks: formattedData?.contentBlocks,
-    interactiveTasks: formattedData?.interactiveTasks,
-    quiz: formattedData?.quiz,
-    parentTip: formattedData?.parentTip,
-  });
-
   // Handle main form changes
   const handleMainChange = (e) => {
     const { name, value } = e.target;
+
+    // Prevent changes to moduleNumber and order
+    if (name === 'moduleNumber' || name === 'order') {
+      return;
+    }
+
     setFormData((prev) => {
       const updatedData = {
         ...prev,
@@ -363,12 +374,15 @@ const Fivemodules = () => {
       interactiveTasks: [
         ...prev.interactiveTasks,
         {
-          type: "sort-categories",
+          type: "scenario-choice",
           title: "",
           description: "",
           instructions: "",
-          points: 20,
-          config: {},
+          points: 500,
+          config: {
+            categories: [],
+            scenarios: [],
+          },
         },
       ],
     }));
@@ -463,9 +477,13 @@ const Fivemodules = () => {
             questionNumber: newNumber,
             type: "multiple-choice",
             question: "",
-            points: 10,
+            points: 5, // Default to 5 points as per requirements
             explanation: "",
-            options: [{ id: "A", text: "", isCorrect: false }],
+            options: [
+              { id: "A", text: "", isCorrect: false },
+              { id: "B", text: "", isCorrect: false },
+              { id: "C", text: "", isCorrect: false }
+            ],
           },
         ],
       },
@@ -583,6 +601,17 @@ const Fivemodules = () => {
         ...prev,
         interactiveTasks: newTasks,
       }));
+    } else if (currentMediaField.startsWith("interactiveTaskScenario")) {
+      const [, taskIndex, scenarioIndex] = currentMediaField.split("-");
+      const newTasks = [...formData.interactiveTasks];
+      newTasks[taskIndex].config.scenarios[scenarioIndex] = {
+        ...newTasks[taskIndex].config.scenarios[scenarioIndex],
+        image: mediaData,
+      };
+      setFormData((prev) => ({
+        ...prev,
+        interactiveTasks: newTasks,
+      }));
     }
     setIsMediaModalOpen(false);
   };
@@ -590,18 +619,33 @@ const Fivemodules = () => {
   // Format data for saving according to the exact required format
   const formatForSave = () => {
     // Extract the learning objectives from the text
-    const learningObjectives = formData.learningObjectives.filter(
-      (obj) => obj.trim() !== ""
-    );
+    const learningObjectives = formData.learningObjectives.map((text, index) => ({
+      text: text,
+      order: index + 1
+    })).filter(obj => obj.text.trim() !== "");
 
     // Format content blocks
     const contentBlocks = formData.contentBlocks
-      .filter((block) => block.content.trim() !== "")
-      .map((block, index) => ({
-        type: block.type,
-        order: block.order || index + 1,
-        content: block.content,
-      }));
+      .filter((block) => block.content.trim() !== "" || (block.type === "image" && block.image))
+      .map((block, index) => {
+        if (block.type === "image") {
+          return {
+            type: block.type,
+            order: block.order || index + 1,
+            content: block.content,
+            image: block.image,
+          };
+        } else {
+          return {
+            type: block.type,
+            order: block.order || index + 1,
+            content: {
+              text: block.content,
+              listItems: block.listItems || [],
+            },
+          };
+        }
+      });
 
     // Format interactive tasks
     const interactiveTasks = formData.interactiveTasks
@@ -613,22 +657,24 @@ const Fivemodules = () => {
             description: task.description,
             instructions: task.instructions,
             points: 800, // Fixed value as per requirements
-            items:
-              task.config.items
-                ?.filter((item) => item.text.trim() !== "")
-                .map((item) => ({
-                  id: item.id,
-                  text: item.text,
-                })) || [],
-            categories:
-              task.config.categories
-                ?.filter((cat) => cat.name.trim() !== "")
-                .map((category) => ({
-                  id: category.id,
-                  name: category.name,
-                  description: category.description,
-                })) || [],
-            correctMapping: task.config.correctMapping || {},
+            config: {
+              items:
+                task.config.items
+                  ?.filter((item) => item.text.trim() !== "")
+                  .map((item) => ({
+                    id: item.id,
+                    text: item.text,
+                  })) || [],
+              categories:
+                task.config.categories
+                  ?.filter((cat) => cat.name.trim() !== "")
+                  .map((category) => ({
+                    id: category.id,
+                    name: category.name,
+                    description: category.description,
+                  })) || [],
+              correctMapping: task.config.correctMapping || {},
+            }
           };
         } else if (task.type === "scenario-choice") {
           return {
@@ -637,18 +683,28 @@ const Fivemodules = () => {
             description: task.description,
             instructions: task.instructions,
             points: 500, // Fixed value as per requirements
-            scenarios:
-              task.config.scenarios?.map((scenario) => ({
-                id: scenario.id,
-                situation: scenario.text,
-                options:
-                  scenario.responses?.map((response) => ({
-                    id: response.id,
-                    text: response.text,
-                    isCorrect: response.isCorrect,
-                    feedback: response.feedback,
-                  })) || [],
-              })) || [],
+            config: {
+              categories:
+                task.config.categories?.map((category) => ({
+                  id: category.id,
+                  name: category.name,
+                  description: category.description,
+                })) || [],
+              scenarios:
+                task.config.scenarios?.map((scenario) => ({
+                  id: scenario.id,
+                  situation: scenario.situation,
+                  hint: scenario.hint,
+                  options:
+                    scenario.options?.map((option) => ({
+                      id: option.id,
+                      text: option.text,
+                      isCorrect: option.isCorrect,
+                      feedback: option.feedback,
+                    })) || [],
+                  responses: scenario.responses || [],
+                })) || [],
+            }
           };
         }
         return task;
@@ -660,9 +716,9 @@ const Fivemodules = () => {
       .filter((q) => q.question.trim() !== "")
       .map((q, idx) => ({
         questionNumber: idx + 1,
-        type: q.type,
+        type: q.type || "multiple-choice", // Default to multiple-choice
         question: q.question,
-        points: 5, // Fixed value as per requirements
+        points: q.points || 5, // Use provided points or default to 5
         explanation: q.explanation,
         options: q.options
           .filter((opt) => opt.text.trim() !== "")
@@ -697,6 +753,10 @@ const Fivemodules = () => {
         title: formData.parentTip.title,
         content: formData.parentTip.content,
       },
+      unlockConditions: formData.unlockConditions || {
+        requiresPreviousModule: true,
+        minimumPreviousScore: 70
+      }
     };
   };
 
@@ -781,13 +841,14 @@ const Fivemodules = () => {
 
     // Format the data as required
     const saveData = formatForSave();
-    console.log(saveData);
+    console.log("Formatted save data:", saveData);
 
     try {
       const res = await updateModuleTwo({ id, updatedData: saveData });
       console.log(res, "im the api response");
     } catch (error) {
-      alert("Error to Update");
+      console.error("Update error:", error);
+      alert("Error to Update: " + (error?.message || "Unknown error"));
     }
     alert("Data logged to console!");
     setIsSubmitting(false);
@@ -837,8 +898,8 @@ const Fivemodules = () => {
                 type="number"
                 name="moduleNumber"
                 value={formData.moduleNumber}
-                onChange={handleMainChange}
-                className="w-full p-2 border border-gray-300 rounded"
+                readOnly
+                className="w-full p-2 border border-gray-300 rounded bg-gray-100"
                 required
               />
             </div>
@@ -913,8 +974,8 @@ const Fivemodules = () => {
                 type="number"
                 name="order"
                 value={formData.order}
-                onChange={handleMainChange}
-                className="w-full p-2 border border-gray-300 rounded"
+                readOnly
+                className="w-full p-2 border border-gray-300 rounded bg-gray-100"
                 required
               />
             </div>
@@ -1349,34 +1410,163 @@ const Fivemodules = () => {
                       key={scenarioIndex}
                       className="mb-4 p-3 border border-gray-200 rounded"
                     >
-                      <h5 className="font-medium mb-2">
-                        Scenario {scenarioIndex + 1}: {scenario.text}
-                      </h5>
+                      <div className="grid grid-cols-1 gap-4">
+                        {scenario.image && (
+                          <div className="mb-2">
+                            <img
+                              src={scenario.image.url}
+                              alt="Scenario image"
+                              className="max-w-xs rounded"
+                            />
+                            <button
+                              type="button"
+                              onClick={() =>
+                                openMediaUploadModal(
+                                  `interactiveTaskScenario-${taskIndex}-${scenarioIndex}`,
+                                  "image"
+                                )
+                              }
+                              className="mt-1 bg-blue-500 text-white px-2 py-1 rounded text-sm hover:bg-blue-600"
+                            >
+                              Replace Image
+                            </button>
+                          </div>
+                        )}
+                        {!scenario.image && (
+                          <button
+                            type="button"
+                            onClick={() =>
+                              openMediaUploadModal(
+                                `interactiveTaskScenario-${taskIndex}-${scenarioIndex}`,
+                                "image"
+                              )
+                            }
+                            className="bg-blue-500 text-white px-2 py-1 rounded text-sm hover:bg-blue-600"
+                          >
+                            Add Image
+                          </button>
+                        )}
 
-                      {scenario.responses?.map((response, responseIndex) => (
-                        <div
-                          key={responseIndex}
-                          className="flex items-center gap-2 mb-2"
-                        >
+                        <div>
+                          <label className="block text-sm font-medium mb-1">
+                            Situation
+                          </label>
+                          <textarea
+                            value={scenario.situation || ''}
+                            onChange={(e) => {
+                              const newTasks = [...formData.interactiveTasks];
+                              newTasks[taskIndex].config.scenarios[scenarioIndex].situation = e.target.value;
+                              setFormData(prev => ({
+                                ...prev,
+                                interactiveTasks: newTasks
+                              }));
+                            }}
+                            className="w-full p-2 border border-gray-300 rounded"
+                            rows="3"
+                          />
+                        </div>
+
+                        <div>
+                          <label className="block text-sm font-medium mb-1">
+                            Hint
+                          </label>
                           <input
                             type="text"
-                            value={response.text}
-                            className="flex-1 p-2 border border-gray-300 rounded"
-                            readOnly
+                            value={scenario.hint || ''}
+                            onChange={(e) => {
+                              const newTasks = [...formData.interactiveTasks];
+                              newTasks[taskIndex].config.scenarios[scenarioIndex].hint = e.target.value;
+                              setFormData(prev => ({
+                                ...prev,
+                                interactiveTasks: newTasks
+                              }));
+                            }}
+                            className="w-full p-2 border border-gray-300 rounded"
                           />
-                          <div className="flex items-center">
-                            <input
-                              type="checkbox"
-                              checked={response.isCorrect}
-                              className="mr-1"
-                              readOnly
-                            />
-                            <span className="text-sm">Correct</span>
-                          </div>
                         </div>
-                      ))}
+
+                        <div>
+                          <h5 className="font-medium mb-2">Options</h5>
+                          {scenario.options?.map((option, optionIndex) => (
+                            <div key={optionIndex} className="flex items-center gap-2 mb-2 p-2 bg-gray-50 rounded">
+                              <div className="flex-1">
+                                <input
+                                  type="text"
+                                  value={option.text}
+                                  onChange={(e) => {
+                                    const newTasks = [...formData.interactiveTasks];
+                                    newTasks[taskIndex].config.scenarios[scenarioIndex].options[optionIndex].text = e.target.value;
+                                    setFormData(prev => ({
+                                      ...prev,
+                                      interactiveTasks: newTasks
+                                    }));
+                                  }}
+                                  className="w-full p-2 border border-gray-300 rounded"
+                                  placeholder={`Option ${option.id}`}
+                                />
+                              </div>
+                              <div className="flex items-center">
+                                <input
+                                  type="checkbox"
+                                  checked={option.isCorrect}
+                                  onChange={(e) => {
+                                    const newTasks = [...formData.interactiveTasks];
+                                    // Reset all other options to not correct for this question
+                                    newTasks[taskIndex].config.scenarios[scenarioIndex].options.forEach(opt => {
+                                      if (opt.id !== option.id) {
+                                        opt.isCorrect = false;
+                                      }
+                                    });
+                                    // Set this option as correct
+                                    newTasks[taskIndex].config.scenarios[scenarioIndex].options[optionIndex].isCorrect = e.target.checked;
+                                    setFormData(prev => ({
+                                      ...prev,
+                                      interactiveTasks: newTasks
+                                    }));
+                                  }}
+                                  className="mr-1"
+                                />
+                                <span className="text-sm">Correct</span>
+                              </div>
+                              <div className="text-sm text-gray-500">
+                                ID: {option.id}
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
                     </div>
                   ))}
+
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const newTasks = [...formData.interactiveTasks];
+                      const newId = `s${newTasks[taskIndex].config.scenarios?.length + 1 || 1}`;
+                      newTasks[taskIndex].config.scenarios = [
+                        ...(newTasks[taskIndex].config.scenarios || []),
+                        {
+                          id: newId,
+                          situation: '',
+                          hint: '',
+                          options: [
+                            { id: 'A', text: '', isCorrect: false, feedback: '' },
+                            { id: 'B', text: '', isCorrect: false, feedback: '' },
+                            { id: 'C', text: '', isCorrect: false, feedback: '' },
+                            { id: 'D', text: '', isCorrect: false, feedback: '' }
+                          ],
+                          responses: []
+                        }
+                      ];
+                      setFormData(prev => ({
+                        ...prev,
+                        interactiveTasks: newTasks
+                      }));
+                    }}
+                    className="bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600 text-sm"
+                  >
+                    Add Scenario
+                  </button>
                 </div>
               )}
             </div>
@@ -1546,8 +1736,6 @@ const Fivemodules = () => {
                     className="w-full p-2 border border-gray-300 rounded"
                   >
                     <option value="multiple-choice">Multiple Choice</option>
-                    <option value="true-false">True/False</option>
-                    <option value="short-answer">Short Answer</option>
                   </select>
                 </div>
 
@@ -1599,14 +1787,24 @@ const Fivemodules = () => {
                         type="checkbox"
                         id={`correct-${qIndex}-${oIndex}`}
                         checked={option.isCorrect}
-                        onChange={(e) =>
-                          handleOptionChange(
-                            qIndex,
-                            oIndex,
-                            "isCorrect",
-                            e.target.checked
-                          )
-                        }
+                        onChange={(e) => {
+                          // When an option is marked as correct, unmark all others
+                          const newQuestions = [...formData.quiz.questions];
+                          newQuestions[qIndex].options.forEach(opt => {
+                            if (opt.id !== option.id) {
+                              opt.isCorrect = false;
+                            }
+                          });
+                          // Set this option as correct
+                          newQuestions[qIndex].options[oIndex].isCorrect = e.target.checked;
+                          setFormData(prev => ({
+                            ...prev,
+                            quiz: {
+                              ...prev.quiz,
+                              questions: newQuestions
+                            }
+                          }));
+                        }}
                         className="mr-1"
                       />
                       <label
