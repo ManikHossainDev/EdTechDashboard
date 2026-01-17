@@ -29,7 +29,7 @@ const Towmodules = () => {
 
     // Format learning objectives
     const formattedLearningObjectives =
-      moduleData.learningObjectives?.map((obj) => obj.text) || [];
+      moduleData.learningObjectives?.map((obj) => typeof obj === 'string' ? obj : obj.text) || [];
 
     // Format learning content as learningContent (matching API format)
     const formattedLearningContent =
@@ -76,6 +76,11 @@ const Towmodules = () => {
               components: [],
               validationRules: [],
               moodMeter: { states: [] },
+              friends: [],
+              activityToolbox: [],
+              balanceTips: [],
+              badges: [],
+              badgeMappings: [],
             },
           };
         } else if (task.type === "build-your-own") {
@@ -90,6 +95,15 @@ const Towmodules = () => {
               validationRules: [],
               feedback: {},
               moodMeter: { states: [] },
+              items: [],
+              categories: [],
+              correctMapping: {},
+              scenarios: [],
+              friends: [],
+              activityToolbox: [],
+              balanceTips: [],
+              badges: [],
+              badgeMappings: [],
             },
           };
         } else if (task.type === "sort-categories") {
@@ -104,6 +118,14 @@ const Towmodules = () => {
               categories: [],
               correctMapping: {},
               moodMeter: { states: [] },
+              scenarios: [],
+              friends: [],
+              components: [],
+              validationRules: [],
+              activityToolbox: [],
+              balanceTips: [],
+              badges: [],
+              badgeMappings: [],
             },
           };
         } else {
@@ -115,6 +137,17 @@ const Towmodules = () => {
             points: task.points || 20,
             config: task.config || {
               moodMeter: { states: [] },
+              items: [],
+              categories: [],
+              correctMapping: {},
+              scenarios: [],
+              friends: [],
+              components: [],
+              validationRules: [],
+              activityToolbox: [],
+              balanceTips: [],
+              badges: [],
+              badgeMappings: [],
             },
           };
         }
@@ -221,14 +254,209 @@ const Towmodules = () => {
           title: "",
           description: "",
           instructions: "",
-          points: 20,
+          points: 53.6,
           config: {
-            items: [],
-            categories: [],
-            correctMapping: {},
+            items: [
+              {
+                id: "i1",
+                name: "Jonas",
+                text: "best friend since kindergarten"
+              },
+              {
+                id: "i2",
+                name: "Emma",
+                text: "from the parallel class you sometime talk to"
+              },
+              {
+                id: "i3",
+                name: "Boy123",
+                text: "you only chat with in a game"
+              },
+              {
+                id: "i4",
+                name: "Mia",
+                text: "your cousin who lives in another city"
+              },
+              {
+                id: "i5",
+                name: "SuperGamer99",
+                text: "asked to be your friend yesterday"
+              },
+              {
+                id: "i6",
+                name: "Teacher Sara",
+                text: "your teacher from school"
+              },
+              {
+                id: "i7",
+                name: "GamerKing",
+                text: "wants your phone number"
+              },
+              {
+                id: "i8",
+                name: "Ola",
+                text: "your neighbor you play football with"
+              }
+            ],
+            categories: [
+              {
+                id: "friend",
+                name: "Friend",
+                description: "People you know well & trust"
+              },
+              {
+                id: "acquaintance",
+                name: "Acquaintance",
+                description: "People you know a little"
+              },
+              {
+                id: "stranger",
+                name: "Stranger",
+                description: "People you don't really know"
+              }
+            ],
+            correctMapping: {
+              "i1": "friend",
+              "i2": "acquaintance",
+              "i3": "stranger",
+              "i4": "acquaintance",
+              "i5": "stranger",
+              "i6": "acquaintance",
+              "i7": "stranger",
+              "i8": "friend"
+            },
             moodMeter: { states: [] },
+            scenarios: [],
+            friends: [],
+            components: [],
+            validationRules: [],
+            activityToolbox: [],
+            balanceTips: [],
+            badges: [],
+            badgeMappings: [],
           },
         },
+        {
+          type: "scenario-choice",
+          title: "",
+          description: "",
+          instructions: "",
+          points: 33.5,
+          config: {
+            categories: [],
+            scenarios: [
+              {
+                id: "s1",
+                text: "Who can see your profile picture?",
+                situation: "Who can see your profile picture?",
+                responses: [],
+                options: [
+                  {
+                    id: "o1",
+                    text: "Only my friends",
+                    feedback: "Good choice! Keep your profile private.",
+                    isCorrect: true
+                  },
+                  {
+                    id: "o2",
+                    text: "Everyone (public)",
+                    feedback: "This lets strangers see your photos. Choose 'Only my friends' instead.",
+                    isCorrect: false
+                  }
+                ]
+              },
+              {
+                id: "s2",
+                text: "Who can see your location and where you go?",
+                situation: "Who can see your location and where you go?",
+                responses: [],
+                options: [
+                  {
+                    id: "o1",
+                    text: "Nobody (turn off location)",
+                    feedback: "Perfect! Your location should stay private.",
+                    isCorrect: true
+                  },
+                  {
+                    id: "o2",
+                    text: "Everyone",
+                    feedback: "Dangerous! Strangers can track where you are.",
+                    isCorrect: false
+                  }
+                ]
+              },
+              {
+                id: "s3",
+                text: "Who can send you messages?",
+                situation: "Who can send you messages?",
+                responses: [],
+                options: [
+                  {
+                    id: "o1",
+                    text: "Only people I know",
+                    feedback: "Smart! This blocks strangers from messaging you.",
+                    isCorrect: true
+                  },
+                  {
+                    id: "o2",
+                    text: "Anyone",
+                    feedback: "This lets strangers contact you. Choose 'Only people I know'.",
+                    isCorrect: false
+                  }
+                ]
+              },
+              {
+                id: "s4",
+                text: "Who can see what you post and share?",
+                situation: "Who can see what you post and share?",
+                responses: [],
+                options: [
+                  {
+                    id: "o1",
+                    text: "Only my friends",
+                    feedback: "Great! Your posts stay within your trusted circle.",
+                    isCorrect: true
+                  },
+                  {
+                    id: "o2",
+                    text: "Everyone (public)",
+                    feedback: "This shares everything with strangers. Keep it to friends only.",
+                    isCorrect: false
+                  }
+                ]
+              },
+              {
+                id: "s5",
+                text: "What is personal information you should NEVER share online?",
+                situation: "What is personal information you should NEVER share online?",
+                responses: [],
+                options: [
+                  {
+                    id: "o1",
+                    text: "Details that say who you are and where you are",
+                    feedback: "Correct! Keep your name, address, phone number, and school private.",
+                    isCorrect: true
+                  },
+                  {
+                    id: "o2",
+                    text: "Info about the weather",
+                    feedback: "Weather is fine to share, but personal details like your address are not!",
+                    isCorrect: false
+                  }
+                ]
+              }
+            ],
+            items: [],
+            friends: [],
+            components: [],
+            validationRules: [],
+            activityToolbox: [],
+            balanceTips: [],
+            badges: [],
+            badgeMappings: [],
+            moodMeter: { states: [] },
+          },
+        }
       ],
       quiz: {
         title: "",
@@ -242,9 +470,13 @@ const Towmodules = () => {
             questionNumber: 1,
             type: "multiple-choice",
             question: "",
-            points: 10,
+            points: 5,
             explanation: "",
-            options: [{ id: "A", text: "", isCorrect: false }],
+            options: [
+              { id: "A", text: "", isCorrect: false },
+              { id: "B", text: "", isCorrect: false },
+              { id: "C", text: "", isCorrect: false }
+            ],
             correctAnswer: "",
           },
         ],
@@ -437,9 +669,6 @@ const Towmodules = () => {
         ...prev,
         interactiveTasks: newTasks,
       };
-      // Console log the updated values when interactive task changes
-      console.log("Updated interactive task field:", field, "to:", value);
-      console.log("Current interactive tasks:", updatedData.interactiveTasks);
       return updatedData;
     });
   };
@@ -454,8 +683,21 @@ const Towmodules = () => {
           title: "",
           description: "",
           instructions: "",
-          points: 20,
-          config: {},
+          points: 53.6,
+          config: {
+            items: [],
+            categories: [],
+            correctMapping: {},
+            moodMeter: { states: [] },
+            scenarios: [],
+            friends: [],
+            components: [],
+            validationRules: [],
+            activityToolbox: [],
+            balanceTips: [],
+            badges: [],
+            badgeMappings: [],
+          },
         },
       ],
     }));
@@ -479,9 +721,6 @@ const Towmodules = () => {
           [field]: value,
         },
       };
-      // Console log the updated values when quiz changes
-      console.log("Updated quiz field:", field, "to:", value);
-      console.log("Current quiz:", updatedData.quiz);
       return updatedData;
     });
   };
@@ -504,16 +743,6 @@ const Towmodules = () => {
           questions: newQuestions,
         },
       };
-      // Console log the updated values when question changes
-      console.log(
-        "Updated question at index:",
-        index,
-        "field:",
-        field,
-        "to:",
-        value
-      );
-      console.log("Current questions:", newQuestions);
       return updatedData;
     });
   };
@@ -551,18 +780,6 @@ const Towmodules = () => {
           questions: newQuestions,
         },
       };
-      // Console log the updated values when option changes
-      console.log(
-        "Updated option at question:",
-        questionIndex,
-        "option:",
-        optionIndex,
-        "field:",
-        field,
-        "to:",
-        value
-      );
-      console.log("Current questions:", newQuestions);
       return updatedData;
     });
   };
@@ -579,9 +796,13 @@ const Towmodules = () => {
             questionNumber: newNumber,
             type: "multiple-choice",
             question: "",
-            points: 10,
+            points: 5, // Default to 5 points as per requirements
             explanation: "",
-            options: [{ id: "A", text: "", isCorrect: false }],
+            options: [
+              { id: "A", text: "", isCorrect: false },
+              { id: "B", text: "", isCorrect: false },
+              { id: "C", text: "", isCorrect: false }
+            ],
             correctAnswer: "",
           },
         ],
@@ -650,9 +871,6 @@ const Towmodules = () => {
           [field]: value,
         },
       };
-      // Console log the updated values when parent tip changes
-      console.log("Updated parent tip field:", field, "to:", value);
-      console.log("Current parent tip:", updatedData.parentTip);
       return updatedData;
     });
   };
@@ -720,10 +938,7 @@ const Towmodules = () => {
     // Extract the learning objectives from the text
     const learningObjectives = formData.learningObjectives
       .filter((obj) => obj.trim() !== "")
-      .map((text, index) => ({
-        text: text,
-        order: index + 1,
-      }));
+      .map((text) => text);
 
     // Format learning content (using the correct field name)
     const learningContent = formData.learningContent
@@ -733,7 +948,7 @@ const Towmodules = () => {
             typeof block.content === "object" &&
             block.content.text.trim() !== "") ||
           (block.type === "image" &&
-            (block.content?.trim() !== "" || block.image))
+            (block.content?.trim() !== "" || block.image?.url))
       )
       .map((block, index) => {
         if (block.type === "image") {
@@ -770,23 +985,10 @@ const Towmodules = () => {
             title: task.title,
             description: task.description,
             instructions: task.instructions,
-            points: task.points || 20,
-            config: {
-              items: task.config.items || [],
-              categories: task.config.categories || [],
-              correctMapping: task.config.correctMapping || {},
-              scenarios: task.config.scenarios || [],
-              friends: task.config.friends || [],
-              components: task.config.components || [],
-              validationRules: task.config.validationRules || [],
-              activityToolbox: task.config.activityToolbox || [],
-              balanceTips: task.config.balanceTips || [],
-              badges: task.config.badges || [],
-              badgeMappings: task.config.badgeMappings || [],
-              moodMeter: {
-                states: task.config.moodMeter?.states || [],
-              },
-            },
+            points: 800, // Fixed value as per requirements
+            items: task.config.items || [],
+            categories: task.config.categories || [],
+            correctMapping: task.config.correctMapping || {},
           };
         } else if (task.type === "scenario-choice") {
           return {
@@ -794,22 +996,18 @@ const Towmodules = () => {
             title: task.title,
             description: task.description,
             instructions: task.instructions,
-            points: task.points || 20,
-            config: {
-              categories: task.config.categories || [],
-              scenarios: task.config.scenarios || [],
-              items: task.config.items || [],
-              friends: task.config.friends || [],
-              components: task.config.components || [],
-              validationRules: task.config.validationRules || [],
-              activityToolbox: task.config.activityToolbox || [],
-              balanceTips: task.config.balanceTips || [],
-              badges: task.config.badges || [],
-              badgeMappings: task.config.badgeMappings || [],
-              moodMeter: {
-                states: task.config.moodMeter?.states || [],
-              },
-            },
+            points: 500, // Fixed value as per requirements
+            scenarios: task.config.scenarios?.map((scenario) => ({
+              id: scenario.id,
+              situation: scenario.situation,
+              options: scenario.options?.map((option) => ({
+                id: option.id,
+                text: option.text,
+                isCorrect: option.isCorrect,
+                feedback: option.feedback,
+              })) || [],
+              responses: scenario.responses || [],
+            })) || [],
           };
         } else if (task.type === "build-your-own") {
           return {
@@ -848,7 +1046,7 @@ const Towmodules = () => {
         questionNumber: idx + 1,
         type: q.type || "multiple-choice", // Default to multiple-choice
         question: q.question,
-        points: q.points || 10,
+        points: q.points || 5, // Use provided points or default to 5
         explanation: q.explanation,
         options: q.options
           .filter((opt) => opt.text.trim() !== "")
@@ -867,7 +1065,7 @@ const Towmodules = () => {
       theme: formData.theme,
       description: formData.description,
       slug: formData.slug,
-      status: formData.status, // Use actual status instead of hardcoded "draft"
+      status: "draft", // Always set to draft as per requirements
       order: formData.order,
       learningObjectives: learningObjectives,
       learningContent: learningContent, // Changed to match API format
@@ -887,7 +1085,8 @@ const Towmodules = () => {
         additionalResources: formData.parentTip.additionalResources || [],
       },
       unlockConditions: formData.unlockConditions || {
-        requiresPreviousModule: false,
+        requiresPreviousModule: true,
+        minimumPreviousScore: 70
       },
       prerequisites: formData.prerequisites || [],
     };
@@ -974,13 +1173,14 @@ const Towmodules = () => {
 
     // Format the data as required
     const saveData = formatForSave();
-    console.log(saveData);
+    console.log("Formatted save data:", saveData);
 
     try {
       const res = await updateModuleTwo({ id, updatedData: saveData });
       console.log(res, "im the api response");
     } catch (error) {
-      alert("Error to Update");
+      console.error("Update error:", error);
+      alert("Error to Update: " + (error?.message || "Unknown error"));
     }
     alert("Data logged to console!");
     setIsSubmitting(false);
@@ -1240,7 +1440,7 @@ const Towmodules = () => {
                   {block.image && (
                     <div className="mb-2">
                       <img
-                        src={block.image?.url}
+                        src={block.image?.url || block?.image}
                         alt="Content block image"
                         className="max-w-xs rounded"
                       />

@@ -30,6 +30,16 @@ const modulesOne = baseApi.injectEndpoints({
       },
       transformResponse: (res) => res?.data,
     }),
+    uploadIntroVideoOrCoverImage: builder.mutation({
+      query: (moduleId, body) => {
+        return {
+          url: `/admin/modules/${moduleId}`,
+          method: "PATCH",
+          body: body,
+        };
+      },
+      transformResponse: (res) => res?.data,
+    }),
   }),
 });
 
@@ -37,4 +47,5 @@ export const {
   useGetModulesByIdQuery,
   useUpdateModulesOneMutation,
   useUploadContentImageMutation,
+  useUploadIntroVideoOrCoverImageMutation,
 } = modulesOne;
