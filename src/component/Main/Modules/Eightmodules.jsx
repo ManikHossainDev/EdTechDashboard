@@ -9,6 +9,7 @@ const Eightmodules = () => {
   // module id eight
   const id = "6936776976dca28d7e43e6c7";
   const { data, isLoading, isError, error } = useGetModulesByIdQuery(id);
+  console.log(data);
   // Handle form submission - moved to top to maintain consistent hook order
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [updateModuleTwo] = useUpdateModulesOneMutation();
@@ -20,13 +21,13 @@ const Eightmodules = () => {
 
   // Optimized data transformation function
   const transformApiData = (apiData) => {
-    if (!apiData?.data) return null;
+    if (!apiData) return null;
 
-    const moduleData = apiData.data;
+    const moduleData = apiData;
 
     // Format learning objectives
     const formattedLearningObjectives =
-      moduleData.learningObjectives?.map((obj) => obj.text) || [];
+      moduleData.learningObjectives?.map((obj) => typeof obj === 'string' ? obj : obj.text) || [];
 
     // Format learning content as content blocks
     const formattedContentBlocks =
@@ -35,10 +36,8 @@ const Eightmodules = () => {
           return {
             type: content.type,
             order: content.order || index + 1,
-            content: content.content?.text || "",
-            image: content.content?.image || null,
-            alt: content.content?.image?.alt || "",
-            caption: content.content?.image?.caption || "",
+            content: content.content || "",
+            image: content.image || null,
           };
         } else {
           return {
@@ -74,7 +73,7 @@ const Eightmodules = () => {
             title: task.title || "",
             description: task.description || "",
             instructions: task.instructions || "",
-            points: task.points || 20,
+            points: task.points || 11.1, // Default to 11.1 as per example data
             config: {
               activityToolbox: task.config?.activityToolbox || [],
               balanceTips: task.config?.balanceTips || [],
@@ -85,6 +84,9 @@ const Eightmodules = () => {
               items: task.config?.items || [],
               categories: task.config?.categories || [],
               scenarios: task.config?.scenarios || [],
+              moodMeter: task.config?.moodMeter || { states: [] },
+              friends: task.config?.friends || [],
+              badgeMappings: task.config?.badgeMappings || [],
             },
           };
         } else if (task.type === "sort-categories") {
@@ -200,12 +202,428 @@ const Eightmodules = () => {
       contentBlocks: [{ type: "text", order: 1, content: "", listItems: [] }],
       interactiveTasks: [
         {
-          type: "sort-categories",
+          type: "build-your-own",
           title: "",
           description: "",
           instructions: "",
-          points: 20,
-          config: {},
+          points: 11.1,
+          config: {
+            activityToolbox: [
+              {
+                id: "sleep",
+                name: "Sleep Time",
+                icon: "🛏️",
+                min: 1,
+                max: 10,
+                recommended: 8,
+                description: "Rest and recharge"
+              },
+              {
+                id: "family",
+                name: "Family Time",
+                icon: "👨‍👩‍👧",
+                min: 1,
+                max: 10,
+                recommended: 3,
+                description: "Quality time together"
+              },
+              {
+                id: "meals",
+                name: "Meal Time",
+                icon: "🍽️",
+                min: 1,
+                max: 10,
+                recommended: 2,
+                description: "Eating together"
+              },
+              {
+                id: "study",
+                name: "Study Time",
+                icon: "📚",
+                min: 1,
+                max: 10,
+                recommended: 6,
+                description: "Learning and homework"
+              },
+              {
+                id: "screen",
+                name: "Screen Time",
+                icon: "📱",
+                min: 1,
+                max: 10,
+                recommended: 2,
+                description: "Digital activities"
+              },
+              {
+                id: "play",
+                name: "Playing Time",
+                icon: "⚽",
+                min: 1,
+                max: 10,
+                recommended: 2,
+                description: "Fun and games"
+              },
+              {
+                id: "exercise",
+                name: "Exercise Time",
+                icon: "🏃",
+                min: 1,
+                max: 10,
+                recommended: 1,
+                description: "Physical activity"
+              }
+            ],
+            balanceTips: [
+              {
+                activity: "sleep",
+                status: "missing",
+                message: "😴 Sleep: Missing from your day! You need rest.",
+                badge: null
+              },
+              {
+                activity: "sleep",
+                status: "under",
+                message: "😴 Sleep: You need more sleep! Try 8-10 hours.",
+                badge: null
+              },
+              {
+                activity: "sleep",
+                status: "balanced",
+                message: "😴 Sleep: Perfect! 8-10 hours is ideal.",
+                badge: "Early Bird"
+              },
+              {
+                activity: "sleep",
+                status: "excessive",
+                message: "😴 Sleep: That's a lot of sleep! Maybe too much?",
+                badge: null
+              },
+              {
+                activity: "family",
+                status: "missing",
+                message: "👨‍👩‍👧 Family: Missing from your day! Spend time together.",
+                badge: null
+              },
+              {
+                activity: "family",
+                status: "under",
+                message: "👨‍👩‍👧 Family: Try spending more quality time with family!",
+                badge: null
+              },
+              {
+                activity: "family",
+                status: "balanced",
+                message: "👨‍👩‍👧 Family: Great! Family time is important.",
+                badge: "Family Champion"
+              },
+              {
+                activity: "meals",
+                status: "missing",
+                message: "🍽️ Meals: Missing from your day! Don't skip meals.",
+                badge: null
+              },
+              {
+                activity: "meals",
+                status: "under",
+                message: "🍽️ Meals: You need time to eat properly!",
+                badge: null
+              },
+              {
+                activity: "meals",
+                status: "balanced",
+                message: "🍽️ Meals: Perfect! Taking time for meals is healthy.",
+                badge: "Healthy Eater"
+              },
+              {
+                activity: "study",
+                status: "missing",
+                message: "📚 Study: Missing from your day! Learning is important.",
+                badge: null
+              },
+              {
+                activity: "study",
+                status: "under",
+                message: "📚 Study: Try to spend more time learning!",
+                badge: null
+              },
+              {
+                activity: "study",
+                status: "balanced",
+                message: "📚 Study: Great! Learning is important.",
+                badge: "Study Star"
+              },
+              {
+                activity: "study",
+                status: "excessive",
+                message: "📚 Study: Don't overdo it! Balance is important.",
+                badge: null
+              },
+              {
+                activity: "screen",
+                status: "missing",
+                message: "📱 Screen Time: Missing from your day!",
+                badge: null
+              },
+              {
+                activity: "screen",
+                status: "balanced",
+                message: "📱 Screen Time: Good balance! Just the right amount.",
+                badge: "Digital Pro"
+              },
+              {
+                activity: "screen",
+                status: "excessive",
+                message: "📱 Screen Time: Hmm, that's a lot of screen time! Try swapping some for play or sleep.",
+                badge: null
+              },
+              {
+                activity: "play",
+                status: "missing",
+                message: "⚽ Play: Missing from your day! You need fun time.",
+                badge: null
+              },
+              {
+                activity: "play",
+                status: "under",
+                message: "⚽ Play: Add more play time! Fun is important.",
+                badge: null
+              },
+              {
+                activity: "play",
+                status: "balanced",
+                message: "⚽ Play: Awesome! Fun keeps you healthy.",
+                badge: "Play Master"
+              },
+              {
+                activity: "exercise",
+                status: "missing",
+                message: "🏃 Exercise: Missing from your day! Stay active.",
+                badge: null
+              },
+              {
+                activity: "exercise",
+                status: "under",
+                message: "🏃 Exercise: Try to get more physical activity!",
+                badge: null
+              },
+              {
+                activity: "exercise",
+                status: "balanced",
+                message: "🏃 Exercise: Perfect! Stay active and healthy!",
+                badge: "Fitness Champion"
+              }
+            ],
+            badges: [
+              {
+                id: "early-bird",
+                name: "Early Bird",
+                icon: "🌅",
+                requirement: "Less than recommended sleep"
+              },
+              {
+                id: "balanced-badge",
+                name: "Balanced",
+                icon: "⚖️",
+                requirement: "Recommended time"
+              },
+              {
+                id: "late-bloomer",
+                name: "Late Bloomer",
+                icon: "🌙",
+                requirement: "More than recommended sleep"
+              },
+              {
+                id: "more-family-time",
+                name: "More Family Time",
+                icon: "👨‍👩‍👧‍👦",
+                requirement: "Less than recommended family time"
+              },
+              {
+                id: "family-champion",
+                name: "Family Champion",
+                icon: "💖",
+                requirement: "More than 3 hours family time"
+              },
+              {
+                id: "quick-bites",
+                name: "Quick Bites",
+                icon: "🍱",
+                requirement: "Less than recommended meal time"
+              },
+              {
+                id: "healthy-eater",
+                name: "Healthy Eater",
+                icon: "🥗",
+                requirement: "More than recommended meal time"
+              },
+              {
+                id: "study-starter",
+                name: "Study Starter",
+                icon: "📖",
+                requirement: "Less than recommended study time"
+              },
+              {
+                id: "study-star",
+                name: "Study Star",
+                icon: "⭐",
+                requirement: "6+ hours study time"
+              },
+              {
+                id: "screen-saver",
+                name: "Screen Saver",
+                icon: "📵",
+                requirement: "Less than recommended screen time"
+              },
+              {
+                id: "digital-pro",
+                name: "Digital Pro",
+                icon: "💻",
+                requirement: "More than recommended screen time"
+              },
+              {
+                id: "playful-pause",
+                name: "Playful Pause",
+                icon: "🎯",
+                requirement: "Less than recommended play time"
+              },
+              {
+                id: "play-master",
+                name: "Play Master",
+                icon: "🎮",
+                requirement: "More than recommended play time"
+              },
+              {
+                id: "warm-up",
+                name: "Warm Up",
+                icon: "🤸",
+                requirement: "Less than recommended exercise"
+              },
+              {
+                id: "fitness-champion",
+                name: "Fitness Champion",
+                icon: "🏆",
+                requirement: "More than recommended exercise"
+              },
+              {
+                id: "time-keeper-hero",
+                name: "Time Keeper Hero",
+                icon: "🦸",
+                requirement: "Earn 5+ badges with exactly 24 hours"
+              }
+            ],
+            validationRules: [
+              "Total hours must equal exactly 24",
+              "All 7 activities must be used",
+              "Each activity needs at least 1 hour"
+            ],
+            moodMeter: { states: [] },
+            friends: [],
+            badgeMappings: [
+              {
+                messages: {
+                  "less": "Early Bird",
+                  "equal": "Balanced",
+                  "greater": "Late Bloomer"
+                },
+                badges: {
+                  "less": "early-bird",
+                  "equal": "balanced-badge",
+                  "greater": "late-bloomer"
+                },
+                activityId: "sleep",
+                recommendedTime: 8
+              },
+              {
+                messages: {
+                  "less": "More Family Time",
+                  "equal": "Balanced",
+                  "greater": "Family Champion"
+                },
+                badges: {
+                  "less": "more-family-time",
+                  "equal": "balanced-badge",
+                  "greater": "family-champion"
+                },
+                activityId: "family",
+                recommendedTime: 3
+              },
+              {
+                messages: {
+                  "less": "Quick Bites",
+                  "equal": "Balanced",
+                  "greater": "Healthy Eater"
+                },
+                badges: {
+                  "less": "quick-bites",
+                  "equal": "balanced-badge",
+                  "greater": "healthy-eater"
+                },
+                activityId: "meals",
+                recommendedTime: 2
+              },
+              {
+                messages: {
+                  "less": "Study Starter",
+                  "equal": "Balanced",
+                  "greater": "Study Star"
+                },
+                badges: {
+                  "less": "study-starter",
+                  "equal": "balanced-badge",
+                  "greater": "study-star"
+                },
+                activityId: "study",
+                recommendedTime: 6
+              },
+              {
+                messages: {
+                  "less": "Screen Saver",
+                  "equal": "Balanced",
+                  "greater": "Digital Pro"
+                },
+                badges: {
+                  "less": "screen-saver",
+                  "equal": "balanced-badge",
+                  "greater": "digital-pro"
+                },
+                activityId: "screen",
+                recommendedTime: 2
+              },
+              {
+                messages: {
+                  "less": "Playful Pause",
+                  "equal": "Balanced",
+                  "greater": "Play Master"
+                },
+                badges: {
+                  "less": "playful-pause",
+                  "equal": "balanced-badge",
+                  "greater": "play-master"
+                },
+                activityId: "play",
+                recommendedTime: 2
+              },
+              {
+                messages: {
+                  "less": "Warm Up",
+                  "equal": "Balanced",
+                  "greater": "Fitness Champion"
+                },
+                badges: {
+                  "less": "warm-up",
+                  "equal": "balanced-badge",
+                  "greater": "fitness-champion"
+                },
+                activityId: "exercise",
+                recommendedTime: 1
+              }
+            ],
+            components: [],
+            feedback: {},
+            items: [],
+            categories: [],
+            scenarios: [],
+          },
         },
       ],
       quiz: {
@@ -220,9 +638,13 @@ const Eightmodules = () => {
             questionNumber: 1,
             type: "multiple-choice",
             question: "",
-            points: 10,
+            points: 5,
             explanation: "",
-            options: [{ id: "A", text: "", isCorrect: false }],
+            options: [
+              { id: "A", text: "", isCorrect: false },
+              { id: "B", text: "", isCorrect: false },
+              { id: "C", text: "", isCorrect: false }
+            ],
           },
         ],
       },
@@ -282,29 +704,15 @@ const Eightmodules = () => {
     );
   }
 
-  // Console log the original data
-  console.log("Original API Data:", data);
-
-  // Transform the data
-  const formattedData = transformApiData(data);
-
-  // Console log the transformed data
-  console.log("Formatted Data:", formattedData);
-
-  // Log the updated values after transformation
-  console.log("Updated values after transformation:", {
-    title: formattedData?.title,
-    description: formattedData?.description,
-    learningObjectives: formattedData?.learningObjectives,
-    contentBlocks: formattedData?.contentBlocks,
-    interactiveTasks: formattedData?.interactiveTasks,
-    quiz: formattedData?.quiz,
-    parentTip: formattedData?.parentTip,
-  });
-
   // Handle main form changes
   const handleMainChange = (e) => {
     const { name, value } = e.target;
+
+    // Prevent changes to moduleNumber and order
+    if (name === 'moduleNumber' || name === 'order') {
+      return;
+    }
+
     setFormData((prev) => {
       const updatedData = {
         ...prev,
@@ -414,12 +822,332 @@ const Eightmodules = () => {
       interactiveTasks: [
         ...prev.interactiveTasks,
         {
-          type: "sort-categories",
+          type: "build-your-own",
           title: "",
           description: "",
           instructions: "",
-          points: 20,
-          config: {},
+          points: 11.1,
+          config: {
+            activityToolbox: [
+              {
+                id: "sleep",
+                name: "Sleep Time",
+                icon: "🛏️",
+                min: 1,
+                max: 10,
+                recommended: 8,
+                description: "Rest and recharge"
+              },
+              {
+                id: "family",
+                name: "Family Time",
+                icon: "👨‍👩‍👧",
+                min: 1,
+                max: 10,
+                recommended: 3,
+                description: "Quality time together"
+              },
+              {
+                id: "meals",
+                name: "Meal Time",
+                icon: "🍽️",
+                min: 1,
+                max: 10,
+                recommended: 2,
+                description: "Eating together"
+              },
+              {
+                id: "study",
+                name: "Study Time",
+                icon: "📚",
+                min: 1,
+                max: 10,
+                recommended: 6,
+                description: "Learning and homework"
+              },
+              {
+                id: "screen",
+                name: "Screen Time",
+                icon: "📱",
+                min: 1,
+                max: 10,
+                recommended: 2,
+                description: "Digital activities"
+              },
+              {
+                id: "play",
+                name: "Playing Time",
+                icon: "⚽",
+                min: 1,
+                max: 10,
+                recommended: 2,
+                description: "Fun and games"
+              },
+              {
+                id: "exercise",
+                name: "Exercise Time",
+                icon: "🏃",
+                min: 1,
+                max: 10,
+                recommended: 1,
+                description: "Physical activity"
+              }
+            ],
+            balanceTips: [
+              {
+                activity: "sleep",
+                status: "missing",
+                message: "😴 Sleep: Missing from your day! You need rest.",
+                badge: null
+              },
+              {
+                activity: "sleep",
+                status: "balanced",
+                message: "😴 Sleep: Perfect! 8-10 hours is ideal.",
+                badge: "Early Bird"
+              },
+              {
+                activity: "family",
+                status: "missing",
+                message: "👨‍👩‍👧 Family: Missing from your day! Spend time together.",
+                badge: null
+              },
+              {
+                activity: "family",
+                status: "balanced",
+                message: "👨‍👩‍👧 Family: Great! Family time is important.",
+                badge: "Family Champion"
+              },
+              {
+                activity: "meals",
+                status: "missing",
+                message: "🍽️ Meals: Missing from your day! Don't skip meals.",
+                badge: null
+              },
+              {
+                activity: "meals",
+                status: "balanced",
+                message: "🍽️ Meals: Perfect! Taking time for meals is healthy.",
+                badge: "Healthy Eater"
+              },
+              {
+                activity: "study",
+                status: "missing",
+                message: "📚 Study: Missing from your day! Learning is important.",
+                badge: null
+              },
+              {
+                activity: "study",
+                status: "balanced",
+                message: "📚 Study: Great! Learning is important.",
+                badge: "Study Star"
+              },
+              {
+                activity: "screen",
+                status: "balanced",
+                message: "📱 Screen Time: Good balance! Just the right amount.",
+                badge: "Digital Pro"
+              },
+              {
+                activity: "screen",
+                status: "excessive",
+                message: "📱 Screen Time: Hmm, that's a lot of screen time! Try swapping some for play or sleep.",
+                badge: null
+              },
+              {
+                activity: "play",
+                status: "missing",
+                message: "⚽ Play: Missing from your day! You need fun time.",
+                badge: null
+              },
+              {
+                activity: "play",
+                status: "balanced",
+                message: "⚽ Play: Awesome! Fun keeps you healthy.",
+                badge: "Play Master"
+              },
+              {
+                activity: "exercise",
+                status: "missing",
+                message: "🏃 Exercise: Missing from your day! Stay active.",
+                badge: null
+              },
+              {
+                activity: "exercise",
+                status: "balanced",
+                message: "🏃 Exercise: Perfect! Stay active and healthy!",
+                badge: "Fitness Champion"
+              }
+            ],
+            badges: [
+              {
+                id: "early-bird",
+                name: "Early Bird",
+                icon: "🌅",
+                requirement: "Less than recommended sleep"
+              },
+              {
+                id: "balanced-badge",
+                name: "Balanced",
+                icon: "⚖️",
+                requirement: "Recommended time"
+              },
+              {
+                id: "family-champion",
+                name: "Family Champion",
+                icon: "💖",
+                requirement: "More than 3 hours family time"
+              },
+              {
+                id: "healthy-eater",
+                name: "Healthy Eater",
+                icon: "🥗",
+                requirement: "More than recommended meal time"
+              },
+              {
+                id: "study-star",
+                name: "Study Star",
+                icon: "⭐",
+                requirement: "6+ hours study time"
+              },
+              {
+                id: "digital-pro",
+                name: "Digital Pro",
+                icon: "💻",
+                requirement: "More than recommended screen time"
+              },
+              {
+                id: "play-master",
+                name: "Play Master",
+                icon: "🎮",
+                requirement: "More than recommended play time"
+              },
+              {
+                id: "fitness-champion",
+                name: "Fitness Champion",
+                icon: "🏆",
+                requirement: "More than recommended exercise"
+              },
+              {
+                id: "time-keeper-hero",
+                name: "Time Keeper Hero",
+                icon: "🦸",
+                requirement: "Earn 5+ badges with exactly 24 hours"
+              }
+            ],
+            validationRules: [
+              "Total hours must equal exactly 24",
+              "All 7 activities must be used",
+              "Each activity needs at least 1 hour"
+            ],
+            moodMeter: { states: [] },
+            friends: [],
+            badgeMappings: [
+              {
+                messages: {
+                  "less": "Early Bird",
+                  "equal": "Balanced",
+                  "greater": "Late Bloomer"
+                },
+                badges: {
+                  "less": "early-bird",
+                  "equal": "balanced-badge",
+                  "greater": "late-bloomer"
+                },
+                activityId: "sleep",
+                recommendedTime: 8
+              },
+              {
+                messages: {
+                  "less": "More Family Time",
+                  "equal": "Balanced",
+                  "greater": "Family Champion"
+                },
+                badges: {
+                  "less": "more-family-time",
+                  "equal": "balanced-badge",
+                  "greater": "family-champion"
+                },
+                activityId: "family",
+                recommendedTime: 3
+              },
+              {
+                messages: {
+                  "less": "Quick Bites",
+                  "equal": "Balanced",
+                  "greater": "Healthy Eater"
+                },
+                badges: {
+                  "less": "quick-bites",
+                  "equal": "balanced-badge",
+                  "greater": "healthy-eater"
+                },
+                activityId: "meals",
+                recommendedTime: 2
+              },
+              {
+                messages: {
+                  "less": "Study Starter",
+                  "equal": "Balanced",
+                  "greater": "Study Star"
+                },
+                badges: {
+                  "less": "study-starter",
+                  "equal": "balanced-badge",
+                  "greater": "study-star"
+                },
+                activityId: "study",
+                recommendedTime: 6
+              },
+              {
+                messages: {
+                  "less": "Screen Saver",
+                  "equal": "Balanced",
+                  "greater": "Digital Pro"
+                },
+                badges: {
+                  "less": "screen-saver",
+                  "equal": "balanced-badge",
+                  "greater": "digital-pro"
+                },
+                activityId: "screen",
+                recommendedTime: 2
+              },
+              {
+                messages: {
+                  "less": "Playful Pause",
+                  "equal": "Balanced",
+                  "greater": "Play Master"
+                },
+                badges: {
+                  "less": "playful-pause",
+                  "equal": "balanced-badge",
+                  "greater": "play-master"
+                },
+                activityId: "play",
+                recommendedTime: 2
+              },
+              {
+                messages: {
+                  "less": "Warm Up",
+                  "equal": "Balanced",
+                  "greater": "Fitness Champion"
+                },
+                badges: {
+                  "less": "warm-up",
+                  "equal": "balanced-badge",
+                  "greater": "fitness-champion"
+                },
+                activityId: "exercise",
+                recommendedTime: 1
+              }
+            ],
+            components: [],
+            feedback: {},
+            items: [],
+            categories: [],
+            scenarios: [],
+          },
         },
       ],
     }));
@@ -477,6 +1205,14 @@ const Eightmodules = () => {
 
   const handleOptionChange = (questionIndex, optionIndex, field, value) => {
     const newQuestions = [...formData.quiz.questions];
+    if (field === "isCorrect" && value) {
+      // If setting an option as correct, uncheck all other options for this question
+      newQuestions[questionIndex].options.forEach((opt, idx) => {
+        if (idx !== optionIndex) {
+          opt.isCorrect = false;
+        }
+      });
+    }
     newQuestions[questionIndex].options[optionIndex][field] = value;
     setFormData((prev) => {
       const updatedData = {
@@ -641,20 +1377,35 @@ const Eightmodules = () => {
   // Format data for saving according to the exact required format
   const formatForSave = () => {
     // Extract the learning objectives from the text
-    const learningObjectives = formData.learningObjectives.filter(
-      (obj) => obj.trim() !== ""
-    );
+    const learningObjectives = formData.learningObjectives.map((text, index) => ({
+      text: text,
+      order: index + 1
+    })).filter(obj => obj.text.trim() !== "");
 
     // Format content blocks
     const contentBlocks = formData.contentBlocks
-      .filter((block) => block.content.trim() !== "")
-      .map((block, index) => ({
-        type: block.type,
-        order: block.order || index + 1,
-        content: block.content,
-      }));
+      .filter((block) => block.content.trim() !== "" || (block.type === "image" && block.image))
+      .map((block, index) => {
+        if (block.type === "image") {
+          return {
+            type: block.type,
+            order: block.order || index + 1,
+            content: block.content,
+            image: block.image,
+          };
+        } else {
+          return {
+            type: block.type,
+            order: block.order || index + 1,
+            content: {
+              text: block.content,
+              listItems: block.listItems || [],
+            },
+          };
+        }
+      });
 
-    // Format interactive tasks - only for build-your-own type as per required format
+    // Format interactive tasks
     const interactiveTasks = formData.interactiveTasks
       .map((task) => {
         if (task.type === "build-your-own") {
@@ -668,22 +1419,80 @@ const Eightmodules = () => {
               activityToolbox: task.config.activityToolbox || [],
               balanceTips: task.config.balanceTips || [],
               badges: task.config.badges || [],
+              validationRules: task.config.validationRules || [],
+              badgeMappings: task.config.badgeMappings || [],
             },
           };
+        } else if (task.type === "sort-categories") {
+          return {
+            type: task.type,
+            title: task.title,
+            description: task.description,
+            instructions: task.instructions,
+            points: 800, // Fixed value as per requirements
+            config: {
+              items:
+                task.config.items
+                  ?.filter((item) => item.text.trim() !== "")
+                  .map((item) => ({
+                    id: item.id,
+                    text: item.text,
+                  })) || [],
+              categories:
+                task.config.categories
+                  ?.filter((cat) => cat.name.trim() !== "")
+                  .map((category) => ({
+                    id: category.id,
+                    name: category.name,
+                    description: category.description,
+                  })) || [],
+              correctMapping: task.config.correctMapping || {},
+            }
+          };
+        } else if (task.type === "scenario-choice") {
+          return {
+            type: task.type,
+            title: task.title,
+            description: task.description,
+            instructions: task.instructions,
+            points: 500, // Fixed value as per requirements
+            config: {
+              categories:
+                task.config.categories?.map((category) => ({
+                  id: category.id,
+                  name: category.name,
+                  description: category.description,
+                })) || [],
+              scenarios:
+                task.config.scenarios?.map((scenario) => ({
+                  id: scenario.id,
+                  situation: scenario.situation,
+                  hint: scenario.hint,
+                  options:
+                    scenario.options?.map((option) => ({
+                      id: option.id,
+                      text: option.text,
+                      isCorrect: option.isCorrect,
+                      feedback: option.feedback,
+                    })) || [],
+                  responses: scenario.responses || [],
+                })) || [],
+            }
+          };
         }
-        return null; // Only include build-your-own tasks as per required format
+        return task;
       })
-      .filter((task) => task !== null);
+      .filter((task) => task.title && task.title.trim() !== "");
 
     // Format quiz questions
     const quizQuestions = formData.quiz.questions
       .filter((q) => q.question.trim() !== "")
-      .map((q) => ({
-        questionNumber: q.questionNumber,
-        type: q.type,
+      .map((q, idx) => ({
+        questionNumber: idx + 1,
+        type: q.type || "multiple-choice", // Default to multiple-choice
         question: q.question,
+        points: q.points || 5, // Use provided points or default to 5
         explanation: q.explanation,
-        points: q.points || 11.1, // Use points from question or default
         options: q.options
           .filter((opt) => opt.text.trim() !== "")
           .map((option) => ({
@@ -717,6 +1526,10 @@ const Eightmodules = () => {
         title: formData.parentTip.title,
         content: formData.parentTip.content,
       },
+      unlockConditions: formData.unlockConditions || {
+        requiresPreviousModule: true,
+        minimumPreviousScore: 70
+      }
     };
   };
 
@@ -801,13 +1614,14 @@ const Eightmodules = () => {
 
     // Format the data as required
     const saveData = formatForSave();
-    console.log(saveData);
+    console.log("Formatted save data:", saveData);
 
     try {
       const res = await updateModuleTwo({ id, updatedData: saveData });
       console.log(res, "im the api response");
     } catch (error) {
-      alert("Error to Update");
+      console.error("Update error:", error);
+      alert("Error to Update: " + (error?.message || "Unknown error"));
     }
     alert("Data logged to console!");
     setIsSubmitting(false);
@@ -857,8 +1671,8 @@ const Eightmodules = () => {
                 type="number"
                 name="moduleNumber"
                 value={formData.moduleNumber}
-                onChange={handleMainChange}
-                className="w-full p-2 border border-gray-300 rounded"
+                readOnly
+                className="w-full p-2 border border-gray-300 rounded bg-gray-100"
                 required
               />
             </div>
@@ -933,8 +1747,8 @@ const Eightmodules = () => {
                 type="number"
                 name="order"
                 value={formData.order}
-                onChange={handleMainChange}
-                className="w-full p-2 border border-gray-300 rounded"
+                readOnly
+                className="w-full p-2 border border-gray-300 rounded bg-gray-100"
                 required
               />
             </div>
@@ -1812,8 +2626,6 @@ const Eightmodules = () => {
                     className="w-full p-2 border border-gray-300 rounded"
                   >
                     <option value="multiple-choice">Multiple Choice</option>
-                    <option value="true-false">True/False</option>
-                    <option value="short-answer">Short Answer</option>
                   </select>
                 </div>
 
