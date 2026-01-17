@@ -28,10 +28,10 @@ const modulesOne = baseApi.injectEndpoints({
           body: body,
         };
       },
-      transformResponse: (res) => res?.data,
+      transformResponse: (res) => res?.data?.url,
     }),
     uploadIntroVideoOrCoverImage: builder.mutation({
-      query: (moduleId, body) => {
+      query: ({ moduleId, body }) => {
         return {
           url: `/admin/modules/${moduleId}`,
           method: "PATCH",
