@@ -648,6 +648,62 @@ const Onemodules = () => {
     fileInput.click();
   };
 
+  // Handle image upload for drag-drop categories
+  const handleDragDropCategoryImageUpload = async (taskIndex, categoryIndex) => {
+    const fileInput = document.createElement("input");
+    fileInput.type = "file";
+    fileInput.accept = "image/*";
+    fileInput.onchange = async (e) => {
+      const file = e.target.files[0];
+      if (!file) return;
+
+      setIsSubmitting(true);
+      try {
+        const formData = new FormData();
+        formData.append("image", file);
+
+        const imageUrl = await uploadGenImage(formData).unwrap();
+
+        // Update the drag-drop category with the new image URL
+        setFormData((prev) => {
+          // Deep clone the state to avoid issues with frozen objects
+          const clonedPrev = JSON.parse(JSON.stringify(prev));
+          const updatedTasks = [...clonedPrev.interactiveTasks];
+          if (!updatedTasks[taskIndex].config.categories[categoryIndex].image) {
+            updatedTasks[taskIndex].config.categories[categoryIndex].image = {};
+          }
+          const updatedCategories = [...updatedTasks[taskIndex].config.categories];
+          updatedCategories[categoryIndex] = {
+            ...updatedCategories[categoryIndex],
+            image: {
+              ...updatedCategories[categoryIndex].image,
+              url: imageUrl,
+              publicId: imageUrl.split("/").pop(),
+            },
+          };
+          updatedTasks[taskIndex] = {
+            ...updatedTasks[taskIndex],
+            config: {
+              ...updatedTasks[taskIndex].config,
+              categories: updatedCategories,
+            },
+          };
+
+          return {
+            ...clonedPrev,
+            interactiveTasks: updatedTasks,
+          };
+        });
+      } catch (error) {
+        console.error("Image upload error:", error);
+        alert("Failed to upload image");
+      } finally {
+        setIsSubmitting(false);
+      }
+    };
+    fileInput.click();
+  };
+
   // Handle form submission
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -1236,6 +1292,25 @@ const Onemodules = () => {
                             }
                             className="w-full px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
                           />
+                        </div>
+
+                        <div className="mr-2">
+                          <div className="flex items-center">
+                            {category.image?.url && (
+                              <img
+                                src={category.image.url}
+                                alt={`Category ${catIndex + 1}`}
+                                className="w-16 h-16 object-cover border rounded mr-2"
+                              />
+                            )}
+                            <button
+                              type="button"
+                              onClick={() => handleDragDropCategoryImageUpload(index, catIndex)}
+                              className="bg-blue-500 hover:bg-blue-600 text-white px-2 py-1 rounded text-xs"
+                            >
+                              {category.image?.url ? 'Change' : 'Add'} Image
+                            </button>
+                          </div>
                         </div>
 
                         <button
