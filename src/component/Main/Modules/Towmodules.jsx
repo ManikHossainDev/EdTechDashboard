@@ -9,9 +9,6 @@ const Towmodules = () => {
   // module id two
   const id = "695e2fe8eaf052fd70aa958a";
   const { data, isLoading, isError, error } = useGetModulesByIdQuery(id);
-
-  console.log(data);
-
   // Handle form submission - moved to top to maintain consistent hook order
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [updateModuleTwo] = useUpdateModulesOneMutation();
@@ -29,7 +26,9 @@ const Towmodules = () => {
 
     // Format learning objectives
     const formattedLearningObjectives =
-      moduleData.learningObjectives?.map((obj) => typeof obj === 'string' ? obj : obj.text) || [];
+      moduleData.learningObjectives?.map((obj) =>
+        typeof obj === "string" ? obj : obj.text
+      ) || [];
 
     // Format learning content as learningContent (matching API format)
     const formattedLearningContent =
@@ -260,70 +259,70 @@ const Towmodules = () => {
               {
                 id: "i1",
                 name: "Jonas",
-                text: "best friend since kindergarten"
+                text: "best friend since kindergarten",
               },
               {
                 id: "i2",
                 name: "Emma",
-                text: "from the parallel class you sometime talk to"
+                text: "from the parallel class you sometime talk to",
               },
               {
                 id: "i3",
                 name: "Boy123",
-                text: "you only chat with in a game"
+                text: "you only chat with in a game",
               },
               {
                 id: "i4",
                 name: "Mia",
-                text: "your cousin who lives in another city"
+                text: "your cousin who lives in another city",
               },
               {
                 id: "i5",
                 name: "SuperGamer99",
-                text: "asked to be your friend yesterday"
+                text: "asked to be your friend yesterday",
               },
               {
                 id: "i6",
                 name: "Teacher Sara",
-                text: "your teacher from school"
+                text: "your teacher from school",
               },
               {
                 id: "i7",
                 name: "GamerKing",
-                text: "wants your phone number"
+                text: "wants your phone number",
               },
               {
                 id: "i8",
                 name: "Ola",
-                text: "your neighbor you play football with"
-              }
+                text: "your neighbor you play football with",
+              },
             ],
             categories: [
               {
                 id: "friend",
                 name: "Friend",
-                description: "People you know well & trust"
+                description: "People you know well & trust",
               },
               {
                 id: "acquaintance",
                 name: "Acquaintance",
-                description: "People you know a little"
+                description: "People you know a little",
               },
               {
                 id: "stranger",
                 name: "Stranger",
-                description: "People you don't really know"
-              }
+                description: "People you don't really know",
+              },
             ],
             correctMapping: {
-              "i1": "friend",
-              "i2": "acquaintance",
-              "i3": "stranger",
-              "i4": "acquaintance",
-              "i5": "stranger",
-              "i6": "acquaintance",
-              "i7": "stranger",
-              "i8": "friend"
+              i1: "friend",
+              i2: "acquaintance",
+              i3: "stranger",
+              i4: "acquaintance",
+              i5: "stranger",
+              i6: "acquaintance",
+              i7: "stranger",
+              i8: "friend",
             },
             moodMeter: { states: [] },
             scenarios: [],
@@ -355,15 +354,16 @@ const Towmodules = () => {
                     id: "o1",
                     text: "Only my friends",
                     feedback: "Good choice! Keep your profile private.",
-                    isCorrect: true
+                    isCorrect: true,
                   },
                   {
                     id: "o2",
                     text: "Everyone (public)",
-                    feedback: "This lets strangers see your photos. Choose 'Only my friends' instead.",
-                    isCorrect: false
-                  }
-                ]
+                    feedback:
+                      "This lets strangers see your photos. Choose 'Only my friends' instead.",
+                    isCorrect: false,
+                  },
+                ],
               },
               {
                 id: "s2",
@@ -375,15 +375,15 @@ const Towmodules = () => {
                     id: "o1",
                     text: "Nobody (turn off location)",
                     feedback: "Perfect! Your location should stay private.",
-                    isCorrect: true
+                    isCorrect: true,
                   },
                   {
                     id: "o2",
                     text: "Everyone",
                     feedback: "Dangerous! Strangers can track where you are.",
-                    isCorrect: false
-                  }
-                ]
+                    isCorrect: false,
+                  },
+                ],
               },
               {
                 id: "s3",
@@ -394,16 +394,18 @@ const Towmodules = () => {
                   {
                     id: "o1",
                     text: "Only people I know",
-                    feedback: "Smart! This blocks strangers from messaging you.",
-                    isCorrect: true
+                    feedback:
+                      "Smart! This blocks strangers from messaging you.",
+                    isCorrect: true,
                   },
                   {
                     id: "o2",
                     text: "Anyone",
-                    feedback: "This lets strangers contact you. Choose 'Only people I know'.",
-                    isCorrect: false
-                  }
-                ]
+                    feedback:
+                      "This lets strangers contact you. Choose 'Only people I know'.",
+                    isCorrect: false,
+                  },
+                ],
               },
               {
                 id: "s4",
@@ -414,37 +416,42 @@ const Towmodules = () => {
                   {
                     id: "o1",
                     text: "Only my friends",
-                    feedback: "Great! Your posts stay within your trusted circle.",
-                    isCorrect: true
+                    feedback:
+                      "Great! Your posts stay within your trusted circle.",
+                    isCorrect: true,
                   },
                   {
                     id: "o2",
                     text: "Everyone (public)",
-                    feedback: "This shares everything with strangers. Keep it to friends only.",
-                    isCorrect: false
-                  }
-                ]
+                    feedback:
+                      "This shares everything with strangers. Keep it to friends only.",
+                    isCorrect: false,
+                  },
+                ],
               },
               {
                 id: "s5",
                 text: "What is personal information you should NEVER share online?",
-                situation: "What is personal information you should NEVER share online?",
+                situation:
+                  "What is personal information you should NEVER share online?",
                 responses: [],
                 options: [
                   {
                     id: "o1",
                     text: "Details that say who you are and where you are",
-                    feedback: "Correct! Keep your name, address, phone number, and school private.",
-                    isCorrect: true
+                    feedback:
+                      "Correct! Keep your name, address, phone number, and school private.",
+                    isCorrect: true,
                   },
                   {
                     id: "o2",
                     text: "Info about the weather",
-                    feedback: "Weather is fine to share, but personal details like your address are not!",
-                    isCorrect: false
-                  }
-                ]
-              }
+                    feedback:
+                      "Weather is fine to share, but personal details like your address are not!",
+                    isCorrect: false,
+                  },
+                ],
+              },
             ],
             items: [],
             friends: [],
@@ -456,7 +463,7 @@ const Towmodules = () => {
             badgeMappings: [],
             moodMeter: { states: [] },
           },
-        }
+        },
       ],
       quiz: {
         title: "",
@@ -475,7 +482,7 @@ const Towmodules = () => {
             options: [
               { id: "A", text: "", isCorrect: false },
               { id: "B", text: "", isCorrect: false },
-              { id: "C", text: "", isCorrect: false }
+              { id: "C", text: "", isCorrect: false },
             ],
             correctAnswer: "",
           },
@@ -551,9 +558,6 @@ const Towmodules = () => {
         ...prev,
         [name]: value,
       };
-      // Console log the updated values when form fields change
-      console.log("Updated main form field:", name, "to:", value);
-      console.log("Current form data:", updatedData);
       return updatedData;
     });
   };
@@ -567,9 +571,6 @@ const Towmodules = () => {
         ...prev,
         learningObjectives: newObjectives,
       };
-      // Console log the updated values when learning objectives change
-      console.log("Updated learning objective at index:", index, "to:", value);
-      console.log("Current learning objectives:", newObjectives);
       return updatedData;
     });
   };
@@ -617,16 +618,7 @@ const Towmodules = () => {
         ...prev,
         learningContent: newBlocks,
       };
-      // Console log the updated values when content blocks change
-      console.log(
-        "Updated content block at index:",
-        index,
-        "field:",
-        field,
-        "to:",
-        value
-      );
-      console.log("Current content blocks:", newBlocks);
+
       return updatedData;
     });
   };
@@ -801,7 +793,7 @@ const Towmodules = () => {
             options: [
               { id: "A", text: "", isCorrect: false },
               { id: "B", text: "", isCorrect: false },
-              { id: "C", text: "", isCorrect: false }
+              { id: "C", text: "", isCorrect: false },
             ],
             correctAnswer: "",
           },
@@ -909,8 +901,9 @@ const Towmodules = () => {
       const newItems = [...newTasks[taskIndex].config.items];
       newItems[itemIndex] = {
         ...newItems[itemIndex],
-        image: imageUrl,
+        image: imageUrl?.url,
       };
+      console.log(newItems);
       newTasks[taskIndex].config.items = newItems;
       setFormData((prev) => ({
         ...prev,
@@ -956,7 +949,7 @@ const Towmodules = () => {
             type: block.type,
             order: block.order || index + 1,
             content: block.content, // For image type, content is a string (caption/description)
-            image: block.image?.url || null,
+            image: { url: block.image?.url || null, publicId: "New id" }, // TODO: new image url passing
           };
         } else {
           return {
@@ -997,17 +990,19 @@ const Towmodules = () => {
             description: task.description,
             instructions: task.instructions,
             points: 500, // Fixed value as per requirements
-            scenarios: task.config.scenarios?.map((scenario) => ({
-              id: scenario.id,
-              situation: scenario.situation,
-              options: scenario.options?.map((option) => ({
-                id: option.id,
-                text: option.text,
-                isCorrect: option.isCorrect,
-                feedback: option.feedback,
+            scenarios:
+              task.config.scenarios?.map((scenario) => ({
+                id: scenario.id,
+                situation: scenario.situation,
+                options:
+                  scenario.options?.map((option) => ({
+                    id: option.id,
+                    text: option.text,
+                    isCorrect: option.isCorrect,
+                    feedback: option.feedback,
+                  })) || [],
+                responses: scenario.responses || [],
               })) || [],
-              responses: scenario.responses || [],
-            })) || [],
           };
         } else if (task.type === "build-your-own") {
           return {
@@ -1086,7 +1081,7 @@ const Towmodules = () => {
       },
       unlockConditions: formData.unlockConditions || {
         requiresPreviousModule: true,
-        minimumPreviousScore: 70
+        minimumPreviousScore: 70,
       },
       prerequisites: formData.prerequisites || [],
     };
@@ -1410,7 +1405,7 @@ const Towmodules = () => {
                 </div>
               </div>
 
-              {block.type === "text" && (
+              {/* {block.type === "text" && (
                 <div className="mt-2">
                   <label className="block text-sm font-medium mb-1">
                     Content
@@ -1433,7 +1428,7 @@ const Towmodules = () => {
                     rows="3"
                   ></textarea>
                 </div>
-              )}
+              )} */}
 
               {block.type === "image" && (
                 <div className="mt-2">

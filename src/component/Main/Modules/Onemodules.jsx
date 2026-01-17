@@ -1,13 +1,13 @@
 import { useState, useEffect } from "react";
 import {
-  useGetModulesOneByIdQuery,
+  useGetModulesByIdQuery,
   useUpdateModulesOneMutation,
-} from "../../../redux/features/modules/modulesOne";
+} from "../../../redux/features/modules/modulesGet";
 
 const Onemodules = () => {
   // module id one
   const id = "695b946312423eb787bb458d";
-  const { data, isLoading, isError, error } = useGetModulesOneByIdQuery(id);
+  const { data, isLoading, isError, error } = useGetModulesByIdQuery(id);
 
   // Handle form submission - moved to top to maintain consistent hook order
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -15,9 +15,9 @@ const Onemodules = () => {
 
   // Optimized data transformation function
   const transformApiData = (apiData) => {
-    if (!apiData?.data) return null;
+    if (!apiData) return null;
 
-    const moduleData = apiData.data;
+    const moduleData = apiData;
 
     // Format learning objectives
     const formattedLearningObjectives =
@@ -236,26 +236,6 @@ const Onemodules = () => {
     );
   }
 
-  // Console log the original data
-  console.log("Original API Data:", data);
-
-  // Transform the data
-  const formattedData = transformApiData(data);
-
-  // Console log the transformed data
-  console.log("Formatted Data:", formattedData);
-
-  // Log the updated values after transformation
-  console.log("Updated values after transformation:", {
-    title: formattedData?.title,
-    description: formattedData?.description,
-    learningObjectives: formattedData?.learningObjectives,
-    contentBlocks: formattedData?.contentBlocks,
-    interactiveTask: formattedData?.interactiveTask,
-    quiz: formattedData?.quiz,
-    parentTip: formattedData?.parentTip,
-  });
-
   // Handle main form changes
   const handleMainChange = (e) => {
     const { name, value } = e.target;
@@ -264,9 +244,6 @@ const Onemodules = () => {
         ...prev,
         [name]: value,
       };
-      // Console log the updated values when form fields change
-      console.log("Updated main form field:", name, "to:", value);
-      console.log("Current form data:", updatedData);
       return updatedData;
     });
   };
@@ -280,9 +257,6 @@ const Onemodules = () => {
         ...prev,
         learningObjectives: newObjectives,
       };
-      // Console log the updated values when learning objectives change
-      console.log("Updated learning objective at index:", index, "to:", value);
-      console.log("Current learning objectives:", newObjectives);
       return updatedData;
     });
   };
@@ -313,16 +287,6 @@ const Onemodules = () => {
         ...prev,
         contentBlocks: newBlocks,
       };
-      // Console log the updated values when content blocks change
-      console.log(
-        "Updated content block at index:",
-        index,
-        "field:",
-        field,
-        "to:",
-        value
-      );
-      console.log("Current content blocks:", newBlocks);
       return updatedData;
     });
   };
@@ -356,9 +320,6 @@ const Onemodules = () => {
           [field]: value,
         },
       };
-      // Console log the updated values when interactive task changes
-      console.log("Updated interactive task field:", field, "to:", value);
-      console.log("Current interactive task:", updatedData.interactiveTask);
       return updatedData;
     });
   };
@@ -374,16 +335,6 @@ const Onemodules = () => {
           items: newItems,
         },
       };
-      // Console log the updated values when interactive item changes
-      console.log(
-        "Updated interactive item at index:",
-        index,
-        "field:",
-        field,
-        "to:",
-        value
-      );
-      console.log("Current interactive items:", newItems);
       return updatedData;
     });
   };
@@ -423,16 +374,6 @@ const Onemodules = () => {
           categories: newCategories,
         },
       };
-      // Console log the updated values when category changes
-      console.log(
-        "Updated category at index:",
-        index,
-        "field:",
-        field,
-        "to:",
-        value
-      );
-      console.log("Current categories:", newCategories);
       return updatedData;
     });
   };
@@ -449,17 +390,6 @@ const Onemodules = () => {
           },
         },
       };
-      // Console log the updated values when correct mapping changes
-      console.log(
-        "Updated correct mapping for item:",
-        itemId,
-        "to category:",
-        categoryId
-      );
-      console.log(
-        "Current correct mapping:",
-        updatedData.interactiveTask.correctMapping
-      );
       return updatedData;
     });
   };
@@ -474,9 +404,6 @@ const Onemodules = () => {
           [field]: value,
         },
       };
-      // Console log the updated values when quiz changes
-      console.log("Updated quiz field:", field, "to:", value);
-      console.log("Current quiz:", updatedData.quiz);
       return updatedData;
     });
   };
@@ -492,16 +419,6 @@ const Onemodules = () => {
           questions: newQuestions,
         },
       };
-      // Console log the updated values when question changes
-      console.log(
-        "Updated question at index:",
-        index,
-        "field:",
-        field,
-        "to:",
-        value
-      );
-      console.log("Current questions:", newQuestions);
       return updatedData;
     });
   };
@@ -517,18 +434,6 @@ const Onemodules = () => {
           questions: newQuestions,
         },
       };
-      // Console log the updated values when option changes
-      console.log(
-        "Updated option at question:",
-        questionIndex,
-        "option:",
-        optionIndex,
-        "field:",
-        field,
-        "to:",
-        value
-      );
-      console.log("Current questions:", newQuestions);
       return updatedData;
     });
   };
@@ -607,9 +512,6 @@ const Onemodules = () => {
           [field]: value,
         },
       };
-      // Console log the updated values when parent tip changes
-      console.log("Updated parent tip field:", field, "to:", value);
-      console.log("Current parent tip:", updatedData.parentTip);
       return updatedData;
     });
   };
@@ -719,8 +621,8 @@ const Onemodules = () => {
                 name="moduleNumber"
                 value={formData.moduleNumber}
                 onChange={handleMainChange}
-                className="w-full p-2 border border-gray-300 rounded"
-                required
+                className="w-full p-2 border border-gray-300 rounded bg-gray-100"
+                disabled
               />
             </div>
 
@@ -795,8 +697,8 @@ const Onemodules = () => {
                 name="order"
                 value={formData.order}
                 onChange={handleMainChange}
-                className="w-full p-2 border border-gray-300 rounded"
-                required
+                className="w-full p-2 border border-gray-300 rounded bg-gray-100"
+                disabled
               />
             </div>
           </div>
