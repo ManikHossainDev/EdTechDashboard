@@ -698,49 +698,57 @@ const Fourmodules = () => {
                   Remove
                 </button>
               </div>
-              {/* Image section - show for both text (optional) and image blocks */}
-              <div className="mb-4">
-                <div className="flex items-center gap-4 mb-3">
-                  {block.image?.url ? (
-                    <img
-                      src={block.image.url}
-                      alt="Content"
-                      className="w-32 h-32 object-cover border rounded"
+              {/* Image section - only show for image blocks */}
+              {block.type === "image" && (
+                <div className="mb-4">
+                  <div className="flex items-center gap-4 mb-3">
+                    {block.image?.url ? (
+                      <img
+                        src={block.image.url}
+                        alt="Content"
+                        className="w-32 h-32 object-cover border rounded"
+                      />
+                    ) : (
+                      <div className="w-32 h-32 bg-gray-200 border rounded flex items-center justify-center text-gray-500 text-sm">
+                        No image
+                      </div>
+                    )}
+                    <button
+                      type="button"
+                      onClick={() => handleContentImageUpload(index)}
+                      disabled={isSubmitting}
+                      className="bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded"
+                    >
+                      {block.image?.url ? "Change Image" : "Upload Image"}
+                    </button>
+                  </div>
+                  <div>
+                    <label className="block text-gray-700 text-sm font-bold mb-2">
+                      Content Text
+                    </label>
+                    <textarea
+                      value={typeof block.content === "string" ? block.content : ""}
+                      onChange={(e) => handleContentTextChange(index, e.target.value)}
+                      rows="3"
+                      className="w-full px-3 py-2 border rounded focus:ring-2 focus:ring-blue-500"
                     />
-                  ) : (
-                    <div className="w-32 h-32 bg-gray-200 border rounded flex items-center justify-center text-gray-500 text-sm">
-                      No image
-                    </div>
-                  )}
-                  <button
-                    type="button"
-                    onClick={() => handleContentImageUpload(index)}
-                    disabled={isSubmitting}
-                    className="bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded"
-                  >
-                    {block.image?.url ? "Change Image" : "Upload Image"}
-                  </button>
+                  </div>
                 </div>
-              </div>
-              <div>
-                <label className="block text-gray-700 text-sm font-bold mb-2">
-                  Content Text
-                </label>
-                <textarea
-                  value={
-                    block.type === "text"
-                      ? typeof block.content === "object"
-                        ? block.content.text
-                        : block.content
-                      : block.content
-                  }
-                  onChange={(e) =>
-                    handleContentTextChange(index, e.target.value)
-                  }
-                  rows="3"
-                  className="w-full px-3 py-2 border rounded focus:ring-2 focus:ring-blue-500"
-                />
-              </div>
+              )}
+              {/* Text content - only show for text blocks */}
+              {block.type === "text" && (
+                <div>
+                  <label className="block text-gray-700 text-sm font-bold mb-2">
+                    Content Text
+                  </label>
+                  <textarea
+                    value={typeof block.content === "object" ? block.content.text : block.content}
+                    onChange={(e) => handleContentTextChange(index, e.target.value)}
+                    rows="3"
+                    className="w-full px-3 py-2 border rounded focus:ring-2 focus:ring-blue-500"
+                  />
+                </div>
+              )}
             </div>
           ))}
         </section>
