@@ -1,135 +1,53 @@
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Table, Modal, ConfigProvider, Input } from "antd";
 import { IoEyeSharp } from "react-icons/io5";
 import { SearchOutlined } from "@ant-design/icons";
+import { useGetEarningsQuery } from "../../../redux/features/earnings/earningsApi";
 
 const Earnings = () => {
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [selectedRecord, setSelectedRecord] = useState(null);
   const [searchText, setSearchText] = useState("");
+  const [debouncedSearchText, setDebouncedSearchText] = useState("");
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
 
-  // Mock data matching the screenshot
-  const mockData = [
-    {
-      id: "01",
-      userName: "Rohan",
-      transactionId: "0350679",
-      amount: 0,
-      dateTime: "10-11-2025",
-      avatarUrl: "https://i.pravatar.cc/50?img=1",
-    },
-    {
-      id: "02",
-      userName: "Rohan",
-      transactionId: "0350679",
-      amount: 0,
-      dateTime: "10-11-2025",
-      avatarUrl: "https://i.pravatar.cc/50?img=2",
-    },
-    {
-      id: "03",
-      userName: "Rohan",
-      transactionId: "0350679",
-      amount: 0,
-      dateTime: "10-11-2025",
-      avatarUrl: "https://i.pravatar.cc/50?img=3",
-    },
-    {
-      id: "04",
-      userName: "Rohan",
-      transactionId: "0350679",
-      amount: 0,
-      dateTime: "10-11-2025",
-      avatarUrl: "https://i.pravatar.cc/50?img=4",
-    },
-    {
-      id: "05",
-      userName: "Rohan",
-      transactionId: "0350679",
-      amount: 0,
-      dateTime: "10-11-2025",
-      avatarUrl: "https://i.pravatar.cc/50?img=5",
-    },
-    {
-      id: "06",
-      userName: "Rohan",
-      transactionId: "0350679",
-      amount: 0,
-      dateTime: "10-11-2025",
-      avatarUrl: "https://i.pravatar.cc/50?img=6",
-    },
-    {
-      id: "07",
-      userName: "Rohan",
-      transactionId: "0350679",
-      amount: 0,
-      dateTime: "10-11-2022",
-      avatarUrl: "https://i.pravatar.cc/50?img=7",
-    },
-    {
-      id: "08",
-      userName: "Rohan",
-      transactionId: "0350679",
-      amount: 0,
-      dateTime: "10-11-2022",
-      avatarUrl: "https://i.pravatar.cc/50?img=8",
-    },
-    {
-      id: "09",
-      userName: "Rohan",
-      transactionId: "0350679",
-      amount: 0,
-      dateTime: "10-11-2025",
-      avatarUrl: "https://i.pravatar.cc/50?img=9",
-    },
-    {
-      id: "10",
-      userName: "Rohan",
-      transactionId: "0350679",
-      amount: 0,
-      dateTime: "10-11-2025",
-      avatarUrl: "https://i.pravatar.cc/50?img=10",
-    },
-    {
-      id: "11",
-      userName: "Rohan",
-      transactionId: "0350679",
-      amount: 0,
-      dateTime: "10-11-2025",
-      avatarUrl: "https://i.pravatar.cc/50?img=11",
-    },
-    {
-      id: "12",
-      userName: "Rohan",
-      transactionId: "0350679",
-      amount: 0,
-      dateTime: "10-11-2025",
-      avatarUrl: "https://i.pravatar.cc/50?img=12",
-    },
-    {
-      id: "13",
-      userName: "Rohan",
-      transactionId: "0350679",
-      amount: 0,
-      dateTime: "10-11-2025",
-      avatarUrl: "https://i.pravatar.cc/50?img=13",
-    },
-  ];
+  // Debounce search input
+  const timeoutRef = useRef(null);
 
-  const dataSource = mockData
-    .filter((record) =>
-      record.userName.toLowerCase().includes(searchText.toLowerCase()) ||
-      record.transactionId.toLowerCase().includes(searchText.toLowerCase())
-    )
-    .map((record) => ({
-      key: record.id,
-      id: record.id,
-      userName: record.userName,
-      transactionId: record.transactionId,
-      amount: record.amount,
-      dateTime: record.dateTime,
-      avatarUrl: record.avatarUrl,
-    }));
+  useEffect(() => {
+    if (timeoutRef.current) {
+      clearTimeout(timeoutRef.current);
+    }
+
+    timeoutRef.current = setTimeout(() => {
+      setDebouncedSearchText(searchText);
+    }, 500); // 500ms delay
+
+    return () => {
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current);
+      }
+    };
+  }, [searchText]);
+
+  const { data: earningData, isLoading } = useGetEarningsQuery({
+    page: currentPage,
+    limit: pageSize,
+    search: debouncedSearchText,
+  });
+  // Transform API data to match table structure
+  const dataSource = (earningData || []).map((record, index) => ({
+    key: record.id,
+    id: index + 1,
+    userName: record.user ? record.user.name : "N/A",
+    transactionId: record.transactionId,
+    amount: record.amount,
+    dateTime: new Date(record.createdAt).toLocaleString(),
+    avatarUrl:
+      record.user?.profilePicture || "https://i.ibb.co.com/vC5KzDKV/images.jpg",
+    rawRecord: record, // Store the original record for modal details
+  }));
 
   const columns = [
     {
@@ -137,7 +55,7 @@ const Earnings = () => {
       dataIndex: "id",
       key: "id",
       width: 80,
-      sorter: (a, b) => a.id.localeCompare(b.id),
+      sorter: (a, b) => a.id - b.id,
     },
     {
       title: "User Name",
@@ -160,7 +78,7 @@ const Earnings = () => {
       title: "Transaction ID",
       dataIndex: "transactionId",
       key: "transactionId",
-      width: 150,
+      width: 100,
       sorter: (a, b) => a.transactionId.localeCompare(b.transactionId),
     },
     {
@@ -241,10 +159,17 @@ const Earnings = () => {
               dataSource={dataSource}
               columns={columns}
               pagination={{
-                pageSize: 12,
+                current: currentPage,
+                pageSize: pageSize,
+                total: earningData?.total || 0,
+                onChange: (page, size) => {
+                  setCurrentPage(page);
+                  setPageSize(size);
+                },
                 position: ["bottomRight"],
               }}
-              scroll={{ x: "max-content"}}
+              loading={isLoading}
+              scroll={{ x: "max-content" }}
               size="middle"
             />
           </ConfigProvider>
@@ -277,42 +202,99 @@ const Earnings = () => {
               <div className="py-6 space-y-4">
                 <div className="flex justify-between items-center py-2">
                   <span className="text-gray-600 text-sm">Transaction ID</span>
-                  <span className="text-gray-800 font-semibold">
-                    #{selectedRecord.transactionId}
+                  <span className="text-gray-800 font-semibold truncate max-w-[150px]">
+                    {selectedRecord.rawRecord.transactionId}
                   </span>
                 </div>
 
                 <div className="flex justify-between items-center py-2">
                   <span className="text-gray-600 text-sm">User Name</span>
                   <span className="text-gray-800 font-semibold">
-                    {selectedRecord.userName}
+                    {selectedRecord.rawRecord.user
+                      ? selectedRecord.rawRecord.user.name
+                      : "N/A"}
+                  </span>
+                </div>
+
+                <div className="flex justify-between items-center py-2">
+                  <span className="text-gray-600 text-sm">User Email</span>
+                  <span className="text-gray-800 font-semibold">
+                    {selectedRecord.rawRecord.user
+                      ? selectedRecord.rawRecord.user.email
+                      : "N/A"}
+                  </span>
+                </div>
+
+                <div className="flex justify-between items-center py-2">
+                  <span className="text-gray-600 text-sm">Status</span>
+                  <span
+                    className={`text-gray-800 font-semibold ${
+                      selectedRecord.rawRecord.status === "completed"
+                        ? "text-green-600"
+                        : selectedRecord.rawRecord.status === "pending"
+                        ? "text-yellow-600"
+                        : "text-red-600"
+                    }`}
+                  >
+                    {selectedRecord.rawRecord.status}
+                  </span>
+                </div>
+
+                <div className="flex justify-between items-center py-2">
+                  <span className="text-gray-600 text-sm">Payment Method</span>
+                  <span className="text-gray-800 font-semibold">
+                    {selectedRecord.rawRecord.paymentMethod}
+                  </span>
+                </div>
+
+                <div className="flex justify-between items-center py-2">
+                  <span className="text-gray-600 text-sm">Payment Gateway</span>
+                  <span className="text-gray-800 font-semibold">
+                    {selectedRecord.rawRecord.paymentGateway}
+                  </span>
+                </div>
+
+                <div className="flex justify-between items-center py-2">
+                  <span className="text-gray-600 text-sm">Description</span>
+                  <span className="text-gray-800 font-semibold max-w-xs truncate">
+                    {selectedRecord.rawRecord.description}
                   </span>
                 </div>
 
                 <div className="flex justify-between items-center py-2">
                   <span className="text-gray-600 text-sm">Date & Time</span>
                   <span className="text-gray-800 font-semibold">
-                    {selectedRecord.dateTime}
+                    {new Date(
+                      selectedRecord.rawRecord.createdAt
+                    ).toLocaleString()}
+                  </span>
+                </div>
+
+                <div className="flex justify-between items-center py-2">
+                  <span className="text-gray-600 text-sm">Currency</span>
+                  <span className="text-gray-800 font-semibold">
+                    {selectedRecord.rawRecord.currency}
                   </span>
                 </div>
 
                 <div className="flex justify-between items-center py-2">
                   <span className="text-gray-600 text-sm">Amount</span>
                   <span className="text-gray-800 font-semibold">
-                    ${selectedRecord.amount}
+                    {selectedRecord.rawRecord.currency}{" "}
+                    {selectedRecord.rawRecord.amount}
                   </span>
                 </div>
 
                 {/* Amount Display */}
                 <div className="bg-orange-50 rounded-lg p-6 text-center my-6">
                   <div className="text-3xl font-bold text-orange-600">
-                    ${selectedRecord.amount}
+                    {selectedRecord.rawRecord.currency}{" "}
+                    {selectedRecord.rawRecord.amount}
                   </div>
                   <div className="text-sm text-orange-500 mt-2">
                     Total Amount
                   </div>
                 </div>
-
               </div>
             </div>
           )}
