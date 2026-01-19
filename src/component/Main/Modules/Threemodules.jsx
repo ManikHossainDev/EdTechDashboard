@@ -6,6 +6,8 @@ import {
   useUploadIntroVideoOrCoverImageMutation,
 } from "../../../redux/features/modules/modulesGet";
 
+import { toast } from "sonner";
+
 const Threemodules = () => {
   const id = "6936619e511d202f50100576";
   const { data, isLoading, isError, error } = useGetModulesByIdQuery(id);
@@ -121,7 +123,7 @@ const Threemodules = () => {
         alert("Intro video uploaded successfully!");
       } catch (err) {
         console.error("Video upload error:", err);
-        alert("Failed to upload video");
+        toast.error("Failed to update module");
       } finally {
         setIsSubmitting(false);
       }
@@ -221,7 +223,7 @@ const Threemodules = () => {
         });
       } catch (err) {
         console.error("Image upload error:", err);
-        alert("Failed to upload image");
+        toast.error("Failed to update module");
       } finally {
         setIsSubmitting(false);
       }
@@ -485,10 +487,10 @@ const Threemodules = () => {
     try {
       const updatedData = formatDataForUpdate();
       await updateModuleOne({ id, updatedData }).unwrap();
-      alert("Module updated successfully!");
+      toast.success("Module updated successfully!");
     } catch (err) {
       console.error("Update error:", err);
-      alert("Failed to update module");
+      toast.error("Failed to update module");
     } finally {
       setIsSubmitting(false);
     }

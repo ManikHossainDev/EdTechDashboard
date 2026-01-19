@@ -7,8 +7,7 @@ import CustomInput from "../../../utils/CustomInput";
 import { useGetUserQuery } from "../../../redux/features/profile/profileApi";
 
 const PersonalInformation = () => {
-  const {data} = useGetUserQuery()
-  console.log(data)
+  const { data } = useGetUserQuery();
   const [form] = Form.useForm();
   useEffect(() => {
     if (data) {
@@ -41,17 +40,15 @@ const PersonalInformation = () => {
             alt=""
           />
           <div className="ml-5">
-           <h1 className="mt-2 text-gray-500">{data?.data?.fullName}</h1>
-           <h1 className="text-lg font-semibold uppercase">{data?.data?.authRole}</h1>
+            <h1 className="mt-2 text-gray-500">{data?.data?.fullName}</h1>
+            <h1 className="text-lg font-semibold uppercase">
+              {data?.data?.authRole}
+            </h1>
           </div>
         </div>
 
         {/* Personal Details */}
-        <Form
-          form={form}
-          layout="vertical"
-          className="w-full mt-10"
-        >
+        <Form form={form} layout="vertical" className="w-full mt-10">
           {/* Full Name */}
           <Form.Item label="Full Name" name="fullName">
             <CustomInput placeholder="Enter your full name" readOnly />
@@ -63,10 +60,10 @@ const PersonalInformation = () => {
           </Form.Item>
 
           <Link to="/edit-personal-info">
-          <button className="w-full px-8 py-3 bg-[#FF9E1C] font-semibold rounded-lg">
-            Edit Profile
-          </button>
-        </Link>
+            <button className="w-full px-8 py-3 bg-[#FF9E1C] font-semibold rounded-lg">
+              Edit Profile
+            </button>
+          </Link>
         </Form>
       </div>
     </div>
