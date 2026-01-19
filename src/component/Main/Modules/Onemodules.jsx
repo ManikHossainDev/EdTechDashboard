@@ -150,7 +150,10 @@ const Onemodules = () => {
       // Deep clone the state to avoid issues with frozen objects
       const clonedPrev = JSON.parse(JSON.stringify(prev));
       const updatedObjectives = [...clonedPrev.learningObjectives];
-      updatedObjectives[index] = { ...updatedObjectives[index], [field]: value };
+      updatedObjectives[index] = {
+        ...updatedObjectives[index],
+        [field]: value,
+      };
       return {
         ...clonedPrev,
         learningObjectives: updatedObjectives,
@@ -208,7 +211,11 @@ const Onemodules = () => {
         ...clonedPrev,
         learningContent: [
           ...clonedPrev.learningContent,
-          { type: "text", order: clonedPrev.learningContent.length, content: "" },
+          {
+            type: "text",
+            order: clonedPrev.learningContent.length,
+            content: "",
+          },
         ],
       };
     });
@@ -218,7 +225,9 @@ const Onemodules = () => {
     setFormData((prev) => {
       // Deep clone the state to avoid issues with frozen objects
       const clonedPrev = JSON.parse(JSON.stringify(prev));
-      const updatedContent = clonedPrev.learningContent.filter((_, i) => i !== index);
+      const updatedContent = clonedPrev.learningContent.filter(
+        (_, i) => i !== index
+      );
       return {
         ...clonedPrev,
         learningContent: updatedContent,
@@ -592,64 +601,11 @@ const Onemodules = () => {
     });
   };
 
-  // Handle image upload for drag-drop items
-  const handleDragDropItemImageUpload = async (taskIndex, itemIndex) => {
-    const fileInput = document.createElement("input");
-    fileInput.type = "file";
-    fileInput.accept = "image/*";
-    fileInput.onchange = async (e) => {
-      const file = e.target.files[0];
-      if (!file) return;
-
-      setIsSubmitting(true);
-      try {
-        const formData = new FormData();
-        formData.append("image", file);
-
-        const imageUrl = await uploadGenImage(formData).unwrap();
-
-        // Update the drag-drop item with the new image URL
-        setFormData((prev) => {
-          // Deep clone the state to avoid issues with frozen objects
-          const clonedPrev = JSON.parse(JSON.stringify(prev));
-          const updatedTasks = [...clonedPrev.interactiveTasks];
-          if (!updatedTasks[taskIndex].config.items[itemIndex].image) {
-            updatedTasks[taskIndex].config.items[itemIndex].image = {};
-          }
-          const updatedItems = [...updatedTasks[taskIndex].config.items];
-          updatedItems[itemIndex] = {
-            ...updatedItems[itemIndex],
-            image: {
-              ...updatedItems[itemIndex].image,
-              url: imageUrl,
-              publicId: imageUrl.split("/").pop(),
-            },
-          };
-          updatedTasks[taskIndex] = {
-            ...updatedTasks[taskIndex],
-            config: {
-              ...updatedTasks[taskIndex].config,
-              items: updatedItems,
-            },
-          };
-
-          return {
-            ...clonedPrev,
-            interactiveTasks: updatedTasks,
-          };
-        });
-      } catch (error) {
-        console.error("Image upload error:", error);
-        alert("Failed to upload image");
-      } finally {
-        setIsSubmitting(false);
-      }
-    };
-    fileInput.click();
-  };
-
   // Handle image upload for drag-drop categories
-  const handleDragDropCategoryImageUpload = async (taskIndex, categoryIndex) => {
+  const handleDragDropCategoryImageUpload = async (
+    taskIndex,
+    categoryIndex
+  ) => {
     const fileInput = document.createElement("input");
     fileInput.type = "file";
     fileInput.accept = "image/*";
@@ -672,7 +628,9 @@ const Onemodules = () => {
           if (!updatedTasks[taskIndex].config.categories[categoryIndex].image) {
             updatedTasks[taskIndex].config.categories[categoryIndex].image = {};
           }
-          const updatedCategories = [...updatedTasks[taskIndex].config.categories];
+          const updatedCategories = [
+            ...updatedTasks[taskIndex].config.categories,
+          ];
           updatedCategories[categoryIndex] = {
             ...updatedCategories[categoryIndex],
             image: {
@@ -1208,27 +1166,6 @@ const Onemodules = () => {
                         />
                       </div>
 
-                      <div className="mr-2">
-                        <div className="flex items-center">
-                          {item.image?.url && (
-                            <img
-                              src={item.image.url}
-                              alt={`Item ${itemIndex + 1}`}
-                              className="w-16 h-16 object-cover border rounded mr-2"
-                            />
-                          )}
-                          <button
-                            type="button"
-                            onClick={() =>
-                              handleDragDropItemImageUpload(index, itemIndex)
-                            }
-                            className="bg-blue-500 hover:bg-blue-600 text-white px-2 py-1 rounded text-xs"
-                          >
-                            Change
-                          </button>
-                        </div>
-                      </div>
-
                       <button
                         type="button"
                         onClick={() => removeDragDropItem(index, itemIndex)}
@@ -1305,10 +1242,15 @@ const Onemodules = () => {
                             )}
                             <button
                               type="button"
-                              onClick={() => handleDragDropCategoryImageUpload(index, catIndex)}
+                              onClick={() =>
+                                handleDragDropCategoryImageUpload(
+                                  index,
+                                  catIndex
+                                )
+                              }
                               className="bg-blue-500 hover:bg-blue-600 text-white px-2 py-1 rounded text-xs"
                             >
-                              {category.image?.url ? 'Change' : 'Add'} Image
+                              {category.image?.url ? "Change" : "Add"} Image
                             </button>
                           </div>
                         </div>
