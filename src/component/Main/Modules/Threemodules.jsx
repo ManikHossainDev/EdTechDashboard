@@ -2,2050 +2,1196 @@ import { useState, useEffect } from "react";
 import {
   useGetModulesByIdQuery,
   useUpdateModulesOneMutation,
+  useUploadContentImageMutation,
+  useUploadIntroVideoOrCoverImageMutation,
 } from "../../../redux/features/modules/modulesGet";
-import MediaUploadModal from "./MediaUploadModal";
 
 const Threemodules = () => {
-  // module id three
   const id = "6936619e511d202f50100576";
   const { data, isLoading, isError, error } = useGetModulesByIdQuery(id);
-
-  console.log(data);
-
-  // Handle form submission - moved to top to maintain consistent hook order
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [updateModuleThree] = useUpdateModulesOneMutation();
+  const [updateModuleOne] = useUpdateModulesOneMutation();
+  const [uploadGenImage] = useUploadContentImageMutation();
+  const [uploadIntroVideo] = useUploadIntroVideoOrCoverImageMutation();
 
-  // Media upload modal state
-  const [isMediaModalOpen, setIsMediaModalOpen] = useState(false);
-  const [currentMediaField, setCurrentMediaField] = useState(null);
-  const [currentMediaType, setCurrentMediaType] = useState("image");
-
-  // Optimized data transformation function
-  const transformApiData = (apiData) => {
-    if (!apiData) return null;
-
-    const moduleData = apiData;
-
-    // Format learning objectives
-    const formattedLearningObjectives =
-      moduleData.learningObjectives?.map((obj) => obj.text) || [];
-
-    // Format learning content as learningContent (matching API format)
-    const formattedLearningContent =
-      moduleData.learningContent?.map((content, index) => {
-        if (content.type === "image") {
-          return {
-            type: content.type,
-            order: content.order || index + 1,
-            content: content.content || "",
-            image: content.image || content.image, // Use the image object from API
-            _id: content._id || `temp_${index}`,
-          };
-        } else {
-          return {
-            type: content.type || "text",
-            order: content.order || index + 1,
-            content:
-              typeof content.content === "object"
-                ? content.content.text || ""
-                : content.content || "",
-            listItems:
-              typeof content.content === "object"
-                ? content.content.listItems || []
-                : [],
-            _id: content._id || `temp_${index}`,
-          };
-        }
-      }) || [];
-
-    // Format interactive tasks
-    const formattedInteractiveTasks =
-      moduleData.interactiveTasks?.map((task) => {
-        if (task.type === "scenario-choice") {
-          return {
-            type: task.type || "scenario-choice",
-            title: task.title || "",
-            description: task.description || "",
-            instructions: task.instructions || "",
-            points: task.points || 20,
-            config: task.config || {
-              categories: [],
-              scenarios: [],
-              items: [],
-              components: [],
-              validationRules: [],
-              moodMeter: { states: [] },
-            },
-          };
-        } else if (task.type === "build-your-own") {
-          return {
-            type: task.type || "build-your-own",
-            title: task.title || "",
-            description: task.description || "",
-            instructions: task.instructions || "",
-            points: task.points || 20,
-            config: task.config || {
-              components: [],
-              validationRules: [],
-              feedback: {},
-              moodMeter: { states: [] },
-            },
-          };
-        } else if (task.type === "sort-categories") {
-          return {
-            type: task.type || "sort-categories",
-            title: task.title || "",
-            description: task.description || "",
-            instructions: task.instructions || "",
-            points: task.points || 20,
-            config: task.config || {
-              items: [],
-              categories: [],
-              correctMapping: {},
-              moodMeter: { states: [] },
-            },
-          };
-        } else {
-          return {
-            type: task.type || "sort-categories",
-            title: task.title || "",
-            description: task.description || "",
-            instructions: task.instructions || "",
-            points: task.points || 20,
-            config: task.config || {
-              moodMeter: { states: [] },
-            },
-          };
-        }
-      }) || [];
-
-    // Format quiz
-    const formattedQuiz = {
-      title: moduleData.quiz?.title || "",
-      description: moduleData.quiz?.description || "",
-      passingScore: moduleData.quiz?.passingScore || 75,
-      totalPoints: moduleData.quiz?.totalPoints || 100,
-      allowRetake: moduleData.quiz?.allowRetake || true,
-      showCorrectAnswers: moduleData.quiz?.showCorrectAnswers || true,
-      questions:
-        moduleData.quiz?.questions?.map((question, index) => {
-          // Handle the case where options might be incomplete
-          const options = Array.isArray(question.options)
-            ? question.options.map((option) => ({
-                id: option.id,
-                text: option.text,
-                isCorrect: option.isCorrect,
-              }))
-            : [];
-
-          return {
-            questionNumber: question.questionNumber || index + 1,
-            type: question.type || "multiple-choice",
-            question: question.question || "",
-            points: question.points || 10,
-            explanation: question.explanation || "",
-            options: options,
-            correctAnswer: question.correctAnswer || "",
-          };
-        }) || [],
-    };
-
-    // Format parent tip
-    const formattedParentTip = {
-      title: moduleData.parentTip?.title || "For Parents",
-      content: moduleData.parentTip?.content || "",
-      additionalResources: moduleData.parentTip?.additionalResources || [],
-    };
-
-    // Return the formatted data
-    return {
-      moduleNumber: moduleData.moduleNumber || 1,
-      title: moduleData.title || "",
-      theme: moduleData.theme || "",
-      description: moduleData.description || "",
-      slug: moduleData.slug || "",
-      status: moduleData.status || "draft",
-      order: moduleData.order || 1,
-      introVideo: moduleData.introVideo || null,
-      unlockConditions: moduleData.unlockConditions || {
-        requiresPreviousModule: false,
-      },
-      learningObjectives: formattedLearningObjectives,
-      learningContent: formattedLearningContent, // Changed from contentBlocks to learningContent
-      interactiveTasks: formattedInteractiveTasks,
-      quiz: formattedQuiz,
-      parentTip: formattedParentTip,
-      prerequisites: moduleData.prerequisites || [],
-      createdAt: moduleData.createdAt,
-      updatedAt: moduleData.updatedAt,
-      publishedAt: moduleData.publishedAt,
-      id: moduleData.id,
-    };
-  };
-
-  // Initialize formData state first, before any conditional returns
-  // We use the transformed data if available, otherwise default values
-  const [formData, setFormData] = useState(() => {
-    if (data && !isLoading && !isError) {
-      const transformedData = transformApiData(data);
-      if (transformedData) {
-        return transformedData;
-      }
-    }
-
-    // Default values if no data is available
-    return {
-      moduleNumber: 1,
+  const [formData, setFormData] = useState({
+    moduleNumber: 3,
+    title: "",
+    slug: "",
+    theme: "",
+    description: "",
+    status: "draft",
+    order: 3,
+    learningObjectives: [],
+    learningContent: [],
+    interactiveTasks: [],
+    quiz: {
       title: "",
-      theme: "",
       description: "",
-      slug: "",
-      status: "draft",
-      order: 1,
-      introVideo: null,
-      unlockConditions: { requiresPreviousModule: false },
-      learningObjectives: [""],
-      learningContent: [
-        {
-          type: "text",
-          order: 1,
-          content: { text: "", listItems: [] },
-          listItems: [],
-          _id: `temp_0`,
-        },
-      ],
-      interactiveTasks: [
-        {
-          type: "sort-categories",
-          title: "",
-          description: "",
-          instructions: "",
-          points: 20,
-          config: {
-            items: [],
-            categories: [],
-            correctMapping: {},
-            moodMeter: { states: [] },
-          },
-        },
-      ],
-      quiz: {
-        title: "",
-        description: "",
-        passingScore: 75,
-        totalPoints: 20,
-        allowRetake: true,
-        showCorrectAnswers: true,
-        questions: [
-          {
-            questionNumber: 1,
-            type: "multiple-choice",
-            question: "",
-            points: 10,
-            explanation: "",
-            options: [{ id: "A", text: "", isCorrect: false }],
-            correctAnswer: "",
-          },
-        ],
-      },
-      parentTip: {
-        title: "For Parents",
-        content: "",
-        additionalResources: [],
-      },
-      prerequisites: [],
-      createdAt: null,
-      updatedAt: null,
-      publishedAt: null,
-      id: null,
-    };
+      passingScore: 75,
+      questions: [],
+      allowRetake: true,
+      showCorrectAnswers: true,
+    },
+    parentTip: { title: "", content: "" },
+    introVideo: {},
+    learningContentCover: {},
   });
 
-  // Update form data when API data becomes available
   useEffect(() => {
-    if (data && !isLoading && !isError) {
-      const transformedData = transformApiData(data);
-      if (transformedData) {
-        setFormData(transformedData);
-      }
-    }
-  }, [data, isLoading, isError]);
+    if (data) {
+      // Handle scenarios - they might be at task level or in config
+      const normalizedTasks = (data.interactiveTasks || []).map((task) => {
+        if (task.type === "scenario-choice") {
+          // Check if scenarios exist at task level or in config
+          const scenarios = task.scenarios || task.config?.scenarios || [];
+          return {
+            ...task,
+            scenarios: scenarios,
+          };
+        }
+        return task;
+      });
 
-  // Show loading state
-  if (isLoading) {
-    return (
-      <div className="container mx-auto p-6">
-        <h2 className="text-2xl font-bold mb-6">Loading Module...</h2>
-        <div className="text-center py-10">
-          <div className="inline-block animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
-          <p className="mt-4">Loading module data...</p>
-        </div>
-      </div>
-    );
-  }
-
-  // Show error state
-  if (isError) {
-    return (
-      <div className="container mx-auto p-6">
-        <h2 className="text-2xl font-bold mb-6">Error Loading Module</h2>
-        <div
-          className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative"
-          role="alert"
-        >
-          <strong className="font-bold">Error: </strong>
-          <span className="block sm:inline">
-            {error?.data?.message ||
-              error?.error ||
-              "Failed to load module data"}
-          </span>
-        </div>
-      </div>
-    );
-  }
-
-  // Handle main form changes
-  const handleMainChange = (e) => {
-    const { name, value } = e.target;
-
-    // Prevent changes to moduleNumber and order as per requirements
-    if (name === "moduleNumber" || name === "order") {
-      return;
-    }
-
-    setFormData((prev) => {
-      const updatedData = {
-        ...prev,
-        [name]: value,
-      };
-      // Console log the updated values when form fields change
-      console.log("Updated main form field:", name, "to:", value);
-      console.log("Current form data:", updatedData);
-      return updatedData;
-    });
-  };
-
-  // Handle learning objectives changes
-  const handleLearningObjectiveChange = (index, value) => {
-    const newObjectives = [...formData.learningObjectives];
-    newObjectives[index] = value;
-    setFormData((prev) => {
-      const updatedData = {
-        ...prev,
-        learningObjectives: newObjectives,
-      };
-      // Console log the updated values when learning objectives change
-      console.log("Updated learning objective at index:", index, "to:", value);
-      console.log("Current learning objectives:", newObjectives);
-      return updatedData;
-    });
-  };
-
-  const addLearningObjective = () => {
-    setFormData((prev) => ({
-      ...prev,
-      learningObjectives: [...prev.learningObjectives, ""],
-    }));
-  };
-
-  const removeLearningObjective = (index) => {
-    const newObjectives = formData.learningObjectives.filter(
-      (_, i) => i !== index
-    );
-    setFormData((prev) => ({
-      ...prev,
-      learningObjectives: newObjectives,
-    }));
-  };
-
-  // Handle content blocks changes
-  const handleContentBlockChange = (index, field, value) => {
-    const newBlocks = [...formData.learningContent];
-
-    // Special handling for image content blocks
-    if (field === "image") {
-      newBlocks[index] = {
-        ...newBlocks[index],
-        image: value,
-        type: "image",
-      };
-    } else if (field === "content" && typeof value === "object") {
-      // Handle content as an object (for text type)
-      newBlocks[index] = {
-        ...newBlocks[index],
-        content: value,
-      };
-    } else {
-      newBlocks[index][field] = value;
-    }
-
-    setFormData((prev) => {
-      const updatedData = {
-        ...prev,
-        learningContent: newBlocks,
-      };
-      // Console log the updated values when content blocks change
-      console.log(
-        "Updated content block at index:",
-        index,
-        "field:",
-        field,
-        "to:",
-        value
-      );
-      console.log("Current content blocks:", newBlocks);
-      return updatedData;
-    });
-  };
-
-  const addContentBlock = () => {
-    const newOrder = formData.learningContent.length + 1;
-    const newId = `temp_${Date.now()}_${newOrder}`;
-    setFormData((prev) => ({
-      ...prev,
-      learningContent: [
-        ...prev.learningContent,
-        {
-          type: "text",
-          order: newOrder,
-          content: { text: "", listItems: [] },
-          listItems: [],
-          _id: newId,
+      setFormData({
+        moduleNumber: data.moduleNumber,
+        title: data.title || "",
+        slug: data.slug || "",
+        theme: data.theme || "",
+        description: data.description || "",
+        status: data.status || "draft",
+        order: data.order || 3,
+        learningObjectives: data.learningObjectives || [],
+        learningContent: data.learningContent || [],
+        interactiveTasks: normalizedTasks,
+        quiz: {
+          title: data.quiz?.title || "",
+          description: data.quiz?.description || "",
+          passingScore: data.quiz?.passingScore || 75,
+          questions: data.quiz?.questions || [],
+          allowRetake: data.quiz?.allowRetake ?? true,
+          showCorrectAnswers: data.quiz?.showCorrectAnswers ?? true,
         },
-      ],
-    }));
+        parentTip: {
+          title: data.parentTip?.title || "",
+          content: data.parentTip?.content || "",
+        },
+        introVideo: data.introVideo || {},
+        learningContentCover: data.learningContentCover || {},
+      });
+    }
+  }, [data]);
+
+  const cloneState = (prev) => JSON.parse(JSON.stringify(prev));
+
+  // Basic input change
+  const handleInputChange = (field, value) => {
+    setFormData((prev) => ({ ...cloneState(prev), [field]: value }));
+  };
+
+  // Nested field change
+  const handleNestedChange = (section, field, value) => {
+    setFormData((prev) => {
+      const cloned = cloneState(prev);
+      cloned[section] = { ...cloned[section], [field]: value };
+      return cloned;
+    });
+  };
+
+  // Intro video upload
+  const handleIntroVideoUpload = async () => {
+    const fileInput = document.createElement("input");
+    fileInput.type = "file";
+    fileInput.accept = "video/*";
+    fileInput.onchange = async (e) => {
+      const file = e.target.files[0];
+      if (!file) return;
+      setIsSubmitting(true);
+      try {
+        const fd = new FormData();
+        fd.append("introVideo", file);
+        const response = await uploadIntroVideo({
+          moduleId: id,
+          body: fd,
+        }).unwrap();
+        setFormData((prev) => ({
+          ...cloneState(prev),
+          introVideo: response.introVideo,
+        }));
+        alert("Intro video uploaded successfully!");
+      } catch (err) {
+        console.error("Video upload error:", err);
+        alert("Failed to upload video");
+      } finally {
+        setIsSubmitting(false);
+      }
+    };
+    fileInput.click();
+  };
+
+  // Learning objectives
+  const handleObjectiveChange = (index, value) => {
+    setFormData((prev) => {
+      const cloned = cloneState(prev);
+      cloned.learningObjectives[index].text = value;
+      return cloned;
+    });
+  };
+
+  const addObjective = () => {
+    setFormData((prev) => {
+      const cloned = cloneState(prev);
+      cloned.learningObjectives.push({
+        text: "",
+        order: cloned.learningObjectives.length + 1,
+      });
+      return cloned;
+    });
+  };
+
+  const removeObjective = (index) => {
+    setFormData((prev) => {
+      const cloned = cloneState(prev);
+      cloned.learningObjectives.splice(index, 1);
+      cloned.learningObjectives.forEach((obj, i) => (obj.order = i + 1));
+      return cloned;
+    });
+  };
+
+  // Learning content
+  const handleContentTextChange = (index, value) => {
+    setFormData((prev) => {
+      const cloned = cloneState(prev);
+      const block = cloned.learningContent[index];
+      if (block.type === "text") {
+        if (typeof block.content === "object") {
+          block.content.text = value;
+        } else {
+          block.content = { text: value, listItems: [] };
+        }
+      } else {
+        block.content = value;
+      }
+      return cloned;
+    });
+  };
+
+  const addContentBlock = (type) => {
+    setFormData((prev) => {
+      const cloned = cloneState(prev);
+      const newBlock = {
+        type,
+        order: cloned.learningContent.length,
+        content: type === "text" ? { text: "", listItems: [] } : "",
+      };
+      if (type === "image") newBlock.image = { url: "", publicId: "" };
+      cloned.learningContent.push(newBlock);
+      return cloned;
+    });
   };
 
   const removeContentBlock = (index) => {
-    const newBlocks = formData.learningContent.filter((_, i) => i !== index);
-    setFormData((prev) => ({
-      ...prev,
-      learningContent: newBlocks.map((block, i) => ({
-        ...block,
-        order: i + 1,
-      })),
-    }));
-  };
-
-  // Handle interactive tasks changes
-  const handleInteractiveTaskChange = (taskIndex, field, value) => {
-    const newTasks = [...formData.interactiveTasks];
-    newTasks[taskIndex][field] = value;
     setFormData((prev) => {
-      const updatedData = {
-        ...prev,
-        interactiveTasks: newTasks,
-      };
-      // Console log the updated values when interactive task changes
-      console.log("Updated interactive task field:", field, "to:", value);
-      console.log("Current interactive tasks:", updatedData.interactiveTasks);
-      return updatedData;
+      const cloned = cloneState(prev);
+      cloned.learningContent.splice(index, 1);
+      cloned.learningContent.forEach((block, i) => (block.order = i));
+      return cloned;
     });
   };
 
-  const addInteractiveTask = () => {
-    setFormData((prev) => ({
-      ...prev,
-      interactiveTasks: [
-        ...prev.interactiveTasks,
-        {
-          type: "sort-categories",
-          title: "",
-          description: "",
-          instructions: "",
-          points: 20,
-          config: {
-            items: [],
-            categories: [],
-            correctMapping: {},
-            moodMeter: { states: [] },
-          },
-        },
-      ],
-    }));
-  };
-
-  const removeInteractiveTask = (index) => {
-    const newTasks = formData.interactiveTasks.filter((_, i) => i !== index);
-    setFormData((prev) => ({
-      ...prev,
-      interactiveTasks: newTasks,
-    }));
-  };
-
-  // Handle quiz changes
-  const handleQuizChange = (field, value) => {
-    setFormData((prev) => {
-      const updatedData = {
-        ...prev,
-        quiz: {
-          ...prev.quiz,
-          [field]: value,
-        },
-      };
-      // Console log the updated values when quiz changes
-      console.log("Updated quiz field:", field, "to:", value);
-      console.log("Current quiz:", updatedData.quiz);
-      return updatedData;
-    });
-  };
-
-  const handleQuestionChange = (index, field, value) => {
-    const newQuestions = [...formData.quiz.questions];
-    newQuestions[index][field] = value;
-    setFormData((prev) => {
-      const updatedData = {
-        ...prev,
-        quiz: {
-          ...prev.quiz,
-          questions: newQuestions,
-        },
-      };
-      // Console log the updated values when question changes
-      console.log(
-        "Updated question at index:",
-        index,
-        "field:",
-        field,
-        "to:",
-        value
-      );
-      console.log("Current questions:", newQuestions);
-      return updatedData;
-    });
-  };
-
-  const handleOptionChange = (questionIndex, optionIndex, field, value) => {
-    const newQuestions = [...formData.quiz.questions];
-
-    if (field === "isCorrect") {
-      // For the isCorrect field, we need to ensure only one option is selected
-      // Reset all options to false first
-      newQuestions[questionIndex].options = newQuestions[
-        questionIndex
-      ].options.map((opt, idx) => ({
-        ...opt,
-        isCorrect: idx === optionIndex ? value : false,
-      }));
-
-      // Update the correctAnswer field based on the selected option
-      if (value) {
-        newQuestions[questionIndex].correctAnswer =
-          newQuestions[questionIndex].options[optionIndex].id;
-      } else {
-        newQuestions[questionIndex].correctAnswer = "";
+  const handleContentImageUpload = async (index) => {
+    const fileInput = document.createElement("input");
+    fileInput.type = "file";
+    fileInput.accept = "image/*";
+    fileInput.onchange = async (e) => {
+      const file = e.target.files[0];
+      if (!file) return;
+      setIsSubmitting(true);
+      try {
+        const fd = new FormData();
+        fd.append("image", file);
+        const imageUrl = await uploadGenImage(fd).unwrap();
+        setFormData((prev) => {
+          const cloned = cloneState(prev);
+          cloned.learningContent[index].image = {
+            url: imageUrl,
+            publicId: imageUrl.split("/").pop(),
+          };
+          return cloned;
+        });
+      } catch (err) {
+        console.error("Image upload error:", err);
+        alert("Failed to upload image");
+      } finally {
+        setIsSubmitting(false);
       }
-    } else {
-      // For other fields, just update the specific field
-      newQuestions[questionIndex].options[optionIndex][field] = value;
-    }
+    };
+    fileInput.click();
+  };
 
+  // Interactive tasks
+  const handleTaskChange = (taskIndex, field, value) => {
     setFormData((prev) => {
-      const updatedData = {
-        ...prev,
-        quiz: {
-          ...prev.quiz,
-          questions: newQuestions,
-        },
-      };
-      // Console log the updated values when option changes
-      console.log(
-        "Updated option at question:",
-        questionIndex,
-        "option:",
-        optionIndex,
-        "field:",
-        field,
-        "to:",
-        value
-      );
-      console.log("Current questions:", newQuestions);
-      return updatedData;
+      const cloned = cloneState(prev);
+      cloned.interactiveTasks[taskIndex][field] = value;
+      return cloned;
+    });
+  };
+
+  // Scenario-choice scenarios (at task level)
+  const handleScenarioChange = (taskIndex, scenarioIndex, field, value) => {
+    setFormData((prev) => {
+      const cloned = cloneState(prev);
+      cloned.interactiveTasks[taskIndex].scenarios[scenarioIndex][field] =
+        value;
+      return cloned;
+    });
+  };
+
+  const addScenario = (taskIndex) => {
+    setFormData((prev) => {
+      const cloned = cloneState(prev);
+      const scenarios = cloned.interactiveTasks[taskIndex].scenarios || [];
+      const newId = `s${scenarios.length + 1}`;
+      scenarios.push({
+        id: newId,
+        text: "",
+        situation: "",
+        options: [
+          { id: "o1", text: "", feedback: "", isCorrect: false },
+          { id: "o2", text: "", feedback: "", isCorrect: false },
+        ],
+      });
+      cloned.interactiveTasks[taskIndex].scenarios = scenarios;
+      return cloned;
+    });
+  };
+
+  const removeScenario = (taskIndex, scenarioIndex) => {
+    setFormData((prev) => {
+      const cloned = cloneState(prev);
+      cloned.interactiveTasks[taskIndex].scenarios.splice(scenarioIndex, 1);
+      return cloned;
+    });
+  };
+
+  // Scenario options
+  const handleScenarioOptionChange = (
+    taskIndex,
+    scenarioIndex,
+    optIndex,
+    field,
+    value,
+  ) => {
+    setFormData((prev) => {
+      const cloned = cloneState(prev);
+      const options =
+        cloned.interactiveTasks[taskIndex].scenarios[scenarioIndex].options;
+      if (field === "isCorrect" && value) {
+        options.forEach((opt) => (opt.isCorrect = false));
+      }
+      options[optIndex][field] = value;
+      return cloned;
+    });
+  };
+
+  const addScenarioOption = (taskIndex, scenarioIndex) => {
+    setFormData((prev) => {
+      const cloned = cloneState(prev);
+      const options =
+        cloned.interactiveTasks[taskIndex].scenarios[scenarioIndex].options;
+      const newId = `o${options.length + 1}`;
+      options.push({ id: newId, text: "", feedback: "", isCorrect: false });
+      return cloned;
+    });
+  };
+
+  const removeScenarioOption = (taskIndex, scenarioIndex, optIndex) => {
+    setFormData((prev) => {
+      const cloned = cloneState(prev);
+      cloned.interactiveTasks[taskIndex].scenarios[
+        scenarioIndex
+      ].options.splice(optIndex, 1);
+      return cloned;
+    });
+  };
+
+  // Quiz
+  const handleQuestionChange = (qIndex, field, value) => {
+    setFormData((prev) => {
+      const cloned = cloneState(prev);
+      cloned.quiz.questions[qIndex][field] = value;
+      return cloned;
+    });
+  };
+
+  const handleOptionChange = (qIndex, optIndex, field, value) => {
+    setFormData((prev) => {
+      const cloned = cloneState(prev);
+      const options = cloned.quiz.questions[qIndex].options;
+      if (field === "isCorrect" && value) {
+        options.forEach((opt) => (opt.isCorrect = false));
+        cloned.quiz.questions[qIndex].correctAnswer = options[optIndex].id;
+      }
+      options[optIndex][field] = value;
+      return cloned;
     });
   };
 
   const addQuestion = () => {
-    const newNumber = formData.quiz.questions.length + 1;
-    setFormData((prev) => ({
-      ...prev,
-      quiz: {
-        ...prev.quiz,
-        questions: [
-          ...prev.quiz.questions,
-          {
-            questionNumber: newNumber,
-            type: "multiple-choice",
-            question: "",
-            points: 10,
-            explanation: "",
-            options: [{ id: "A", text: "", isCorrect: false }],
-            correctAnswer: "",
-          },
-        ],
-      },
-    }));
-  };
-
-  const removeQuestion = (index) => {
-    const newQuestions = formData.quiz.questions.filter((_, i) => i !== index);
-    setFormData((prev) => ({
-      ...prev,
-      quiz: {
-        ...prev.quiz,
-        questions: newQuestions.map((q, i) => ({
-          ...q,
-          questionNumber: i + 1,
-        })),
-      },
-    }));
-  };
-
-  const addOption = (questionIndex) => {
-    const newOptions = [...formData.quiz.questions[questionIndex].options];
-    const nextLetter = String.fromCharCode(65 + newOptions.length); // A, B, C, etc.
-    newOptions.push({ id: nextLetter, text: "", isCorrect: false });
-    const newQuestions = [...formData.quiz.questions];
-    newQuestions[questionIndex].options = newOptions;
-    setFormData((prev) => ({
-      ...prev,
-      quiz: {
-        ...prev.quiz,
-        questions: newQuestions,
-      },
-    }));
-  };
-
-  const removeOption = (questionIndex, optionIndex) => {
-    const newQuestions = [...formData.quiz.questions];
-    const removedOptionId = newQuestions[questionIndex].options[optionIndex].id;
-
-    newQuestions[questionIndex].options = newQuestions[
-      questionIndex
-    ].options.filter((_, i) => i !== optionIndex);
-
-    // If the removed option was the correct answer, reset the correctAnswer field
-    if (newQuestions[questionIndex].correctAnswer === removedOptionId) {
-      newQuestions[questionIndex].correctAnswer = "";
-    }
-
-    setFormData((prev) => ({
-      ...prev,
-      quiz: {
-        ...prev.quiz,
-        questions: newQuestions,
-      },
-    }));
-  };
-
-  // Handle parent tip changes
-  const handleParentTipChange = (field, value) => {
     setFormData((prev) => {
-      const updatedData = {
-        ...prev,
-        parentTip: {
-          ...prev.parentTip,
-          [field]: value,
-        },
-      };
-      // Console log the updated values when parent tip changes
-      console.log("Updated parent tip field:", field, "to:", value);
-      console.log("Current parent tip:", updatedData.parentTip);
-      return updatedData;
+      const cloned = cloneState(prev);
+      const num = cloned.quiz.questions.length + 1;
+      cloned.quiz.questions.push({
+        questionNumber: num,
+        type: "multiple-choice",
+        question: "",
+        options: [
+          { id: "A", text: "", isCorrect: false },
+          { id: "B", text: "", isCorrect: false },
+          { id: "C", text: "", isCorrect: false },
+        ],
+        correctAnswer: "",
+        explanation: "",
+        points: 5,
+      });
+      return cloned;
     });
   };
 
-  // Handle media upload
-  const openMediaUploadModal = (field, mediaType) => {
-    setCurrentMediaField(field);
-    setCurrentMediaType(mediaType);
-    setIsMediaModalOpen(true);
+  const removeQuestion = (qIndex) => {
+    setFormData((prev) => {
+      const cloned = cloneState(prev);
+      cloned.quiz.questions.splice(qIndex, 1);
+      cloned.quiz.questions.forEach((q, i) => (q.questionNumber = i + 1));
+      return cloned;
+    });
   };
 
-  const handleMediaUpload = (mediaData) => {
-    // mediaData now contains the full media object with url, publicId, etc.
-    const imageUrl = mediaData.url;
-
-    console.log(imageUrl);
-
-    if (currentMediaField.startsWith("introVideo")) {
-      setFormData((prev) => ({
-        ...prev,
-        introVideo: imageUrl,
-      }));
-    } else if (currentMediaField.startsWith("contentBlockImage")) {
-      const [, index] = currentMediaField.split("-");
-      const newBlocks = [...formData.learningContent];
-      newBlocks[index] = {
-        ...newBlocks[index],
-        image: { url: imageUrl },
-        type: "image",
-      };
-      setFormData((prev) => ({
-        ...prev,
-        learningContent: newBlocks,
-      }));
-    } else if (currentMediaField.startsWith("interactiveTaskItem")) {
-      const [, taskIndex, itemIndex] = currentMediaField.split("-");
-      const newTasks = [...formData.interactiveTasks];
-      const newItems = [...newTasks[taskIndex].config.items];
-      newItems[itemIndex] = {
-        ...newItems[itemIndex],
-        image: imageUrl,
-      };
-      newTasks[taskIndex].config.items = newItems;
-      setFormData((prev) => ({
-        ...prev,
-        interactiveTasks: newTasks,
-      }));
-    } else if (currentMediaField.startsWith("interactiveTaskCategory")) {
-      const [, taskIndex, categoryIndex] = currentMediaField.split("-");
-      const newTasks = [...formData.interactiveTasks];
-      const newCategories = [...newTasks[taskIndex].config.categories];
-      newCategories[categoryIndex] = {
-        ...newCategories[categoryIndex],
-        image: imageUrl,
-      };
-      newTasks[taskIndex].config.categories = newCategories;
-      setFormData((prev) => ({
-        ...prev,
-        interactiveTasks: newTasks,
-      }));
-    }
-    setIsMediaModalOpen(false);
+  const addOption = (qIndex) => {
+    setFormData((prev) => {
+      const cloned = cloneState(prev);
+      const options = cloned.quiz.questions[qIndex].options;
+      const newId = String.fromCharCode(65 + options.length);
+      options.push({ id: newId, text: "", isCorrect: false });
+      return cloned;
+    });
   };
 
-  // Format data for saving according to the exact required format
-  const formatForSave = () => {
-    // Extract the learning objectives from the text
-    const learningObjectives = formData.learningObjectives
-      .filter((obj) => obj.trim() !== "")
-      .map((text, index) => ({
-        text: text,
-        order: index + 1,
-      }));
+  const removeOption = (qIndex, optIndex) => {
+    setFormData((prev) => {
+      const cloned = cloneState(prev);
+      cloned.quiz.questions[qIndex].options.splice(optIndex, 1);
+      return cloned;
+    });
+  };
 
-    // Format learning content (using the correct field name)
-    const learningContent = formData.learningContent
-      .filter(
-        (block) =>
-          (block.type === "text" &&
-            typeof block.content === "object" &&
-            block.content.text.trim() !== "") ||
-          (block.type === "image" &&
-            (block.content?.trim() !== "" || block.image?.url))
-      )
-      .map((block, index) => {
-        if (block.type === "image") {
-          return {
-            type: block.type,
-            order: block.order || index + 1,
-            content: block.content, // For image type, content is a string (caption/description)
-            image: block.image?.url || null,
-          };
-        } else {
-          return {
-            type: block.type,
-            order: block.order || index + 1,
-            content: {
-              text:
-                typeof block.content === "object"
-                  ? block.content.text
-                  : block.content,
-              listItems:
-                typeof block.content === "object"
-                  ? block.content.listItems || []
-                  : [],
-            },
-          };
-        }
-      });
+  // Format data for API
+  const formatDataForUpdate = () => {
+    const objectives = formData.learningObjectives.map((obj) => obj.text);
 
-    // Format interactive tasks
-    const interactiveTasks = formData.interactiveTasks
-      .map((task) => {
-        if (task.type === "sort-categories") {
-          return {
-            type: task.type,
-            title: task.title,
-            description: task.description,
-            instructions: task.instructions,
-            points: task.points || 20,
-            config: {
-              items: task.config.items || [],
-              categories: task.config.categories || [],
-              correctMapping: task.config.correctMapping || {},
-              scenarios: task.config.scenarios || [],
-              friends: task.config.friends || [],
-              components: task.config.components || [],
-              validationRules: task.config.validationRules || [],
-              activityToolbox: task.config.activityToolbox || [],
-              balanceTips: task.config.balanceTips || [],
-              badges: task.config.badges || [],
-              badgeMappings: task.config.badgeMappings || [],
-              moodMeter: {
-                states: task.config.moodMeter?.states || [],
-              },
-            },
-          };
-        } else if (task.type === "scenario-choice") {
-          return {
-            type: task.type,
-            title: task.title,
-            description: task.description,
-            instructions: task.instructions,
-            points: task.points || 20,
-            config: {
-              categories: task.config.categories || [],
-              scenarios: task.config.scenarios || [],
-              items: task.config.items || [],
-              friends: task.config.friends || [],
-              components: task.config.components || [],
-              validationRules: task.config.validationRules || [],
-              activityToolbox: task.config.activityToolbox || [],
-              balanceTips: task.config.balanceTips || [],
-              badges: task.config.badges || [],
-              badgeMappings: task.config.badgeMappings || [],
-              moodMeter: {
-                states: task.config.moodMeter?.states || [],
-              },
-            },
-          };
-        } else if (task.type === "build-your-own") {
-          return {
-            type: task.type,
-            title: task.title,
-            description: task.description,
-            instructions: task.instructions,
-            points: task.points || 20,
-            config: {
-              components: task.config.components || [],
-              validationRules: task.config.validationRules || [],
-              feedback: task.config.feedback || {},
-              items: task.config.items || [],
-              categories: task.config.categories || [],
-              correctMapping: task.config.correctMapping || {},
-              scenarios: task.config.scenarios || [],
-              friends: task.config.friends || [],
-              activityToolbox: task.config.activityToolbox || [],
-              balanceTips: task.config.balanceTips || [],
-              badges: task.config.badges || [],
-              badgeMappings: task.config.badgeMappings || [],
-              moodMeter: {
-                states: task.config.moodMeter?.states || [],
-              },
-            },
-          };
-        }
-        return task;
-      })
-      .filter((task) => task.title && task.title.trim() !== "");
+    const content = formData.learningContent.map((block) => {
+      const contentBlock = {
+        type: block.type,
+        order: block.order,
+        content:
+          block.type === "text"
+            ? typeof block.content === "object"
+              ? block.content.text
+              : block.content
+            : typeof block.content === "string"
+              ? block.content
+              : "",
+      };
 
-    // Format quiz questions
-    const quizQuestions = formData.quiz.questions
-      .filter((q) => q.question.trim() !== "")
-      .map((q, idx) => ({
-        questionNumber: idx + 1,
-        type: q.type || "multiple-choice", // Default to multiple-choice
-        question: q.question,
-        points: q.points || 10,
-        explanation: q.explanation,
-        options: q.options
-          .filter((opt) => opt.text.trim() !== "")
-          .map((option) => ({
-            id: option.id,
-            text: option.text,
-            isCorrect: option.isCorrect,
+      // Include image if block type is image and has image data
+      if (block.type === "image" && block.image?.url) {
+        contentBlock.image = {
+          url: block.image.url,
+          publicId: block.image.publicId,
+        };
+      }
+
+      return contentBlock;
+    });
+
+    const tasks = formData.interactiveTasks.map((task) => {
+      const base = {
+        type: task.type,
+        title: task.title,
+        description: task.description,
+        instructions: task.instructions,
+        points: task.points,
+      };
+
+      if (task.type === "scenario-choice") {
+        base.scenarios = (task.scenarios || []).map((sc) => ({
+          id: sc.id,
+          situation: sc.situation || sc.text,
+          options: sc.options.map((opt) => ({
+            id: opt.id,
+            text: opt.text,
+            isCorrect: opt.isCorrect,
+            feedback: opt.feedback,
           })),
-        correctAnswer: q.options.find((opt) => opt.isCorrect)?.id || "",
-      }));
+        }));
+      }
 
-    // Return the exact format required
+      return base;
+    });
+
+    const quiz = {
+      title: formData.quiz.title,
+      description: formData.quiz.description,
+      passingScore: formData.quiz.passingScore,
+      allowRetake: formData.quiz.allowRetake,
+      showCorrectAnswers: formData.quiz.showCorrectAnswers,
+      questions: formData.quiz.questions.map((q) => ({
+        questionNumber: q.questionNumber,
+        type: "multiple-choice",
+        question: q.question,
+        points: q.points,
+        explanation: q.explanation,
+        options: q.options.map((opt) => ({
+          id: opt.id,
+          text: opt.text,
+          isCorrect: opt.isCorrect,
+        })),
+      })),
+    };
+
     return {
       moduleNumber: formData.moduleNumber,
       title: formData.title,
       theme: formData.theme,
       description: formData.description,
       slug: formData.slug,
-      status: formData.status, // Use actual status instead of hardcoded "draft"
+      status: formData.status,
       order: formData.order,
-      learningObjectives: learningObjectives,
-      learningContent: learningContent, // Changed to match API format
-      interactiveTasks: interactiveTasks,
-      quiz: {
-        title: formData.quiz.title,
-        description: formData.quiz.description,
-        passingScore: formData.quiz.passingScore,
-        totalPoints: formData.quiz.totalPoints,
-        allowRetake: formData.quiz.allowRetake,
-        showCorrectAnswers: formData.quiz.showCorrectAnswers,
-        questions: quizQuestions,
-      },
+      learningObjectives: objectives,
+      learningContent: content,
+      interactiveTasks: tasks,
+      quiz,
       parentTip: {
         title: formData.parentTip.title,
         content: formData.parentTip.content,
-        additionalResources: formData.parentTip.additionalResources || [],
       },
-      unlockConditions: formData.unlockConditions || {
-        requiresPreviousModule: false,
-      },
-      prerequisites: formData.prerequisites || [],
     };
-  };
-
-  // Helper function to add interactive items
-  const addInteractiveItem = (taskIndex) => {
-    const newTasks = [...formData.interactiveTasks];
-    const newId = `i${newTasks[taskIndex].config.items?.length + 1 || 1}`;
-    newTasks[taskIndex].config.items = [
-      ...(newTasks[taskIndex].config.items || []),
-      { id: newId, text: "", image: null },
-    ];
-    setFormData((prev) => ({
-      ...prev,
-      interactiveTasks: newTasks,
-    }));
-  };
-
-  // Helper function to remove interactive items
-  const removeInteractiveItem = (taskIndex, itemIndex) => {
-    const newTasks = [...formData.interactiveTasks];
-    newTasks[taskIndex].config.items = newTasks[taskIndex].config.items.filter(
-      (_, i) => i !== itemIndex
-    );
-    setFormData((prev) => ({
-      ...prev,
-      interactiveTasks: newTasks,
-    }));
-  };
-
-  // Helper function to update interactive item
-  const handleInteractiveItemChange = (taskIndex, itemIndex, field, value) => {
-    const newTasks = [...formData.interactiveTasks];
-    newTasks[taskIndex].config.items[itemIndex][field] = value;
-    setFormData((prev) => ({
-      ...prev,
-      interactiveTasks: newTasks,
-    }));
-  };
-
-  // Helper function to add categories
-  const addCategory = (taskIndex) => {
-    const newTasks = [...formData.interactiveTasks];
-    const newId = `cat${
-      newTasks[taskIndex].config.categories?.length + 1 || 1
-    }`;
-    newTasks[taskIndex].config.categories = [
-      ...(newTasks[taskIndex].config.categories || []),
-      { id: newId, name: "", description: "", image: null },
-    ];
-    setFormData((prev) => ({
-      ...prev,
-      interactiveTasks: newTasks,
-    }));
-  };
-
-  // Helper function to update category
-  const handleCategoryChange = (taskIndex, categoryIndex, field, value) => {
-    const newTasks = [...formData.interactiveTasks];
-    newTasks[taskIndex].config.categories[categoryIndex][field] = value;
-    setFormData((prev) => ({
-      ...prev,
-      interactiveTasks: newTasks,
-    }));
-  };
-
-  // Helper function to handle correct mapping changes
-  const handleCorrectMappingChange = (taskIndex, itemId, categoryId) => {
-    const newTasks = [...formData.interactiveTasks];
-    newTasks[taskIndex].config.correctMapping = {
-      ...newTasks[taskIndex].config.correctMapping,
-      [itemId]: categoryId,
-    };
-    setFormData((prev) => ({
-      ...prev,
-      interactiveTasks: newTasks,
-    }));
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsSubmitting(true);
-
-    // Format the data as required
-    const saveData = formatForSave();
-    console.log(saveData);
-
     try {
-      const res = await updateModuleThree({ id, updatedData: saveData });
-      console.log(res, "im the api response");
-    } catch (error) {
-      alert("Error to Update");
+      const updatedData = formatDataForUpdate();
+      await updateModuleOne({ id, updatedData }).unwrap();
+      alert("Module updated successfully!");
+    } catch (err) {
+      console.error("Update error:", err);
+      alert("Failed to update module");
+    } finally {
+      setIsSubmitting(false);
     }
-    alert("Data logged to console!");
-    setIsSubmitting(false);
   };
 
-  // Render the form
+  if (isLoading) return <div className="p-6">Loading...</div>;
+  if (isError)
+    return <div className="p-6 text-red-500">Error: {error?.message}</div>;
+
   return (
     <div className="container mx-auto p-6 bg-white rounded-lg shadow-md">
-      <h2 className="text-2xl font-bold mb-6">Module Editor</h2>
+      <h2 className="text-2xl font-bold mb-6">Edit Module: {formData.title}</h2>
 
-      {/* Display intro video if available */}
-      {formData.introVideo && (
-        <div className="mb-6 p-4 border border-gray-200 rounded-lg">
-          <h3 className="text-lg font-semibold mb-2">Intro Video</h3>
-          <video
-            src={formData.introVideo.url}
-            controls
-            className="w-full max-w-lg rounded"
-          />
-          <div className="mt-2 text-sm text-gray-600">
-            Duration:{" "}
-            {formData.introVideo.duration
-              ? `${formData.introVideo.duration}s`
-              : "Unknown"}
+      <form onSubmit={handleSubmit}>
+        {/* Module Information */}
+        <section className="mb-8 p-4 border rounded-lg">
+          <h3 className="text-xl font-semibold mb-4">Module Information</h3>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+            <div>
+              <label className="block text-gray-700 text-sm font-bold mb-2">
+                Module Number (Read-only)
+              </label>
+              <input
+                type="text"
+                value={formData.moduleNumber}
+                readOnly
+                className="w-full px-3 py-2 border rounded bg-gray-100"
+              />
+            </div>
+            <div>
+              <label className="block text-gray-700 text-sm font-bold mb-2">
+                Order (Read-only)
+              </label>
+              <input
+                type="text"
+                value={formData.order}
+                readOnly
+                className="w-full px-3 py-2 border rounded bg-gray-100"
+              />
+            </div>
           </div>
+          <div className="mb-4">
+            <label className="block text-gray-700 text-sm font-bold mb-2">
+              Title
+            </label>
+            <input
+              type="text"
+              value={formData.title}
+              onChange={(e) => handleInputChange("title", e.target.value)}
+              className="w-full px-3 py-2 border rounded focus:ring-2 focus:ring-blue-500"
+            />
+          </div>
+          <div className="mb-4">
+            <label className="block text-gray-700 text-sm font-bold mb-2">
+              Slug
+            </label>
+            <input
+              type="text"
+              value={formData.slug}
+              onChange={(e) => handleInputChange("slug", e.target.value)}
+              className="w-full px-3 py-2 border rounded focus:ring-2 focus:ring-blue-500"
+            />
+          </div>
+          <div className="mb-4">
+            <label className="block text-gray-700 text-sm font-bold mb-2">
+              Theme
+            </label>
+            <input
+              type="text"
+              value={formData.theme}
+              onChange={(e) => handleInputChange("theme", e.target.value)}
+              className="w-full px-3 py-2 border rounded focus:ring-2 focus:ring-blue-500"
+            />
+          </div>
+          <div className="mb-4">
+            <label className="block text-gray-700 text-sm font-bold mb-2">
+              Description
+            </label>
+            <textarea
+              value={formData.description}
+              onChange={(e) => handleInputChange("description", e.target.value)}
+              rows="3"
+              className="w-full px-3 py-2 border rounded focus:ring-2 focus:ring-blue-500"
+            />
+          </div>
+          <div className="mb-4">
+            <label className="block text-gray-700 text-sm font-bold mb-2">
+              Status
+            </label>
+            <select
+              value={formData.status}
+              onChange={(e) => handleInputChange("status", e.target.value)}
+              className="w-full px-3 py-2 border rounded focus:ring-2 focus:ring-blue-500"
+            >
+              <option value="draft">Draft</option>
+              <option value="published">Published</option>
+              <option value="archived">Archived</option>
+            </select>
+          </div>
+        </section>
+
+        {/* Intro Video */}
+        <section className="mb-8 p-4 border rounded-lg">
+          <h3 className="text-xl font-semibold mb-4">Intro Video</h3>
+          {formData.introVideo?.url ? (
+            <div className="mb-4">
+              <video controls className="w-full max-w-md h-auto rounded border">
+                <source src={formData.introVideo.url} type="video/mp4" />
+              </video>
+            </div>
+          ) : (
+            <p className="text-gray-500 italic mb-4">No intro video uploaded</p>
+          )}
           <button
             type="button"
-            onClick={() => openMediaUploadModal("introVideo", "video")}
-            className="mt-2 bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600 text-sm"
+            onClick={handleIntroVideoUpload}
+            disabled={isSubmitting}
+            className={`bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded ${isSubmitting ? "opacity-50 cursor-not-allowed" : ""}`}
           >
-            Replace Video
+            {isSubmitting ? "Uploading..." : "Upload/Replace Intro Video"}
           </button>
-        </div>
-      )}
-
-      <form onSubmit={handleSubmit} className="space-y-8">
-        {/* Basic Module Info */}
-        <div className="border border-gray-200 rounded-lg p-4">
-          <h3 className="text-xl font-semibold mb-4">Module Information</h3>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-              <label className="block text-sm font-medium mb-1">
-                Module Number
-              </label>
-              <input
-                type="number"
-                name="moduleNumber"
-                value={formData.moduleNumber}
-                className="w-full p-2 border border-gray-300 rounded bg-gray-100"
-                disabled
-              />
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium mb-1">Title</label>
-              <input
-                type="text"
-                name="title"
-                value={formData.title}
-                onChange={handleMainChange}
-                className="w-full p-2 border border-gray-300 rounded"
-                required
-              />
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium mb-1">Theme</label>
-              <input
-                type="text"
-                name="theme"
-                value={formData.theme}
-                onChange={handleMainChange}
-                className="w-full p-2 border border-gray-300 rounded"
-                required
-              />
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium mb-1">
-                Description
-              </label>
-              <textarea
-                name="description"
-                value={formData.description}
-                onChange={handleMainChange}
-                className="w-full p-2 border border-gray-300 rounded"
-                rows="3"
-                required
-              ></textarea>
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium mb-1">Slug</label>
-              <input
-                type="text"
-                name="slug"
-                value={formData.slug}
-                onChange={handleMainChange}
-                className="w-full p-2 border border-gray-300 rounded"
-                required
-              />
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium mb-1">Status</label>
-              <select
-                name="status"
-                value={formData.status}
-                onChange={handleMainChange}
-                className="w-full p-2 border border-gray-300 rounded"
-              >
-                <option value="draft">Draft</option>
-                <option value="published">Published</option>
-                <option value="archived">Archived</option>
-              </select>
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium mb-1">Order</label>
-              <input
-                type="number"
-                name="order"
-                value={formData.order}
-                className="w-full p-2 border border-gray-300 rounded bg-gray-100"
-                disabled
-              />
-            </div>
-          </div>
-        </div>
+        </section>
 
         {/* Learning Objectives */}
-        <div className="border border-gray-200 rounded-lg p-4">
+        <section className="mb-8 p-4 border rounded-lg">
           <div className="flex justify-between items-center mb-4">
             <h3 className="text-xl font-semibold">Learning Objectives</h3>
             <button
               type="button"
-              onClick={addLearningObjective}
-              className="bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600"
+              onClick={addObjective}
+              className="bg-green-500 hover:bg-green-600 text-white px-3 py-1 rounded"
             >
               Add Objective
             </button>
           </div>
-
-          {formData.learningObjectives.map((objective, index) => (
-            <div key={index} className="flex gap-2 mb-2">
+          {formData.learningObjectives.map((obj, index) => (
+            <div key={index} className="mb-3 flex items-center gap-2">
+              <span className="text-gray-500 font-medium">{index + 1}.</span>
               <input
                 type="text"
-                value={objective}
-                onChange={(e) =>
-                  handleLearningObjectiveChange(index, e.target.value)
-                }
-                className="flex-1 p-2 border border-gray-300 rounded"
-                placeholder={`Objective ${index + 1}`}
+                value={obj.text}
+                onChange={(e) => handleObjectiveChange(index, e.target.value)}
+                className="flex-1 px-3 py-2 border rounded focus:ring-2 focus:ring-blue-500"
+                placeholder="Enter learning objective"
               />
-              {formData.learningObjectives.length > 1 && (
+              <button
+                type="button"
+                onClick={() => removeObjective(index)}
+                className="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded"
+              >
+                Remove
+              </button>
+            </div>
+          ))}
+        </section>
+
+        {/* Learning Content */}
+        <section className="mb-8 p-4 border rounded-lg">
+          <div className="flex justify-between items-center mb-4">
+            <h3 className="text-xl font-semibold">Learning Content</h3>
+            <div className="flex gap-2">
+              <button
+                type="button"
+                onClick={() => addContentBlock("text")}
+                className="bg-green-500 hover:bg-green-600 text-white px-3 py-1 rounded"
+              >
+                Add Text
+              </button>
+              <button
+                type="button"
+                onClick={() => addContentBlock("image")}
+                className="bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded"
+              >
+                Add Image
+              </button>
+            </div>
+          </div>
+          {formData.learningContent.map((block, index) => (
+            <div key={index} className="mb-6 p-4 border rounded">
+              <div className="flex justify-between items-center mb-3">
+                <h4 className="font-medium">
+                  Block {index + 1} ({block.type})
+                </h4>
                 <button
                   type="button"
-                  onClick={() => removeLearningObjective(index)}
-                  className="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600"
+                  onClick={() => removeContentBlock(index)}
+                  className="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded"
                 >
                   Remove
                 </button>
-              )}
-            </div>
-          ))}
-        </div>
-
-        {/* Learning Content */}
-        <div className="border border-gray-200 rounded-lg p-4">
-          <div className="flex justify-between items-center mb-4">
-            <h3 className="text-xl font-semibold">Learning Content</h3>
-            <button
-              type="button"
-              onClick={addContentBlock}
-              className="bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600"
-            >
-              Add Content
-            </button>
-          </div>
-
-          {formData.learningContent.map((block, index) => (
-            <div
-              key={index}
-              className="mb-4 p-4 border border-gray-200 rounded"
-            >
-              <div className="flex justify-between items-center mb-2">
-                <span className="font-medium">Content {index + 1}</span>
-                {formData.learningContent.length > 1 && (
-                  <button
-                    type="button"
-                    onClick={() => removeContentBlock(index)}
-                    className="bg-red-500 text-white px-2 py-1 rounded text-sm hover:bg-red-600"
-                  >
-                    Remove
-                  </button>
-                )}
               </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm font-medium mb-1">Type</label>
-                  <select
-                    value={block.type}
-                    onChange={(e) =>
-                      handleContentBlockChange(index, "type", e.target.value)
-                    }
-                    className="w-full p-2 border border-gray-300 rounded"
-                  >
-                    <option value="text">Text</option>
-                    <option value="image">Image</option>
-                  </select>
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium mb-1">
-                    Order
-                  </label>
-                  <input
-                    type="number"
-                    value={block.order}
-                    onChange={(e) =>
-                      handleContentBlockChange(index, "order", e.target.value)
-                    }
-                    className="w-full p-2 border border-gray-300 rounded"
-                  />
-                </div>
-              </div>
-
-              {block.type === "text" && (
-                <div className="mt-2">
-                  <label className="block text-sm font-medium mb-1">
-                    Content
-                  </label>
-                  <textarea
-                    value={
-                      typeof block.content === "object"
-                        ? block.content.text || ""
-                        : block.content || ""
-                    }
-                    onChange={(e) =>
-                      handleContentBlockChange(index, "content", {
-                        text: e.target.value,
-                        listItems: Array.isArray(block.content?.listItems)
-                          ? block.content.listItems
-                          : [],
-                      })
-                    }
-                    className="w-full p-2 border border-gray-300 rounded"
-                    rows="3"
-                  ></textarea>
-                </div>
-              )}
-
               {block.type === "image" && (
-                <div className="mt-2">
-                  <div className="mb-2">
-                    <label className="block text-sm font-medium mb-1">
-                      Caption/Description
-                    </label>
-                    <textarea
-                      value={block.content || ""}
-                      onChange={(e) =>
-                        handleContentBlockChange(
-                          index,
-                          "content",
-                          e.target.value
-                        )
-                      }
-                      className="w-full p-2 border border-gray-300 rounded"
-                      rows="2"
-                    ></textarea>
-                  </div>
-
-                  {block.image && (
-                    <div className="mb-2">
+                <div className="mb-4">
+                  <div className="flex items-center gap-4 mb-3">
+                    {block.image?.url ? (
                       <img
-                        src={block.image?.url}
-                        alt="Content block image"
-                        className="max-w-xs rounded"
+                        src={block.image.url}
+                        alt="Content"
+                        className="w-32 h-32 object-cover border rounded"
                       />
-                    </div>
-                  )}
-                  <button
-                    type="button"
-                    onClick={() =>
-                      openMediaUploadModal(
-                        `contentBlockImage-${index}`,
-                        "image"
-                      )
-                    }
-                    className="bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600 text-sm"
-                  >
-                    {block.image ? "Replace Image" : "Add Image"}
-                  </button>
+                    ) : (
+                      <div className="w-32 h-32 bg-gray-200 border rounded flex items-center justify-center text-gray-500">
+                        No image
+                      </div>
+                    )}
+                    <button
+                      type="button"
+                      onClick={() => handleContentImageUpload(index)}
+                      disabled={isSubmitting}
+                      className="bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded"
+                    >
+                      {block.image?.url ? "Change Image" : "Upload Image"}
+                    </button>
+                  </div>
                 </div>
               )}
+              <div>
+                <label className="block text-gray-700 text-sm font-bold mb-2">
+                  Content Text
+                </label>
+                <textarea
+                  value={
+                    block.type === "text"
+                      ? typeof block.content === "object"
+                        ? block.content.text
+                        : block.content
+                      : block.content
+                  }
+                  onChange={(e) =>
+                    handleContentTextChange(index, e.target.value)
+                  }
+                  rows="3"
+                  className="w-full px-3 py-2 border rounded focus:ring-2 focus:ring-blue-500"
+                />
+              </div>
             </div>
           ))}
-        </div>
+        </section>
 
         {/* Interactive Tasks */}
-        <div className="border border-gray-200 rounded-lg p-4">
-          <div className="flex justify-between items-center mb-4">
-            <h3 className="text-xl font-semibold">Interactive Tasks</h3>
-            <button
-              type="button"
-              onClick={addInteractiveTask}
-              className="bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600"
-            >
-              Add Task
-            </button>
-          </div>
-
+        <section className="mb-8 p-4 border rounded-lg">
+          <h3 className="text-xl font-semibold mb-4">Interactive Tasks</h3>
           {formData.interactiveTasks.map((task, taskIndex) => (
-            <div
-              key={taskIndex}
-              className="mb-6 p-4 border border-gray-300 rounded"
-            >
-              <div className="flex justify-between items-center mb-4">
-                <span className="font-medium">Task {taskIndex + 1}</span>
-                {formData.interactiveTasks.length > 1 && (
-                  <button
-                    type="button"
-                    onClick={() => removeInteractiveTask(taskIndex)}
-                    className="bg-red-500 text-white px-2 py-1 rounded text-sm hover:bg-red-600"
-                  >
-                    Remove Task
-                  </button>
-                )}
-              </div>
+            <div key={taskIndex} className="mb-6 p-4 border rounded bg-gray-50">
+              <h4 className="font-semibold text-lg mb-4">
+                Task {taskIndex + 1}: {task.title} ({task.type})
+              </h4>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                 <div>
-                  <label className="block text-sm font-medium mb-1">Type</label>
-                  <select
-                    value={task.type}
-                    onChange={(e) =>
-                      handleInteractiveTaskChange(
-                        taskIndex,
-                        "type",
-                        e.target.value
-                      )
-                    }
-                    className="w-full p-2 border border-gray-300 rounded"
-                  >
-                    <option value="sort-categories">Sort Categories</option>
-                    <option value="scenario-choice">Scenario Choice</option>
-                    <option value="build-your-own">Build Your Own</option>
-                  </select>
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium mb-1">
+                  <label className="block text-gray-700 text-sm font-bold mb-2">
                     Title
                   </label>
                   <input
                     type="text"
                     value={task.title}
                     onChange={(e) =>
-                      handleInteractiveTaskChange(
-                        taskIndex,
-                        "title",
-                        e.target.value
-                      )
+                      handleTaskChange(taskIndex, "title", e.target.value)
                     }
-                    className="w-full p-2 border border-gray-300 rounded"
+                    className="w-full px-3 py-2 border rounded focus:ring-2 focus:ring-blue-500"
                   />
                 </div>
-
                 <div>
-                  <label className="block text-sm font-medium mb-1">
-                    Description
-                  </label>
-                  <input
-                    type="text"
-                    value={task.description}
-                    onChange={(e) =>
-                      handleInteractiveTaskChange(
-                        taskIndex,
-                        "description",
-                        e.target.value
-                      )
-                    }
-                    className="w-full p-2 border border-gray-300 rounded"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium mb-1">
-                    Instructions
-                  </label>
-                  <input
-                    type="text"
-                    value={task.instructions}
-                    onChange={(e) =>
-                      handleInteractiveTaskChange(
-                        taskIndex,
-                        "instructions",
-                        e.target.value
-                      )
-                    }
-                    className="w-full p-2 border border-gray-300 rounded"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium mb-1">
+                  <label className="block text-gray-700 text-sm font-bold mb-2">
                     Points
                   </label>
                   <input
                     type="number"
                     value={task.points}
                     onChange={(e) =>
-                      handleInteractiveTaskChange(
+                      handleTaskChange(
                         taskIndex,
                         "points",
-                        e.target.value
+                        parseFloat(e.target.value),
                       )
                     }
-                    className="w-full p-2 border border-gray-300 rounded"
+                    className="w-full px-3 py-2 border rounded focus:ring-2 focus:ring-blue-500"
                   />
                 </div>
               </div>
+              <div className="mb-4">
+                <label className="block text-gray-700 text-sm font-bold mb-2">
+                  Description
+                </label>
+                <textarea
+                  value={task.description}
+                  onChange={(e) =>
+                    handleTaskChange(taskIndex, "description", e.target.value)
+                  }
+                  rows="2"
+                  className="w-full px-3 py-2 border rounded focus:ring-2 focus:ring-blue-500"
+                />
+              </div>
+              <div className="mb-4">
+                <label className="block text-gray-700 text-sm font-bold mb-2">
+                  Instructions
+                </label>
+                <textarea
+                  value={task.instructions}
+                  onChange={(e) =>
+                    handleTaskChange(taskIndex, "instructions", e.target.value)
+                  }
+                  rows="2"
+                  className="w-full px-3 py-2 border rounded focus:ring-2 focus:ring-blue-500"
+                />
+              </div>
 
-              {task.type === "sort-categories" && (
-                <>
-                  {/* Items for sort-categories */}
-                  <div className="mb-4">
-                    <div className="flex justify-between items-center mb-2">
-                      <h4 className="font-medium">Items</h4>
-                      <button
-                        type="button"
-                        onClick={() => addInteractiveItem(taskIndex)}
-                        className="bg-blue-500 text-white px-2 py-1 rounded text-sm hover:bg-blue-600"
-                      >
-                        Add Item
-                      </button>
-                    </div>
-
-                    {task.config.items?.map((item, itemIndex) => (
-                      <div key={itemIndex} className="flex gap-2 mb-2">
-                        <input
-                          type="text"
-                          value={item.text}
-                          onChange={(e) =>
-                            handleInteractiveItemChange(
-                              taskIndex,
-                              itemIndex,
-                              "text",
-                              e.target.value
-                            )
-                          }
-                          className="flex-1 p-2 border border-gray-300 rounded"
-                          placeholder={`Item ${itemIndex + 1}`}
-                        />
-                        <select
-                          value={task.config.correctMapping?.[item.id] || ""}
-                          onChange={(e) =>
-                            handleCorrectMappingChange(
-                              taskIndex,
-                              item.id,
-                              e.target.value
-                            )
-                          }
-                          className="p-2 border border-gray-300 rounded"
-                        >
-                          <option value="">Select Category</option>
-                          {task.config.categories?.map((category) => (
-                            <option key={category.id} value={category.id}>
-                              {category.name}
-                            </option>
-                          ))}
-                        </select>
+              {/* Scenario-choice */}
+              {task.type === "scenario-choice" && (
+                <div className="p-3 border rounded bg-white">
+                  <div className="flex justify-between items-center mb-3">
+                    <h5 className="font-medium">Scenarios</h5>
+                    <button
+                      type="button"
+                      onClick={() => addScenario(taskIndex)}
+                      className="bg-green-500 hover:bg-green-600 text-white px-2 py-1 rounded text-sm"
+                    >
+                      Add Scenario
+                    </button>
+                  </div>
+                  {task.scenarios?.map((scenario, scIndex) => (
+                    <div
+                      key={scIndex}
+                      className="mb-4 p-3 border rounded bg-gray-50"
+                    >
+                      <div className="flex justify-between items-center mb-2">
+                        <span className="font-medium">
+                          Scenario {scIndex + 1}
+                        </span>
                         <button
                           type="button"
-                          onClick={() =>
-                            openMediaUploadModal(
-                              `interactiveTaskItem-${taskIndex}-${itemIndex}`,
-                              "image"
-                            )
-                          }
-                          className="bg-blue-500 text-white px-2 py-1 rounded text-sm hover:bg-blue-600"
-                        >
-                          {item.image ? "Replace Image" : "Add Image"}
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() =>
-                            removeInteractiveItem(taskIndex, itemIndex)
-                          }
-                          className="bg-red-500 text-white px-2 py-1 rounded text-sm hover:bg-red-600"
+                          onClick={() => removeScenario(taskIndex, scIndex)}
+                          className="bg-red-500 hover:bg-red-600 text-white px-2 py-1 rounded text-sm"
                         >
                           Remove
                         </button>
                       </div>
-                    ))}
-                  </div>
-
-                  {/* Categories for sort-categories */}
-                  <div>
-                    <div className="flex justify-between items-center mb-2">
-                      <h4 className="font-medium">Categories</h4>
-                      <button
-                        type="button"
-                        onClick={() => addCategory(taskIndex)}
-                        className="bg-blue-500 text-white px-2 py-1 rounded text-sm hover:bg-blue-600"
-                      >
-                        Add Category
-                      </button>
-                    </div>
-
-                    {task.config.categories?.map((category, categoryIndex) => (
-                      <div
-                        key={categoryIndex}
-                        className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-2"
-                      >
-                        <div>
-                          <label className="block text-sm font-medium mb-1">
-                            Name
-                          </label>
-                          <input
-                            type="text"
-                            value={category.name}
-                            onChange={(e) =>
-                              handleCategoryChange(
-                                taskIndex,
-                                categoryIndex,
-                                "name",
-                                e.target.value
-                              )
-                            }
-                            className="w-full p-2 border border-gray-300 rounded"
-                          />
-                        </div>
-
-                        <div>
-                          <label className="block text-sm font-medium mb-1">
-                            Description
-                          </label>
-                          <input
-                            type="text"
-                            value={category.description}
-                            onChange={(e) =>
-                              handleCategoryChange(
-                                taskIndex,
-                                categoryIndex,
-                                "description",
-                                e.target.value
-                              )
-                            }
-                            className="w-full p-2 border border-gray-300 rounded"
-                          />
-                        </div>
-
-                        <div className="flex items-center gap-2">
+                      <div className="mb-3">
+                        <label className="block text-gray-700 text-sm font-bold mb-1">
+                          Situation/Question
+                        </label>
+                        <input
+                          type="text"
+                          value={scenario.situation || scenario.text}
+                          onChange={(e) =>
+                            handleScenarioChange(
+                              taskIndex,
+                              scIndex,
+                              "situation",
+                              e.target.value,
+                            )
+                          }
+                          className="w-full px-2 py-1 border rounded"
+                        />
+                      </div>
+                      <div className="mb-2">
+                        <div className="flex justify-between items-center mb-2">
+                          <label className="text-sm font-bold">Options</label>
                           <button
                             type="button"
                             onClick={() =>
-                              openMediaUploadModal(
-                                `interactiveTaskCategory-${taskIndex}-${categoryIndex}`,
-                                "image"
-                              )
+                              addScenarioOption(taskIndex, scIndex)
                             }
-                            className="bg-blue-500 text-white px-2 py-1 rounded text-sm hover:bg-blue-600"
+                            className="bg-green-500 hover:bg-green-600 text-white px-2 py-1 rounded text-xs"
                           >
-                            {category.image ? "Replace Image" : "Add Image"}
+                            Add Option
                           </button>
-                          <span className="text-sm text-gray-500">
-                            ID: {category.id}
-                          </span>
                         </div>
-                      </div>
-                    ))}
-                  </div>
-                </>
-              )}
-
-              {task.type === "scenario-choice" && (
-                <div className="mb-4">
-                  <h4 className="font-medium mb-2">Configuration</h4>
-
-                  <div className="mb-4">
-                    <h5 className="font-medium mb-1">Categories</h5>
-                    {task.config.categories?.map((category, catIndex) => (
-                      <div
-                        key={catIndex}
-                        className="flex items-center gap-2 mb-2"
-                      >
-                        <input
-                          type="text"
-                          value={category.name}
-                          className="flex-1 p-2 border border-gray-300 rounded"
-                          readOnly
-                        />
-                        <span className="text-sm text-gray-500">
-                          ID: {category.id}
-                        </span>
-                      </div>
-                    ))}
-                  </div>
-
-                  <div className="mb-4">
-                    <h5 className="font-medium mb-2">Scenarios</h5>
-                    {task.config.scenarios?.map((scenario, scenarioIndex) => (
-                      <div
-                        key={scenarioIndex}
-                        className="mb-4 p-3 border border-gray-200 rounded"
-                      >
-                        <h6 className="font-medium mb-2">
-                          Scenario {scenarioIndex + 1}:{" "}
-                          {scenario.situation || scenario.text}
-                        </h6>
-
-                        {scenario.options?.map((option, optionIndex) => (
+                        {scenario.options?.map((opt, optIndex) => (
                           <div
-                            key={optionIndex}
-                            className="flex items-center gap-2 mb-2"
+                            key={optIndex}
+                            className="mb-2 p-2 border rounded flex items-start gap-2 bg-white"
                           >
-                            <input
-                              type="text"
-                              value={option.text}
-                              className="flex-1 p-2 border border-gray-300 rounded"
-                              readOnly
-                            />
-                            <div className="flex items-center">
+                            <div className="flex-1">
                               <input
-                                type="checkbox"
-                                checked={option.isCorrect}
-                                className="mr-1"
-                                readOnly
+                                type="text"
+                                value={opt.text}
+                                onChange={(e) =>
+                                  handleScenarioOptionChange(
+                                    taskIndex,
+                                    scIndex,
+                                    optIndex,
+                                    "text",
+                                    e.target.value,
+                                  )
+                                }
+                                placeholder="Option text"
+                                className="w-full px-2 py-1 border rounded mb-1"
                               />
-                              <span className="text-sm">Correct</span>
+                              <input
+                                type="text"
+                                value={opt.feedback}
+                                onChange={(e) =>
+                                  handleScenarioOptionChange(
+                                    taskIndex,
+                                    scIndex,
+                                    optIndex,
+                                    "feedback",
+                                    e.target.value,
+                                  )
+                                }
+                                placeholder="Feedback"
+                                className="w-full px-2 py-1 border rounded text-sm"
+                              />
                             </div>
+                            <label className="flex items-center gap-1 text-sm">
+                              <input
+                                type="radio"
+                                name={`correct-${taskIndex}-${scIndex}`}
+                                checked={opt.isCorrect}
+                                onChange={() =>
+                                  handleScenarioOptionChange(
+                                    taskIndex,
+                                    scIndex,
+                                    optIndex,
+                                    "isCorrect",
+                                    true,
+                                  )
+                                }
+                              />
+                              Correct
+                            </label>
+                            <button
+                              type="button"
+                              onClick={() =>
+                                removeScenarioOption(
+                                  taskIndex,
+                                  scIndex,
+                                  optIndex,
+                                )
+                              }
+                              className="bg-red-500 hover:bg-red-600 text-white px-2 py-1 rounded text-xs"
+                            >
+                              X
+                            </button>
                           </div>
                         ))}
                       </div>
-                    ))}
-                  </div>
-                </div>
-              )}
-
-              {task.type === "build-your-own" && (
-                <div className="mb-4">
-                  <h4 className="font-medium mb-2">Configuration</h4>
-
-                  <div className="mb-4">
-                    <h5 className="font-medium mb-1">Components</h5>
-                    {task.config.components?.map((component, compIndex) => (
-                      <div
-                        key={compIndex}
-                        className="flex items-center gap-2 mb-2"
-                      >
-                        <input
-                          type="text"
-                          value={component.text}
-                          className="flex-1 p-2 border border-gray-300 rounded"
-                          readOnly
-                        />
-                        <span className="text-sm text-gray-500">
-                          ID: {component.id}
-                        </span>
-                      </div>
-                    ))}
-                  </div>
-
-                  <div className="mb-4">
-                    <h5 className="font-medium mb-1">Validation Rules</h5>
-                    {task.config.validationRules?.map((rule, ruleIndex) => (
-                      <div key={ruleIndex} className="mb-2">
-                        <input
-                          type="text"
-                          value={rule}
-                          className="w-full p-2 border border-gray-300 rounded"
-                          readOnly
-                        />
-                      </div>
-                    ))}
-                  </div>
-
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <div>
-                      <label className="block text-sm font-medium mb-1">
-                        Weak Feedback
-                      </label>
-                      <input
-                        type="text"
-                        value={task.config.feedback?.weak || ""}
-                        className="w-full p-2 border border-gray-300 rounded"
-                        readOnly
-                      />
                     </div>
-                    <div>
-                      <label className="block text-sm font-medium mb-1">
-                        Moderate Feedback
-                      </label>
-                      <input
-                        type="text"
-                        value={task.config.feedback?.moderate || ""}
-                        className="w-full p-2 border border-gray-300 rounded"
-                        readOnly
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium mb-1">
-                        Strong Feedback
-                      </label>
-                      <input
-                        type="text"
-                        value={task.config.feedback?.strong || ""}
-                        className="w-full p-2 border border-gray-300 rounded"
-                        readOnly
-                      />
-                    </div>
-                  </div>
+                  ))}
                 </div>
               )}
             </div>
           ))}
-        </div>
+        </section>
 
-        {/* Quiz Section */}
-        <div className="border border-gray-200 rounded-lg p-4">
+        {/* Quiz */}
+        <section className="mb-8 p-4 border rounded-lg">
           <div className="flex justify-between items-center mb-4">
             <h3 className="text-xl font-semibold">Quiz</h3>
             <button
               type="button"
               onClick={addQuestion}
-              className="bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600"
+              className="bg-green-500 hover:bg-green-600 text-white px-3 py-1 rounded"
             >
               Add Question
             </button>
           </div>
-
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
             <div>
-              <label className="block text-sm font-medium mb-1">
+              <label className="block text-gray-700 text-sm font-bold mb-2">
                 Quiz Title
               </label>
               <input
                 type="text"
                 value={formData.quiz.title}
-                onChange={(e) => handleQuizChange("title", e.target.value)}
-                className="w-full p-2 border border-gray-300 rounded"
-              />
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium mb-1">
-                Description
-              </label>
-              <input
-                type="text"
-                value={formData.quiz.description}
                 onChange={(e) =>
-                  handleQuizChange("description", e.target.value)
+                  handleNestedChange("quiz", "title", e.target.value)
                 }
-                className="w-full p-2 border border-gray-300 rounded"
+                className="w-full px-3 py-2 border rounded focus:ring-2 focus:ring-blue-500"
               />
             </div>
-
             <div>
-              <label className="block text-sm font-medium mb-1">
+              <label className="block text-gray-700 text-sm font-bold mb-2">
                 Passing Score (%)
               </label>
               <input
                 type="number"
                 value={formData.quiz.passingScore}
                 onChange={(e) =>
-                  handleQuizChange("passingScore", e.target.value)
+                  handleNestedChange(
+                    "quiz",
+                    "passingScore",
+                    parseInt(e.target.value),
+                  )
                 }
-                className="w-full p-2 border border-gray-300 rounded"
+                className="w-full px-3 py-2 border rounded focus:ring-2 focus:ring-blue-500"
               />
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium mb-1">
-                Total Points
-              </label>
-              <input
-                type="number"
-                value={formData.quiz.totalPoints}
-                onChange={(e) =>
-                  handleQuizChange("totalPoints", e.target.value)
-                }
-                className="w-full p-2 border border-gray-300 rounded"
-              />
-            </div>
-
-            <div className="flex items-center">
-              <input
-                type="checkbox"
-                id="allowRetake"
-                checked={formData.quiz.allowRetake}
-                onChange={(e) =>
-                  handleQuizChange("allowRetake", e.target.checked)
-                }
-                className="mr-2"
-              />
-              <label htmlFor="allowRetake" className="text-sm font-medium">
-                Allow Retake
-              </label>
-            </div>
-
-            <div className="flex items-center">
-              <input
-                type="checkbox"
-                id="showCorrectAnswers"
-                checked={formData.quiz.showCorrectAnswers}
-                onChange={(e) =>
-                  handleQuizChange("showCorrectAnswers", e.target.checked)
-                }
-                className="mr-2"
-              />
-              <label
-                htmlFor="showCorrectAnswers"
-                className="text-sm font-medium"
-              >
-                Show Correct Answers
-              </label>
             </div>
           </div>
+          <div className="mb-4">
+            <label className="block text-gray-700 text-sm font-bold mb-2">
+              Description
+            </label>
+            <textarea
+              value={formData.quiz.description}
+              onChange={(e) =>
+                handleNestedChange("quiz", "description", e.target.value)
+              }
+              rows="2"
+              className="w-full px-3 py-2 border rounded focus:ring-2 focus:ring-blue-500"
+            />
+          </div>
+          <div className="flex gap-4 mb-6">
+            <label className="flex items-center gap-2">
+              <input
+                type="checkbox"
+                checked={formData.quiz.allowRetake}
+                onChange={(e) =>
+                  handleNestedChange("quiz", "allowRetake", e.target.checked)
+                }
+              />
+              Allow Retake
+            </label>
+            <label className="flex items-center gap-2">
+              <input
+                type="checkbox"
+                checked={formData.quiz.showCorrectAnswers}
+                onChange={(e) =>
+                  handleNestedChange(
+                    "quiz",
+                    "showCorrectAnswers",
+                    e.target.checked,
+                  )
+                }
+              />
+              Show Correct Answers
+            </label>
+          </div>
 
-          {formData.quiz.questions.map((question, qIndex) => (
-            <div
-              key={qIndex}
-              className="mb-6 p-4 border border-gray-300 rounded"
-            >
-              <div className="flex justify-between items-center mb-2">
-                <span className="font-medium">Question {qIndex + 1}</span>
-                {formData.quiz.questions.length > 1 && (
-                  <button
-                    type="button"
-                    onClick={() => removeQuestion(qIndex)}
-                    className="bg-red-500 text-white px-2 py-1 rounded text-sm hover:bg-red-600"
-                  >
-                    Remove Question
-                  </button>
-                )}
+          {formData.quiz.questions.map((q, qIndex) => (
+            <div key={qIndex} className="mb-6 p-4 border rounded bg-gray-50">
+              <div className="flex justify-between items-center mb-3">
+                <h4 className="font-medium">Question {q.questionNumber}</h4>
+                <button
+                  type="button"
+                  onClick={() => removeQuestion(qIndex)}
+                  className="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded"
+                >
+                  Remove
+                </button>
               </div>
-
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                 <div>
-                  <label className="block text-sm font-medium mb-1">
-                    Question
+                  <label className="block text-gray-700 text-sm font-bold mb-2">
+                    Type
                   </label>
-                  <textarea
-                    value={question.question}
-                    onChange={(e) =>
-                      handleQuestionChange(qIndex, "question", e.target.value)
-                    }
-                    className="w-full p-2 border border-gray-300 rounded"
-                    rows="2"
-                  ></textarea>
+                  <input
+                    type="text"
+                    value="multiple-choice"
+                    readOnly
+                    className="w-full px-3 py-2 border rounded bg-gray-100"
+                  />
                 </div>
-
                 <div>
-                  <label className="block text-sm font-medium mb-1">
-                    Explanation
-                  </label>
-                  <textarea
-                    value={question.explanation}
-                    onChange={(e) =>
-                      handleQuestionChange(
-                        qIndex,
-                        "explanation",
-                        e.target.value
-                      )
-                    }
-                    className="w-full p-2 border border-gray-300 rounded"
-                    rows="2"
-                  ></textarea>
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium mb-1">Type</label>
-                  <select
-                    value="multiple-choice" // Always default to multiple-choice
-                    onChange={(e) =>
-                      handleQuestionChange(qIndex, "type", e.target.value)
-                    }
-                    className="w-full p-2 border border-gray-300 rounded"
-                    disabled // Disable to prevent changing from multiple-choice
-                  >
-                    <option value="multiple-choice">Multiple Choice</option>
-                  </select>
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium mb-1">
+                  <label className="block text-gray-700 text-sm font-bold mb-2">
                     Points
                   </label>
                   <input
                     type="number"
-                    value={question.points}
+                    value={q.points}
                     onChange={(e) =>
-                      handleQuestionChange(qIndex, "points", e.target.value)
+                      handleQuestionChange(
+                        qIndex,
+                        "points",
+                        parseFloat(e.target.value),
+                      )
                     }
-                    className="w-full p-2 border border-gray-300 rounded"
+                    className="w-full px-3 py-2 border rounded focus:ring-2 focus:ring-blue-500"
                   />
                 </div>
               </div>
-
-              <div className="mb-2">
+              <div className="mb-4">
+                <label className="block text-gray-700 text-sm font-bold mb-2">
+                  Question Text
+                </label>
+                <textarea
+                  value={q.question}
+                  onChange={(e) =>
+                    handleQuestionChange(qIndex, "question", e.target.value)
+                  }
+                  rows="2"
+                  className="w-full px-3 py-2 border rounded focus:ring-2 focus:ring-blue-500"
+                />
+              </div>
+              <div className="mb-4">
+                <label className="block text-gray-700 text-sm font-bold mb-2">
+                  Explanation
+                </label>
+                <textarea
+                  value={q.explanation}
+                  onChange={(e) =>
+                    handleQuestionChange(qIndex, "explanation", e.target.value)
+                  }
+                  rows="2"
+                  className="w-full px-3 py-2 border rounded focus:ring-2 focus:ring-blue-500"
+                />
+              </div>
+              <div>
                 <div className="flex justify-between items-center mb-2">
-                  <h5 className="font-medium">Options</h5>
+                  <label className="block text-gray-700 text-sm font-bold">
+                    Options (Select one as correct)
+                  </label>
                   <button
                     type="button"
                     onClick={() => addOption(qIndex)}
-                    className="bg-blue-500 text-white px-2 py-1 rounded text-sm hover:bg-blue-600"
+                    className="bg-green-500 hover:bg-green-600 text-white px-2 py-1 rounded text-sm"
                   >
                     Add Option
                   </button>
                 </div>
-
-                {question.options.map((option, oIndex) => (
-                  <div key={oIndex} className="flex gap-2 mb-2">
+                {q.options.map((opt, optIndex) => (
+                  <div
+                    key={optIndex}
+                    className="mb-2 p-2 border rounded flex items-center gap-2 bg-white"
+                  >
+                    <span className="font-medium w-8">{opt.id}.</span>
                     <input
                       type="text"
-                      value={option.text}
+                      value={opt.text}
                       onChange={(e) =>
                         handleOptionChange(
                           qIndex,
-                          oIndex,
+                          optIndex,
                           "text",
-                          e.target.value
+                          e.target.value,
                         )
                       }
-                      className="flex-1 p-2 border border-gray-300 rounded"
-                      placeholder={`Option ${String.fromCharCode(65 + oIndex)}`}
+                      className="flex-1 px-2 py-1 border rounded"
+                      placeholder="Option text"
                     />
-                    <div className="flex items-center">
+                    <label className="flex items-center gap-1 text-sm">
                       <input
                         type="radio"
-                        id={`correct-${qIndex}-${oIndex}`}
-                        name={`correct-${qIndex}`}
-                        checked={option.isCorrect}
-                        onChange={(e) => {
-                          // Uncheck all other options first
-                          const newQuestions = [...formData.quiz.questions];
-                          newQuestions[qIndex].options.forEach((opt) => {
-                            opt.isCorrect = false;
-                          });
-
-                          // Then check the selected option
-                          newQuestions[qIndex].options[oIndex].isCorrect =
-                            e.target.checked;
-
-                          // Update the correctAnswer field
-                          if (e.target.checked) {
-                            newQuestions[qIndex].correctAnswer =
-                              newQuestions[qIndex].options[oIndex].id;
-                          } else {
-                            newQuestions[qIndex].correctAnswer = "";
-                          }
-
-                          setFormData((prev) => ({
-                            ...prev,
-                            quiz: {
-                              ...prev.quiz,
-                              questions: newQuestions,
-                            },
-                          }));
-                        }}
-                        className="mr-1"
+                        name={`quiz-correct-${qIndex}`}
+                        checked={opt.isCorrect}
+                        onChange={() =>
+                          handleOptionChange(
+                            qIndex,
+                            optIndex,
+                            "isCorrect",
+                            true,
+                          )
+                        }
                       />
-                      <label
-                        htmlFor={`correct-${qIndex}-${oIndex}`}
-                        className="text-sm"
-                      >
-                        Correct
-                      </label>
-                    </div>
-                    {question.options.length > 1 && (
-                      <button
-                        type="button"
-                        onClick={() => removeOption(qIndex, oIndex)}
-                        className="bg-red-500 text-white px-2 py-1 rounded text-sm hover:bg-red-600"
-                      >
-                        Remove
-                      </button>
-                    )}
+                      Correct
+                    </label>
+                    <button
+                      type="button"
+                      onClick={() => removeOption(qIndex, optIndex)}
+                      className="bg-red-500 hover:bg-red-600 text-white px-2 py-1 rounded text-sm"
+                    >
+                      X
+                    </button>
                   </div>
                 ))}
               </div>
             </div>
           ))}
-        </div>
+        </section>
 
         {/* Parent Tip */}
-        <div className="border border-gray-200 rounded-lg p-4">
+        <section className="mb-8 p-4 border rounded-lg">
           <h3 className="text-xl font-semibold mb-4">Parent Tip</h3>
-
-          <div className="grid grid-cols-1 gap-4">
-            <div>
-              <label className="block text-sm font-medium mb-1">Title</label>
-              <input
-                type="text"
-                value={formData.parentTip.title}
-                onChange={(e) => handleParentTipChange("title", e.target.value)}
-                className="w-full p-2 border border-gray-300 rounded"
-              />
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium mb-1">Content</label>
-              <textarea
-                value={formData.parentTip.content}
-                onChange={(e) =>
-                  handleParentTipChange("content", e.target.value)
-                }
-                className="w-full p-2 border border-gray-300 rounded"
-                rows="4"
-              ></textarea>
-            </div>
+          <div className="mb-4">
+            <label className="block text-gray-700 text-sm font-bold mb-2">
+              Title
+            </label>
+            <input
+              type="text"
+              value={formData.parentTip.title}
+              onChange={(e) =>
+                handleNestedChange("parentTip", "title", e.target.value)
+              }
+              className="w-full px-3 py-2 border rounded focus:ring-2 focus:ring-blue-500"
+            />
           </div>
-        </div>
+          <div className="mb-4">
+            <label className="block text-gray-700 text-sm font-bold mb-2">
+              Content
+            </label>
+            <textarea
+              value={formData.parentTip.content}
+              onChange={(e) =>
+                handleNestedChange("parentTip", "content", e.target.value)
+              }
+              rows="4"
+              className="w-full px-3 py-2 border rounded focus:ring-2 focus:ring-blue-500"
+            />
+          </div>
+        </section>
 
-        {/* Submit Button */}
+        {/* Submit */}
         <div className="flex justify-end">
           <button
             type="submit"
             disabled={isSubmitting}
-            className={`bg-green-500 text-white px-6 py-2 rounded hover:bg-green-600 ${
-              isSubmitting ? "opacity-70 cursor-not-allowed" : ""
-            }`}
+            className={`bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-6 rounded ${isSubmitting ? "opacity-50 cursor-not-allowed" : ""}`}
           >
-            {isSubmitting ? (
-              <span className="flex items-center">
-                <svg
-                  className="animate-spin -ml-1 mr-2 h-4 w-4 text-white"
-                  xmlns="http://www.w3.org/2000/svg"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                >
-                  <circle
-                    className="opacity-25"
-                    cx="12"
-                    cy="12"
-                    r="10"
-                    stroke="currentColor"
-                    strokeWidth="4"
-                  ></circle>
-                  <path
-                    className="opacity-75"
-                    fill="currentColor"
-                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                  ></path>
-                </svg>
-                Saving...
-              </span>
-            ) : (
-              "Save Module"
-            )}
+            {isSubmitting ? "Updating..." : "Update Module"}
           </button>
         </div>
       </form>
-
-      {/* Media Upload Modal */}
-      <MediaUploadModal
-        isOpen={isMediaModalOpen}
-        onClose={() => setIsMediaModalOpen(false)}
-        onUpload={handleMediaUpload}
-        mediaType={currentMediaType}
-      />
     </div>
   );
 };
