@@ -78,7 +78,12 @@ const Earnings = () => {
       title: "Transaction ID",
       dataIndex: "transactionId",
       key: "transactionId",
-      width: 100,
+      width: 200,
+      render: (text) => (
+        <div className="truncate max-w-[200px]" title={text}>
+          {text}
+        </div>
+      ),
       sorter: (a, b) => a.transactionId.localeCompare(b.transactionId),
     },
     {
