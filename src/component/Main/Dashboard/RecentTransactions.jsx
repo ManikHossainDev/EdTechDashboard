@@ -10,8 +10,6 @@ const RecentTransactions = () => {
   const { data: recentParents, isLoading } = useGetNewParentsQuery({
     limit: 10,
   });
-  console.log(recentParents);
-
   const showModal = (transaction) => {
     setSelectedTransaction(transaction);
     setIsModalVisible(true);
