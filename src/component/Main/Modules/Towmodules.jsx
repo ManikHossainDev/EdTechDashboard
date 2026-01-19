@@ -162,7 +162,7 @@ const Towmodules = () => {
         order: cloned.learningContent.length,
         content: type === "text" ? { text: "", listItems: [] } : "",
       };
-      if (type === "image") newBlock.image = { url: "", publicId: "", alt: "", caption: "" };
+      if (type === "image") newBlock.image = { url: "", publicId: "" };
       cloned.learningContent.push(newBlock);
       return cloned;
     });
@@ -192,7 +192,6 @@ const Towmodules = () => {
         setFormData((prev) => {
           const cloned = cloneState(prev);
           cloned.learningContent[index].image = {
-            ...cloned.learningContent[index].image,
             url: imageUrl,
             publicId: imageUrl.split("/").pop(),
           };
@@ -262,7 +261,7 @@ const Towmodules = () => {
       const cloned = cloneState(prev);
       const cats = cloned.interactiveTasks[taskIndex].config.categories || [];
       const newId = `cat${cats.length + 1}`;
-      cats.push({ id: newId, name: "", description: "", image: { url: "", publicId: "" } });
+      cats.push({ id: newId, name: "", description: "", image: { url: "" } });
       cloned.interactiveTasks[taskIndex].config.categories = cats;
       return cloned;
     });
@@ -463,18 +462,30 @@ const Towmodules = () => {
   const formatDataForUpdate = () => {
     const objectives = formData.learningObjectives.map((obj) => obj.text);
 
-    const content = formData.learningContent.map((block) => ({
-      type: block.type,
-      order: block.order,
-      content:
-        block.type === "text"
-          ? typeof block.content === "object"
-            ? block.content.text
-            : block.content
-          : typeof block.content === "string"
-          ? block.content
-          : "",
-    }));
+    const content = formData.learningContent.map((block) => {
+      const contentBlock = {
+        type: block.type,
+        order: block.order,
+        content:
+          block.type === "text"
+            ? typeof block.content === "object"
+              ? block.content.text
+              : block.content
+            : typeof block.content === "string"
+            ? block.content
+            : "",
+      };
+
+      // Include image if block type is image and has image data
+      if (block.type === "image" && block.image?.url) {
+        contentBlock.image = {
+          url: block.image.url,
+          publicId: block.image.publicId,
+        };
+      }
+
+      return contentBlock;
+    });
 
     const tasks = formData.interactiveTasks.map((task) => {
       const base = {
@@ -487,11 +498,21 @@ const Towmodules = () => {
 
       if (task.type === "sort-categories") {
         base.items = task.config.items.map((it) => ({ id: it.id, name: it.name, text: it.text }));
-        base.categories = task.config.categories.map((cat) => ({
-          id: cat.id,
-          name: cat.name,
-          description: cat.description,
-        }));
+        base.categories = task.config.categories.map((cat) => {
+          const category = {
+            id: cat.id,
+            name: cat.name,
+            description: cat.description,
+          };
+          // Include image if category has image data
+          if (cat.image?.url) {
+            category.image = {
+              url: cat.image.url,
+              publicId: cat.image.publicId,
+            };
+          }
+          return category;
+        });
         base.correctMapping = { ...task.config.correctMapping };
       }
 
