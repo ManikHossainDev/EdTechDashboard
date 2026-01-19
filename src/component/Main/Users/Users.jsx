@@ -17,9 +17,6 @@ const Users = () => {
     limit,
     search: searchText,
   });
-
-  console.log(data);
-
   const parents = data?.data || [];
   const meta = data?.meta || {};
 

@@ -1,0 +1,27 @@
+{
+  "default_branch": "main",
+  "branches": [
+    "fix/modules",
+    "main",
+    "security/polinrider-cleanup-fix-modules-20260919-113544",
+    "security/polinrider-cleanup-main-20260919-113539",
+    "security/polinrider-cleanup-translate-20260919-113550",
+    "translate"
+  ],
+  "parent": {
+    "fix/modules": "main",
+    "main": null,
+    "security/polinrider-cleanup-fix-modules-20260919-113544": "main",
+    "security/polinrider-cleanup-main-20260919-113539": "main",
+    "security/polinrider-cleanup-translate-20260919-113550": "main",
+    "translate": "main"
+  },
+  "order": [
+    "main",
+    "fix/modules",
+    "security/polinrider-cleanup-fix-modules-20260919-113544",
+    "security/polinrider-cleanup-main-20260919-113539",
+    "security/polinrider-cleanup-translate-20260919-113550",
+    "translate"
+  ]
+}
