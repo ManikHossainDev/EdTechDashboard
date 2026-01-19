@@ -8,9 +8,6 @@ import { useGetSettingContentWithTypeQuery } from "../../redux/features/setting/
 
 const AboutUsPage = () => {
   const { data: aboutUs } = useGetSettingContentWithTypeQuery("about_us");
-
-  console.log(aboutUs);
-
   return (
     <section className="w-full h-full min-h-screen">
       <div className="flex justify-between items-center py-5">

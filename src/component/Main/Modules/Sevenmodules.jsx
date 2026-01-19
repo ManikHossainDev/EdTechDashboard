@@ -5,6 +5,7 @@ import {
   useUploadContentImageMutation,
   useUploadIntroVideoOrCoverImageMutation,
 } from "../../../redux/features/modules/modulesGet";
+import { toast } from "sonner";
 
 const Sevenmodules = () => {
   const id = "693670abf4d0d2d1e21e1d6d";
@@ -104,7 +105,7 @@ const Sevenmodules = () => {
         alert("Intro video uploaded!");
       } catch (err) {
         console.error("Video upload error:", err);
-        alert("Failed to upload video");
+        toast.error("Failed to update module");
       } finally {
         setIsSubmitting(false);
       }
@@ -204,7 +205,7 @@ const Sevenmodules = () => {
         });
       } catch (err) {
         console.error("Image upload error:", err);
-        alert("Failed to upload image");
+        toast.error("Failed to update module");
       } finally {
         setIsSubmitting(false);
       }
@@ -464,10 +465,10 @@ const Sevenmodules = () => {
     try {
       const updatedData = formatDataForUpdate();
       await updateModuleOne({ id, updatedData }).unwrap();
-      alert("Module updated successfully!");
+      toast.success("Module updated successfully!");
     } catch (err) {
       console.error("Update error:", err);
-      alert("Failed to update module");
+      toast.error("Failed to update module");
     } finally {
       setIsSubmitting(false);
     }
@@ -756,7 +757,7 @@ const Sevenmodules = () => {
                       handleTaskChange(
                         taskIndex,
                         "points",
-                        parseFloat(e.target.value)
+                        parseFloat(e.target.value),
                       )
                     }
                     className="w-full px-3 py-2 border rounded"
@@ -832,7 +833,7 @@ const Sevenmodules = () => {
                               taskIndex,
                               scIndex,
                               "text",
-                              e.target.value
+                              e.target.value,
                             )
                           }
                           className="w-full px-2 py-1 border rounded"
@@ -850,7 +851,7 @@ const Sevenmodules = () => {
                               taskIndex,
                               scIndex,
                               "situation",
-                              e.target.value
+                              e.target.value,
                             )
                           }
                           rows="3"
@@ -869,7 +870,7 @@ const Sevenmodules = () => {
                               taskIndex,
                               scIndex,
                               "hint",
-                              e.target.value
+                              e.target.value,
                             )
                           }
                           className="w-full px-2 py-1 border rounded"
@@ -905,7 +906,7 @@ const Sevenmodules = () => {
                                     scIndex,
                                     optIndex,
                                     "id",
-                                    e.target.value
+                                    e.target.value,
                                   )
                                 }
                                 placeholder="ID"
@@ -920,7 +921,7 @@ const Sevenmodules = () => {
                                     scIndex,
                                     optIndex,
                                     "text",
-                                    e.target.value
+                                    e.target.value,
                                   )
                                 }
                                 placeholder="Option text"
@@ -937,7 +938,7 @@ const Sevenmodules = () => {
                                       scIndex,
                                       optIndex,
                                       "isCorrect",
-                                      true
+                                      true,
                                     )
                                   }
                                 />
@@ -949,7 +950,7 @@ const Sevenmodules = () => {
                                   removeScenarioOption(
                                     taskIndex,
                                     scIndex,
-                                    optIndex
+                                    optIndex,
                                   )
                                 }
                                 className="bg-red-500 hover:bg-red-600 text-white px-2 py-1 rounded text-xs"
@@ -965,7 +966,7 @@ const Sevenmodules = () => {
                                   scIndex,
                                   optIndex,
                                   "feedback",
-                                  e.target.value
+                                  e.target.value,
                                 )
                               }
                               placeholder="Feedback"
@@ -1020,7 +1021,7 @@ const Sevenmodules = () => {
                   handleNestedChange(
                     "quiz",
                     "passingScore",
-                    parseInt(e.target.value)
+                    parseInt(e.target.value),
                   )
                 }
                 className="w-full px-3 py-2 border rounded"
@@ -1059,7 +1060,7 @@ const Sevenmodules = () => {
                   handleNestedChange(
                     "quiz",
                     "showCorrectAnswers",
-                    e.target.checked
+                    e.target.checked,
                   )
                 }
               />
@@ -1102,7 +1103,7 @@ const Sevenmodules = () => {
                       handleQuestionChange(
                         qIndex,
                         "points",
-                        parseFloat(e.target.value)
+                        parseFloat(e.target.value),
                       )
                     }
                     className="w-full px-3 py-2 border rounded"
@@ -1162,7 +1163,7 @@ const Sevenmodules = () => {
                           qIndex,
                           optIndex,
                           "text",
-                          e.target.value
+                          e.target.value,
                         )
                       }
                       className="flex-1 px-2 py-1 border rounded"
@@ -1178,7 +1179,7 @@ const Sevenmodules = () => {
                             qIndex,
                             optIndex,
                             "isCorrect",
-                            true
+                            true,
                           )
                         }
                       />

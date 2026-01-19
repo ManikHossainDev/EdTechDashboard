@@ -5,6 +5,7 @@ import {
   useUploadContentImageMutation,
   useUploadIntroVideoOrCoverImageMutation,
 } from "../../../redux/features/modules/modulesGet";
+import { toast } from "sonner";
 
 const Fourmodules = () => {
   const id = "69366b5cf4d0d2d1e21e1d5b";
@@ -104,7 +105,7 @@ const Fourmodules = () => {
         alert("Intro video uploaded!");
       } catch (err) {
         console.error("Video upload error:", err);
-        alert("Failed to upload video");
+        toast.error("Failed to update module");
       } finally {
         setIsSubmitting(false);
       }
@@ -204,7 +205,7 @@ const Fourmodules = () => {
         });
       } catch (err) {
         console.error("Image upload error:", err);
-        alert("Failed to upload image");
+        toast.error("Failed to update module");
       } finally {
         setIsSubmitting(false);
       }
@@ -503,10 +504,10 @@ const Fourmodules = () => {
     try {
       const updatedData = formatDataForUpdate();
       await updateModuleOne({ id, updatedData }).unwrap();
-      alert("Module updated successfully!");
+      toast.success("Module updated successfully!");
     } catch (err) {
       console.error("Update error:", err);
-      alert("Failed to update module");
+      toast.error("Failed to update module");
     } finally {
       setIsSubmitting(false);
     }
@@ -727,8 +728,12 @@ const Fourmodules = () => {
                       Content Text
                     </label>
                     <textarea
-                      value={typeof block.content === "string" ? block.content : ""}
-                      onChange={(e) => handleContentTextChange(index, e.target.value)}
+                      value={
+                        typeof block.content === "string" ? block.content : ""
+                      }
+                      onChange={(e) =>
+                        handleContentTextChange(index, e.target.value)
+                      }
                       rows="3"
                       className="w-full px-3 py-2 border rounded focus:ring-2 focus:ring-blue-500"
                     />
@@ -742,8 +747,14 @@ const Fourmodules = () => {
                     Content Text
                   </label>
                   <textarea
-                    value={typeof block.content === "object" ? block.content.text : block.content}
-                    onChange={(e) => handleContentTextChange(index, e.target.value)}
+                    value={
+                      typeof block.content === "object"
+                        ? block.content.text
+                        : block.content
+                    }
+                    onChange={(e) =>
+                      handleContentTextChange(index, e.target.value)
+                    }
                     rows="3"
                     className="w-full px-3 py-2 border rounded focus:ring-2 focus:ring-blue-500"
                   />
