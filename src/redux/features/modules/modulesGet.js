@@ -38,6 +38,7 @@ const modulesOne = baseApi.injectEndpoints({
           body: body,
         };
       },
+      invalidatesTags: ["modules"],
       transformResponse: (res) => res?.data,
     }),
   }),
