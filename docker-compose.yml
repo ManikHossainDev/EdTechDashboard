@@ -1,0 +1,50 @@
+services:
+  admin-dashboard:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: mobilklar-admin-dashboard
+    restart: unless-stopped
+    env_file:
+      - .env
+    networks:
+      - mobilklar-network
+    expose:
+      - "9500"
+
+  caddy:
+    image: caddy:2-alpine
+    container_name: mobilklar-caddy
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+      - "443:443/udp"
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile
+      - caddy_data:/data
+      - caddy_config:/config
+      - caddy_logs:/var/log/caddy
+    networks:
+      - mobilklar-network
+    depends_on:
+      - admin-dashboard
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:80/"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+networks:
+  mobilklar-network:
+    name: mobilklar_shared
+    driver: bridge
+
+volumes:
+  caddy_data:
+    driver: local
+  caddy_config:
+    driver: local
+  caddy_logs:
+    driver: local

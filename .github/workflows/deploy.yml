@@ -1,0 +1,78 @@
+name: Deploy Admin Dashboard
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    name: Deploy Admin Dashboard
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Deploy to DigitalOcean
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.DROPLET_IP }}
+          username: ${{ secrets.DROPLET_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          command_timeout: 15m
+          script: |
+            set -e
+
+            echo "📦 Starting deployment to admin.mobilklar.no..."
+
+            cd /var/www/mobilklar/AdminDashboard || exit 1
+
+            echo "⬇️  Pulling latest code from main branch..."
+            git fetch origin main
+            git reset --hard origin/main
+
+            echo "🛑 Stopping existing containers..."
+            docker compose down --timeout 30 || true
+
+            echo "🧹 Cleaning up old Docker resources..."
+            docker image prune -af --filter "until=24h" || true
+            docker container prune -f || true
+
+            echo "🔨 Building new Docker images..."
+            docker compose build --no-cache --pull
+
+            echo "🚀 Starting services..."
+            docker compose up -d
+
+            echo "⏳ Waiting for services to be healthy..."
+            sleep 10
+
+            if docker compose ps | grep -q "Up"; then
+              echo "✅ Services are running:"
+              docker compose ps
+
+              echo "📋 Recent logs:"
+              docker compose logs --tail=20
+
+              echo ""
+              echo "✅ Deployment completed successfully!"
+              echo "🌐 Site is live at: https://admin.mobilklar.no"
+            else
+              echo "❌ Deployment failed - services not running"
+              docker compose ps
+              docker compose logs --tail=50
+              exit 1
+            fi
+
+      - name: Deployment notification
+        if: always()
+        run: |
+          if [ "${{ job.status }}" == "success" ]; then
+            echo "✅ Deployment to admin.mobilklar.no completed successfully!"
+          else
+            echo "❌ Deployment failed! Check logs above."
+            exit 1
+          fi
