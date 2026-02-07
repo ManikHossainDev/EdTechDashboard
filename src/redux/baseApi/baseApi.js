@@ -1,3 +1,5 @@
+// Log the backend URL as soon as this file loads
+console.log("[baseApi.js] VITE_BACKEND_URL:", import.meta.env.VITE_BACKEND_URL);
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 export const baseApi = createApi({
   reducerPath: "pokemonApi",
