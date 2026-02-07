@@ -4,6 +4,8 @@ export const baseApi = createApi({
   baseQuery: fetchBaseQuery({
     baseUrl: import.meta.env.VITE_BACKEND_URL,
     prepareHeaders: (headers, { getState }) => {
+      // Log the actual baseUrl used for API requests
+      console.log("API baseUrl:", import.meta.env.VITE_BACKEND_URL);
       const token = getState().auth.token;
       if (token) {
         headers.set("Authorization", `Bearer ${token}`);
