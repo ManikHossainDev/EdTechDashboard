@@ -3,8 +3,6 @@ npm-debug.log
 .next
 .git
 .gitignore
-.env*.local
-.env
 README.md
 DEPLOYMENT.md
 .github
