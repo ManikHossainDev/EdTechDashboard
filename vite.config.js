@@ -5,7 +5,7 @@ import react from "@vitejs/plugin-react";
 export default defineConfig({
   plugins: [react()],
   server: {
-    allowedHosts: ["mobilklar.merinasib.shop"],
+    allowedHosts: ["api.mobilklar.no"],
     host: "0.0.0.0",
     port: 9500,
   },
