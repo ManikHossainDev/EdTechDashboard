@@ -1,4 +1,3 @@
-
 # Build stage
 FROM node:20-alpine AS builder
 WORKDIR /app
@@ -7,7 +6,10 @@ WORKDIR /app
 COPY package.json package-lock.json* ./
 RUN npm ci --only=production || npm install
 
-# Copy source
+# Copy source code
+COPY . .
+
+# Build the application
 RUN npm run build
 
 # Production stage
