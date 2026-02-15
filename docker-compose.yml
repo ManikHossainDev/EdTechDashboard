@@ -11,6 +11,17 @@ services:
       - mobilklar_shared
     expose:
       - "9500"
+    # SECURITY: Port 9500 NOT exposed to internet - only Caddy can access via Docker network
+    security_opt:
+      - no-new-privileges:true
+    deploy:
+      resources:
+        limits:
+          cpus: '1'
+          memory: 1G
+        reservations:
+          cpus: '0.25'
+          memory: 256M
 
 networks:
   mobilklar_shared:
