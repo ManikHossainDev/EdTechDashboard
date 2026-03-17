@@ -32,6 +32,7 @@ import Sevenmodules from "../component/Main/Modules/Sevenmodules";
 import Eightmodules from "../component/Main/Modules/Eightmodules";
 import Towmodules from "../component/Main/Modules/Towmodules";
 import Onemodules from "../component/Main/Modules/Onemodules";
+import LandingPage from "../page/LandingPage/LandingPage";
 
 
 const router = createBrowserRouter([
@@ -148,6 +149,10 @@ const router = createBrowserRouter([
       {
         path: "/settings/FAQ",
         element: <FAQ />
+      },
+      {
+        path: "landing",
+        element: <LandingPage />,
       },
     ],
   },
