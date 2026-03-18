@@ -22,7 +22,7 @@ const EditAboutUs = () => {
   const handleSubmit = async () => {
     const format = {
       type,
-      title: "About Us",
+      title: "Om oss",
       content,
     };
 
@@ -30,7 +30,7 @@ const EditAboutUs = () => {
       const res = await updateAboutUs(format);
 
       if (res.data?.code == 200) {
-        alert("Update Done");
+        alert("Oppdatering fullført");
         navigate("/settings/about-us");
       }
     } catch (error) {
@@ -50,7 +50,7 @@ const EditAboutUs = () => {
           <Link to="/settings/about-us">
             <IoChevronBack className="text-2xl" />
           </Link>
-          <h1 className="text-2xl font-semibold">Edit About Us</h1>
+          <h1 className="text-2xl font-semibold">Rediger Om oss</h1>
         </div>
       </div>
 
@@ -89,9 +89,9 @@ const EditAboutUs = () => {
               icon={<i className="fas fa-sync-alt"></i>} // Example FontAwesome icon
               className="mt-1 px-5 rounded-lg bg-gray-500 py-5  border-none"
             >
-              Cancel
+              Avbryt
             </Button>
-            <CustomButton className="p-1">Update</CustomButton>
+            <CustomButton className="p-1">Oppdater</CustomButton>
           </div>
         </Form>
       </div>

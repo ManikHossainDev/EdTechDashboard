@@ -22,7 +22,7 @@ const Header = ({ toggleSidebar }) => {
         </button>
 
         <div className=" flex items-center space-x-1">
-          <h1 className="text-base md:text-xl lg:text-2xl"> <span className="text-[#FF9E1C] " >Hi,</span> Same</h1>
+          <h1 className="text-base md:text-xl lg:text-2xl"> <span className="text-[#FF9E1C] " >Hei,</span> Same</h1>
           <img className="size-10" src={image} alt="image" />
         </div>
       </div>

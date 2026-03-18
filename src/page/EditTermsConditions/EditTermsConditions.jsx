@@ -31,7 +31,7 @@ const EditTermsConditions = () => {
   const handleSubmit = async () => {
     const payload = {
       type,
-      title: "Terms and Conditions",
+      title: "Vilkår og betingelser",
       content,
     };
 
@@ -42,7 +42,7 @@ const EditTermsConditions = () => {
         navigate("/settings/terms-conditions");
       }
     } catch (error) {
-      console.error("Update failed:", error);
+      console.error("Oppdatering feilet:", error);
     }
   };
 
@@ -53,7 +53,7 @@ const EditTermsConditions = () => {
         <Link to="/settings/terms-conditions">
           <IoChevronBack className="text-2xl" />
         </Link>
-        <h1 className="text-2xl font-semibold">Edit Terms and Conditions</h1>
+        <h1 className="text-2xl font-semibold">Rediger vilkår og betingelser</h1>
       </div>
 
       {/* Form */}
@@ -93,7 +93,7 @@ const EditTermsConditions = () => {
               onClick={() => navigate("/settings/terms-conditions")}
               className="px-5 py-5 rounded-lg"
             >
-              Cancel
+              Avbryt
             </Button>
 
             <CustomButton
@@ -101,7 +101,7 @@ const EditTermsConditions = () => {
               loading={isLoading}
               className="px-6"
             >
-              Update
+              Oppdater
             </CustomButton>
           </div>
         </Form>

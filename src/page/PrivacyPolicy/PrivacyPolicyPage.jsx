@@ -15,12 +15,12 @@ const PrivacyPolicyPage = () => {
           <Link to="/settings">
             <IoChevronBack className="text-2xl" />
           </Link>
-          <h1 className="text-2xl font-semibold">Privacy Policy</h1>
+          <h1 className="text-2xl font-semibold">Personvernpolicy</h1>
         </div>
         <Link to={"/settings/edit-privacy-policy/11"}>
           <CustomButton border>
             <TbEdit className="size-5" />
-            <span>Edit</span>
+            <span>Rediger</span>
           </CustomButton>
         </Link>
       </div>
@@ -32,7 +32,7 @@ const PrivacyPolicyPage = () => {
             dangerouslySetInnerHTML={{ __html: privacyPolicy.content }}
           />
         ) : (
-          <p className="text-lg text-black px-5">Loading privacy policy...</p>
+          <p className="text-lg text-black px-5">Laster inn personvernpolicy...</p>
         )}
       </div>
     </section>

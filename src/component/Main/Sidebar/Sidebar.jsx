@@ -12,12 +12,12 @@ import { LuBoxes } from "react-icons/lu";
 import { MdOutlineWebAsset } from "react-icons/md";
 
 const sidebarItems = [  
-  { path: "/", name: "Dashboard", icon: <MdDashboard className="size-6" /> },
-  { path: "/Parents", name: "Parents", icon: <MdFamilyRestroom  className="size-6" /> },
-  { path: "/Modules", name: "Modules", icon: <LuBoxes className="size-6"/>},
-  { path: "/Earnings", name: "Earnings", icon: <RiMoneyDollarCircleFill className="size-6" /> },
-  { path: "/landing", name: "Landing Page", icon: <MdOutlineWebAsset className="size-6" /> },
-  { path: "/settings", name: "Settings", icon: <IoSettingsSharp className="size-6" /> },
+  { path: "/", name: "Dashbord", icon: <MdDashboard className="size-6" /> },
+  { path: "/Parents", name: "Foreldre", icon: <MdFamilyRestroom  className="size-6" /> },
+  { path: "/Modules", name: "Moduler", icon: <LuBoxes className="size-6"/>},
+  { path: "/Earnings", name: "Inntekter", icon: <RiMoneyDollarCircleFill className="size-6" /> },
+  { path: "/landing", name: "Landingsside", icon: <MdOutlineWebAsset className="size-6" /> },
+  { path: "/settings", name: "Innstillinger", icon: <IoSettingsSharp className="size-6" /> },
 ];
 
 const Sidebar = ({ isSidebarOpen, toggleSidebar }) => {
@@ -61,7 +61,7 @@ const Sidebar = ({ isSidebarOpen, toggleSidebar }) => {
             className="flex items-center gap-2 px-10 py-4 text-white mb-4"
           >
             <IoIosLogOut className="ml-2 size-8 bg-red-500 p-1 text-white rounded-md" />
-            <span className="text-red-500">Logout</span>
+            <span className="text-red-500">Logg ut</span>
           </button>
         </div>
       </div>
@@ -100,7 +100,7 @@ const Sidebar = ({ isSidebarOpen, toggleSidebar }) => {
           className="flex items-center gap-2 px-10 py-4 text-white ml-6"
         >
           <IoIosLogOut className="size-8 bg-red-500 p-1 rounded-md text-white" />
-          <span>Logout</span>
+          <span>Logg ut</span>
         </button>
       </div>
 
@@ -108,20 +108,20 @@ const Sidebar = ({ isSidebarOpen, toggleSidebar }) => {
       {showModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
           <div className="bg-white p-6 rounded shadow-lg w-80">
-            <h3 className="text-lg font-bold mb-4">Confirm Logout</h3>
-            <p className="mb-6">Are you sure you want to log out?</p>
+            <h3 className="text-lg font-bold mb-4">Bekreft utlogging</h3>
+            <p className="mb-6">Er du sikker på at du vil logge ut?</p>
             <div className="flex justify-between">
               <button
                 onClick={handleLogout}
                 className="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600"
               >
-                Yes
+                Ja
               </button>
               <button
                 onClick={() => setShowModal(false)}
                 className="bg-gray-200 px-4 py-2 rounded hover:bg-gray-300"
               >
-                No
+                Nei
               </button>
             </div>
           </div>

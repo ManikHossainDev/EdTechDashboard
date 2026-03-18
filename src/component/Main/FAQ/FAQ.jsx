@@ -33,7 +33,7 @@ const FAQ = () => {
       _id: `new-${Date.now()}`, // Temporary ID for new items
       question: "",
       answer: "",
-      category: "General",
+      category: "Generelt",
       order: faqs.length,
       isActive: true,
       createdAt: new Date().toISOString(),
@@ -51,10 +51,10 @@ const FAQ = () => {
       try {
         await deleteFaq(id);
         setFaqs(faqs.filter((faq) => faq._id !== id));
-        alert("FAQ deleted successfully!");
+        alert("Vanlig spørsmål ble slettet!");
       } catch (error) {
         console.error("Error deleting FAQ:", error);
-        alert("Error deleting FAQ. Please try again.");
+        alert("Feil ved sletting av vanlige spørsmål. Prøv igjen.");
       }
     }
   };
@@ -68,7 +68,7 @@ const FAQ = () => {
           const newFaq = {
             question: faq.question,
             answer: faq.answer,
-            category: "General",
+            category: "Generelt",
             order: faqs.indexOf(faq),
             isActive: true,
           };
@@ -84,30 +84,30 @@ const FAQ = () => {
           await updateFaq({ faqId: faq._id, updateBody });
         }
       }
-      alert("FAQs updated successfully!");
+      alert("Vanlige spørsmål ble oppdatert!");
     } catch (error) {
       console.error("Error updating FAQs:", error);
-      alert("Error updating FAQs. Please try again.");
+      alert("Feil ved oppdatering av vanlige spørsmål. Prøv igjen.");
     }
   };
 
   if (isLoading)
     return (
       <div className="min-h-screen flex items-center justify-center">
-        Loading FAQs...
+        Laster vanlige spørsmål...
       </div>
     );
   if (isError)
     return (
       <div className="min-h-screen flex items-center justify-center">
-        Error loading FAQs
+        Feil ved lasting av vanlige spørsmål
       </div>
     );
 
   return (
     <div className="min-h-screen bg-gray-50 p-8">
       <div className=" bg-white rounded-lg shadow-sm p-8">
-        <h1 className="text-2xl font-bold text-gray-800 mb-6">Manage FAQs</h1>
+        <h1 className="text-2xl font-bold text-gray-800 mb-6">Administrer vanlige spørsmål</h1>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {faqs.map((faq, index) => (
@@ -118,14 +118,14 @@ const FAQ = () => {
               <button
                 onClick={() => removeFaq(faq._id)}
                 className="absolute top-2 right-2 text-red-500 hover:text-red-700"
-                title="Remove FAQ"
+                title="Fjern spørsmål"
               >
                 <Trash2 size={18} />
               </button>
 
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Question {index + 1}
+                  Spørsmål {index + 1}
                 </label>
                 <input
                   type="text"
@@ -134,13 +134,13 @@ const FAQ = () => {
                     updateFaqItem(faq._id, "question", e.target.value)
                   }
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-400 focus:border-transparent outline-none"
-                  placeholder="Enter question..."
+                  placeholder="Skriv inn spørsmål..."
                 />
               </div>
 
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Answer
+                  Svar
                 </label>
                 <textarea
                   value={faq.answer}
@@ -149,7 +149,7 @@ const FAQ = () => {
                   }
                   rows="4"
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-400 focus:border-transparent outline-none resize-none"
-                  placeholder="Enter answer..."
+                  placeholder="Skriv inn svar..."
                 />
               </div>
             </div>
@@ -162,7 +162,7 @@ const FAQ = () => {
             className="flex items-center justify-center gap-2 bg-orange-400 hover:bg-orange-500 text-white rounded-lg px-4 py-2 shadow-md transition-colors"
           >
             <Plus size={18} />
-            Add New FAQ
+            Legg til nytt spørsmål
           </button>
         </div>
 
@@ -171,7 +171,7 @@ const FAQ = () => {
             onClick={handleUpdate}
             className="px-16 py-3 bg-orange-400 hover:bg-orange-500 text-white font-medium rounded-lg shadow-md transition-colors"
           >
-            Update All FAQs
+            Oppdater alle spørsmål
           </button>
         </div>
       </div>
