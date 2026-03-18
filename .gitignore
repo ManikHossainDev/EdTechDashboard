@@ -16,7 +16,6 @@ dist-ssr/
 .next/
 
 # Local env files
-.env*
 
 # System files
 .DS_Store
@@ -24,7 +23,6 @@ dist-ssr/
 # Editor directories and files
 
 # Editor directories and files
-.vscode/*
 !.vscode/extensions.json
 .idea
 .DS_Store
@@ -47,3 +45,4 @@ README.md
 *.njsproj
 *.sln
 *.sw?
+config.bat

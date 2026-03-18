@@ -18,12 +18,12 @@ const ContactUs = () => {
           <Link to="/settings">
             <IoChevronBack className="text-2xl" />
           </Link>
-          <h1 className="text-2xl font-semibold">Contact Us</h1>
+          <h1 className="text-2xl font-semibold">Kontakt oss</h1>
         </div>
         <Link to={"/settings/ContactUs/11"}>
           <CustomButton border>
             <TbEdit className="size-5" />
-            <span>Edit</span>
+            <span>Rediger</span>
           </CustomButton>
         </Link>
       </div>
@@ -37,7 +37,7 @@ const ContactUs = () => {
             dangerouslySetInnerHTML={{ __html: contactUs.content }}
           />
         ) : (
-          <p className="text-lg text-black px-5">Loading privacy policy...</p>
+          <p className="text-lg text-black px-5">Laster inn Kontakt oss...</p>
         )}
       </div>
     </section>

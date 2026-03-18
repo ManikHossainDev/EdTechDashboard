@@ -12,14 +12,14 @@ import { NavLink, Outlet } from "react-router-dom";
 
 const Modules = () => {
   const moduleTabs = [
-  { name: "One", path: ".", icon: <Box size={18} /> },
-  { name: "Two", path: "two", icon: <Circle size={18} /> },
-  { name: "Three", path: "three", icon: <Triangle size={18} /> },
-  { name: "Four", path: "four", icon: <Square size={18} /> },
-  { name: "Five", path: "five", icon: <Pentagon size={18} /> },
-  { name: "Six", path: "six", icon: <Hexagon size={18} /> },
-  { name: "Seven", path: "seven", icon: <Star size={18} /> },
-  { name: "Eight", path: "eight", icon: <Diamond size={18} /> },
+  { name: "En", path: ".", icon: <Box size={18} /> },
+  { name: "To", path: "two", icon: <Circle size={18} /> },
+  { name: "Tre", path: "three", icon: <Triangle size={18} /> },
+  { name: "Fire", path: "four", icon: <Square size={18} /> },
+  { name: "Fem", path: "five", icon: <Pentagon size={18} /> },
+  { name: "Seks", path: "six", icon: <Hexagon size={18} /> },
+  { name: "Sju", path: "seven", icon: <Star size={18} /> },
+  { name: "Åtte", path: "eight", icon: <Diamond size={18} /> },
 ];
   return (
     <div className="py-5 md:px-2">
