@@ -4,27 +4,27 @@ import { useGetDashboardStatusQuery } from "../../../redux/features/dashboard/da
 const Status = () => {
   const { data, isLoading, isError } = useGetDashboardStatusQuery();
 
-  if (isLoading) return <p>Loading...</p>;
-  if (isError) return <p>Something went wrong</p>;
+  if (isLoading) return <p>Laster...</p>;
+  if (isError) return <p>Noe gikk galt</p>;
 
   const dashboardData = [
     {
-      title: "Total Parents",
+      title: "Totalt antall foreldre",
       value: data?.totalParents,
       growth: data?.monthlyGrowth?.parents?.percentageChange,
     },
     {
-      title: "Total Children",
+      title: "Totalt antall barn",
       value: data?.totalChildren,
       growth: data?.monthlyGrowth?.children?.percentageChange,
     },
     {
-      title: "Total Modules",
+      title: "Totalt antall moduler",
       value: data?.totalModules,
       growth: 0, // backend এ module growth নাই
     },
     {
-      title: "Total Earnings",
+      title: "Totale inntekter",
       value: data?.totalEarnings,
       growth: data?.monthlyGrowth?.earnings?.percentageChange,
     },
@@ -54,7 +54,7 @@ const Status = () => {
             >
               {item.growth ?? 0}%
             </span>
-            <span>increase from last month</span>
+            <span>økning fra forrige måned</span>
           </div>
         </div>
       ))}

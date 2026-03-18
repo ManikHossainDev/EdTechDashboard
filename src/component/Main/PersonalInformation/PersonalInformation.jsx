@@ -25,7 +25,7 @@ const PersonalInformation = () => {
           <Link to="/">
             <IoChevronBack className="text-2xl" />
           </Link>
-          <h1 className="text-2xl font-semibold">Personal Information</h1>
+          <h1 className="text-2xl font-semibold">Personlig informasjon</h1>
         </div>
       </div>
 
@@ -50,18 +50,18 @@ const PersonalInformation = () => {
         {/* Personal Details */}
         <Form form={form} layout="vertical" className="w-full mt-10">
           {/* Full Name */}
-          <Form.Item label="Full Name" name="fullName">
-            <CustomInput placeholder="Enter your full name" readOnly />
+          <Form.Item label="Fullt navn" name="fullName">
+            <CustomInput placeholder="Skriv inn fullt navn" readOnly />
           </Form.Item>
 
           {/* Email */}
-          <Form.Item label="Email" name="email">
-            <CustomInput placeholder="Enter your email" readOnly />
+          <Form.Item label="E-post" name="email">
+            <CustomInput placeholder="Skriv inn e-post" readOnly />
           </Form.Item>
 
           <Link to="/edit-personal-info">
             <button className="w-full px-8 py-3 bg-[#FF9E1C] font-semibold rounded-lg">
-              Edit Profile
+              Rediger profil
             </button>
           </Link>
         </Form>

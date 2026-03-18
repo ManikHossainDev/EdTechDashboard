@@ -102,10 +102,10 @@ const Onemodules = () => {
           ...cloneState(prev),
           introVideo: response.introVideo,
         }));
-        alert("Intro video uploaded!");
+        alert("Introduksjonsvideo lastet opp!");
       } catch (err) {
         console.error("Video upload error:", err);
-        toast.error("Failed to update module");
+        toast.error("Kunne ikke oppdatere modul");
       } finally {
         setIsSubmitting(false);
       }
@@ -204,7 +204,7 @@ const Onemodules = () => {
         });
       } catch (err) {
         console.error("Image upload error:", err);
-        toast.error("Failed to update module");
+        toast.error("Kunne ikke oppdatere modul");
       } finally {
         setIsSubmitting(false);
       }
@@ -310,7 +310,7 @@ const Onemodules = () => {
         });
       } catch (err) {
         console.error("Image upload error:", err);
-        toast.error("Failed to update module");
+        toast.error("Kunne ikke oppdatere modul");
       } finally {
         setIsSubmitting(false);
       }
@@ -500,30 +500,30 @@ const Onemodules = () => {
     try {
       const updatedData = formatDataForUpdate();
       await updateModuleOne({ id, updatedData }).unwrap();
-      toast.success("Module updated successfully!");
+      toast.success("Modul oppdatert!");
     } catch (err) {
       console.error("Update error:", err);
-      toast.error("Failed to update module");
+      toast.error("Kunne ikke oppdatere modul");
     } finally {
       setIsSubmitting(false);
     }
   };
 
-  if (isLoading) return <div className="p-6">Loading...</div>;
+  if (isLoading) return <div className="p-6">Laster...</div>;
   if (isError)
-    return <div className="p-6 text-red-500">Error: {error?.message}</div>;
+    return <div className="p-6 text-red-500">Feil: {error?.message}</div>;
 
   return (
     <div className="container mx-auto p-6 bg-white rounded-lg shadow-md">
-      <h2 className="text-2xl font-bold mb-6">Edit Module: {formData.title}</h2>
+      <h2 className="text-2xl font-bold mb-6">Rediger modul: {formData.title}</h2>
       <form onSubmit={handleSubmit}>
         {/* Module Information */}
         <section className="mb-8 p-4 border rounded-lg">
-          <h3 className="text-xl font-semibold mb-4">Module Information</h3>
+          <h3 className="text-xl font-semibold mb-4">Modulinformasjon</h3>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
             <div>
               <label className="block text-gray-700 text-sm font-bold mb-2">
-                Module Number (Read-only)
+                Modulnummer (skrivebeskyttet)
               </label>
               <input
                 type="text"
@@ -534,7 +534,7 @@ const Onemodules = () => {
             </div>
             <div>
               <label className="block text-gray-700 text-sm font-bold mb-2">
-                Order (Read-only)
+                Rekkefølge (skrivebeskyttet)
               </label>
               <input
                 type="text"
@@ -546,7 +546,7 @@ const Onemodules = () => {
           </div>
           <div className="mb-4">
             <label className="block text-gray-700 text-sm font-bold mb-2">
-              Title
+              Tittel
             </label>
             <input
               type="text"
@@ -568,7 +568,7 @@ const Onemodules = () => {
           </div>
           <div className="mb-4">
             <label className="block text-gray-700 text-sm font-bold mb-2">
-              Theme
+              Tema
             </label>
             <input
               type="text"
@@ -579,7 +579,7 @@ const Onemodules = () => {
           </div>
           <div className="mb-4">
             <label className="block text-gray-700 text-sm font-bold mb-2">
-              Description
+              Beskrivelse
             </label>
             <textarea
               value={formData.description}
@@ -597,16 +597,16 @@ const Onemodules = () => {
               onChange={(e) => handleInputChange("status", e.target.value)}
               className="w-full px-3 py-2 border rounded"
             >
-              <option value="draft">Draft</option>
-              <option value="published">Published</option>
-              <option value="archived">Archived</option>
+              <option value="draft">Utkast</option>
+              <option value="published">Publisert</option>
+              <option value="archived">Arkivert</option>
             </select>
           </div>
         </section>
 
         {/* Intro Video */}
         <section className="mb-8 p-4 border rounded-lg">
-          <h3 className="text-xl font-semibold mb-4">Intro Video</h3>
+          <h3 className="text-xl font-semibold mb-4">Introduksjonsvideo</h3>
           {formData.introVideo?.url ? (
             <video
               controls
@@ -615,7 +615,7 @@ const Onemodules = () => {
               <source src={formData.introVideo.url} type="video/mp4" />
             </video>
           ) : (
-            <p className="text-gray-500 italic mb-4">No intro video uploaded</p>
+            <p className="text-gray-500 italic mb-4">Ingen introduksjonsvideo lastet opp</p>
           )}
           <button
             type="button"
@@ -623,20 +623,20 @@ const Onemodules = () => {
             disabled={isSubmitting}
             className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded disabled:opacity-50"
           >
-            {isSubmitting ? "Uploading..." : "Upload/Replace Intro Video"}
+            {isSubmitting ? "Laster opp..." : "Last opp/bytt introduksjonsvideo"}
           </button>
         </section>
 
         {/* Learning Objectives */}
         <section className="mb-8 p-4 border rounded-lg">
           <div className="flex justify-between items-center mb-4">
-            <h3 className="text-xl font-semibold">Learning Objectives</h3>
+            <h3 className="text-xl font-semibold">Læringsmål</h3>
             <button
               type="button"
               onClick={addObjective}
               className="bg-green-500 hover:bg-green-600 text-white px-3 py-1 rounded"
             >
-              Add
+              Legg til
             </button>
           </div>
           {formData.learningObjectives.map((obj, index) => (
@@ -647,14 +647,14 @@ const Onemodules = () => {
                 value={obj.text}
                 onChange={(e) => handleObjectiveChange(index, e.target.value)}
                 className="flex-1 px-3 py-2 border rounded"
-                placeholder="Enter objective"
+                placeholder="Skriv inn mål"
               />
               <button
                 type="button"
                 onClick={() => removeObjective(index)}
                 className="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded"
               >
-                Remove
+                Fjern
               </button>
             </div>
           ))}
@@ -663,21 +663,21 @@ const Onemodules = () => {
         {/* Learning Content */}
         <section className="mb-8 p-4 border rounded-lg">
           <div className="flex justify-between items-center mb-4">
-            <h3 className="text-xl font-semibold">Learning Content</h3>
+            <h3 className="text-xl font-semibold">Læringsinnhold</h3>
             <div className="flex gap-2">
               <button
                 type="button"
                 onClick={() => addContentBlock("text")}
                 className="bg-green-500 hover:bg-green-600 text-white px-3 py-1 rounded"
               >
-                Add Text
+                Legg til tekst
               </button>
               <button
                 type="button"
                 onClick={() => addContentBlock("image")}
                 className="bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded"
               >
-                Add Image
+                Legg til bilde
               </button>
             </div>
           </div>
@@ -685,14 +685,14 @@ const Onemodules = () => {
             <div key={index} className="mb-6 p-4 border rounded">
               <div className="flex justify-between items-center mb-3">
                 <h4 className="font-medium">
-                  Block {index + 1} ({block.type})
+                  Blokk {index + 1} ({block.type})
                 </h4>
                 <button
                   type="button"
                   onClick={() => removeContentBlock(index)}
                   className="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded"
                 >
-                  Remove
+                  Fjern
                 </button>
               </div>
               {block.type === "image" && (
@@ -700,12 +700,12 @@ const Onemodules = () => {
                   {block.image?.url ? (
                     <img
                       src={block.image.url}
-                      alt="Content"
+                      alt="Innhold"
                       className="w-32 h-32 object-cover border rounded"
                     />
                   ) : (
                     <div className="w-32 h-32 bg-gray-200 border rounded flex items-center justify-center text-gray-500">
-                      No image
+                      Ingen bilde
                     </div>
                   )}
                   <button
@@ -714,7 +714,7 @@ const Onemodules = () => {
                     disabled={isSubmitting}
                     className="bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded"
                   >
-                    {block.image?.url ? "Change" : "Upload"}
+                    {block.image?.url ? "Bytt bilde" : "Last opp bilde"}
                   </button>
                 </div>
               )}
@@ -729,7 +729,7 @@ const Onemodules = () => {
                 onChange={(e) => handleContentTextChange(index, e.target.value)}
                 rows="3"
                 className="w-full px-3 py-2 border rounded"
-                placeholder="Content text"
+                placeholder="Innholdstekst"
               />
             </div>
           ))}
@@ -737,16 +737,16 @@ const Onemodules = () => {
 
         {/* Interactive Tasks */}
         <section className="mb-8 p-4 border rounded-lg">
-          <h3 className="text-xl font-semibold mb-4">Interactive Tasks</h3>
+          <h3 className="text-xl font-semibold mb-4">Interaktive oppgaver</h3>
           {formData.interactiveTasks.map((task, taskIndex) => (
             <div key={taskIndex} className="mb-6 p-4 border rounded bg-gray-50">
               <h4 className="font-semibold text-lg mb-4">
-                Task {taskIndex + 1}: {task.title} ({task.type})
+                Oppgave {taskIndex + 1}: {task.title} ({task.type})
               </h4>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                 <div>
                   <label className="block text-gray-700 text-sm font-bold mb-2">
-                    Title
+                    Tittel
                   </label>
                   <input
                     type="text"
@@ -759,7 +759,7 @@ const Onemodules = () => {
                 </div>
                 <div>
                   <label className="block text-gray-700 text-sm font-bold mb-2">
-                    Points
+                    Poeng
                   </label>
                   <input
                     type="number"
@@ -777,7 +777,7 @@ const Onemodules = () => {
               </div>
               <div className="mb-4">
                 <label className="block text-gray-700 text-sm font-bold mb-2">
-                  Description
+                  Beskrivelse
                 </label>
                 <textarea
                   value={task.description}
@@ -790,7 +790,7 @@ const Onemodules = () => {
               </div>
               <div className="mb-4">
                 <label className="block text-gray-700 text-sm font-bold mb-2">
-                  Instructions
+                  Instruksjoner
                 </label>
                 <textarea
                   value={task.instructions}
@@ -808,13 +808,13 @@ const Onemodules = () => {
                     {/* Items */}
                     <div className="mb-6 p-3 border rounded bg-white">
                       <div className="flex justify-between items-center mb-3">
-                        <h5 className="font-medium">Items</h5>
+                        <h5 className="font-medium">Elementer</h5>
                         <button
                           type="button"
                           onClick={() => addItem(taskIndex)}
                           className="bg-green-500 hover:bg-green-600 text-white px-2 py-1 rounded text-sm"
                         >
-                          Add Item
+                          Legg til element
                         </button>
                       </div>
                       {task.config.items?.map((item, itemIndex) => (
@@ -833,7 +833,7 @@ const Onemodules = () => {
                                 e.target.value,
                               )
                             }
-                            placeholder="Item text"
+                            placeholder="Elementtekst"
                             className="flex-1 px-2 py-1 border rounded"
                           />
                           <select
@@ -847,7 +847,7 @@ const Onemodules = () => {
                             }
                             className="w-40 px-2 py-1 border rounded"
                           >
-                            <option value="">Select Category</option>
+                              <option value="">Velg kategori</option>
                             {task.config.categories?.map((cat) => (
                               <option key={cat.id} value={cat.id}>
                                 {cat.name}
@@ -868,13 +868,13 @@ const Onemodules = () => {
                     {/* Categories */}
                     <div className="p-3 border rounded bg-white">
                       <div className="flex justify-between items-center mb-3">
-                        <h5 className="font-medium">Categories</h5>
+                        <h5 className="font-medium">Kategorier</h5>
                         <button
                           type="button"
                           onClick={() => addCategory(taskIndex)}
                           className="bg-green-500 hover:bg-green-600 text-white px-2 py-1 rounded text-sm"
                         >
-                          Add Category
+                          Legg til kategori
                         </button>
                       </div>
                       {task.config.categories?.map((cat, catIndex) => (
@@ -890,7 +890,7 @@ const Onemodules = () => {
                             />
                           ) : (
                             <div className="w-12 h-12 bg-gray-200 border rounded flex items-center justify-center text-xs">
-                              No img
+                              Ingen bilde
                             </div>
                           )}
                           <button
@@ -900,7 +900,7 @@ const Onemodules = () => {
                             }
                             className="bg-blue-500 hover:bg-blue-600 text-white px-2 py-1 rounded text-xs"
                           >
-                            Upload
+                            Last opp
                           </button>
                           <input
                             type="text"
@@ -913,7 +913,7 @@ const Onemodules = () => {
                                 e.target.value,
                               )
                             }
-                            placeholder="Name"
+                            placeholder="Navn"
                             className="w-32 px-2 py-1 border rounded"
                           />
                           <input
@@ -927,7 +927,7 @@ const Onemodules = () => {
                                 e.target.value,
                               )
                             }
-                            placeholder="Description"
+                            placeholder="Beskrivelse"
                             className="flex-1 px-2 py-1 border rounded"
                           />
                           <button
@@ -955,13 +955,13 @@ const Onemodules = () => {
               onClick={addQuestion}
               className="bg-green-500 hover:bg-green-600 text-white px-3 py-1 rounded"
             >
-              Add Question
+              Legg til spørsmål
             </button>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
             <div>
               <label className="block text-gray-700 text-sm font-bold mb-2">
-                Quiz Title
+                Quiz-tittel
               </label>
               <input
                 type="text"
@@ -974,7 +974,7 @@ const Onemodules = () => {
             </div>
             <div>
               <label className="block text-gray-700 text-sm font-bold mb-2">
-                Passing Score (%)
+                Beståttgrense (%)
               </label>
               <input
                 type="number"
@@ -992,7 +992,7 @@ const Onemodules = () => {
           </div>
           <div className="mb-4">
             <label className="block text-gray-700 text-sm font-bold mb-2">
-              Description
+              Beskrivelse
             </label>
             <textarea
               value={formData.quiz.description}
@@ -1012,7 +1012,7 @@ const Onemodules = () => {
                   handleNestedChange("quiz", "allowRetake", e.target.checked)
                 }
               />{" "}
-              Allow Retake
+              Tillat nytt forsøk
             </label>
             <label className="flex items-center gap-2">
               <input
@@ -1026,20 +1026,20 @@ const Onemodules = () => {
                   )
                 }
               />{" "}
-              Show Correct Answers
+              Vis riktige svar
             </label>
           </div>
 
           {formData.quiz.questions.map((q, qIndex) => (
             <div key={qIndex} className="mb-6 p-4 border rounded bg-gray-50">
               <div className="flex justify-between items-center mb-3">
-                <h4 className="font-medium">Question {q.questionNumber}</h4>
+                <h4 className="font-medium">Spørsmål {q.questionNumber}</h4>
                 <button
                   type="button"
                   onClick={() => removeQuestion(qIndex)}
                   className="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded"
                 >
-                  Remove
+                  Fjern
                 </button>
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
@@ -1049,14 +1049,14 @@ const Onemodules = () => {
                   </label>
                   <input
                     type="text"
-                    value="multiple-choice"
+                    value="Flervalg"
                     readOnly
                     className="w-full px-3 py-2 border rounded bg-gray-100"
                   />
                 </div>
                 <div>
                   <label className="block text-gray-700 text-sm font-bold mb-2">
-                    Points
+                    Poeng
                   </label>
                   <input
                     type="number"
@@ -1074,7 +1074,7 @@ const Onemodules = () => {
               </div>
               <div className="mb-4">
                 <label className="block text-gray-700 text-sm font-bold mb-2">
-                  Question Text
+                  Spørsmålstekst
                 </label>
                 <textarea
                   value={q.question}
@@ -1087,7 +1087,7 @@ const Onemodules = () => {
               </div>
               <div className="mb-4">
                 <label className="block text-gray-700 text-sm font-bold mb-2">
-                  Explanation
+                  Forklaring
                 </label>
                 <textarea
                   value={q.explanation}
@@ -1101,14 +1101,14 @@ const Onemodules = () => {
               <div>
                 <div className="flex justify-between items-center mb-2">
                   <label className="block text-gray-700 text-sm font-bold">
-                    Options (Select one as correct)
+                    Alternativer (velg ett som riktig)
                   </label>
                   <button
                     type="button"
                     onClick={() => addOption(qIndex)}
                     className="bg-green-500 hover:bg-green-600 text-white px-2 py-1 rounded text-sm"
                   >
-                    Add Option
+                    Legg til alternativ
                   </button>
                 </div>
                 {q.options.map((opt, optIndex) => (
@@ -1129,7 +1129,7 @@ const Onemodules = () => {
                         )
                       }
                       className="flex-1 px-2 py-1 border rounded"
-                      placeholder="Option text"
+                      placeholder="Alternativtekst"
                     />
                     <label className="flex items-center gap-1 text-sm">
                       <input
@@ -1145,7 +1145,7 @@ const Onemodules = () => {
                           )
                         }
                       />{" "}
-                      Correct
+                      Riktig
                     </label>
                     <button
                       type="button"
@@ -1163,10 +1163,10 @@ const Onemodules = () => {
 
         {/* Parent Tip */}
         <section className="mb-8 p-4 border rounded-lg">
-          <h3 className="text-xl font-semibold mb-4">Parent Tip</h3>
+          <h3 className="text-xl font-semibold mb-4">Foreldretips</h3>
           <div className="mb-4">
             <label className="block text-gray-700 text-sm font-bold mb-2">
-              Title
+              Tittel
             </label>
             <input
               type="text"
@@ -1179,7 +1179,7 @@ const Onemodules = () => {
           </div>
           <div className="mb-4">
             <label className="block text-gray-700 text-sm font-bold mb-2">
-              Content
+              Innhold
             </label>
             <textarea
               value={formData.parentTip.content}
@@ -1199,7 +1199,7 @@ const Onemodules = () => {
             disabled={isSubmitting}
             className="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-6 rounded disabled:opacity-50"
           >
-            {isSubmitting ? "Updating..." : "Update Module"}
+            {isSubmitting ? "Oppdaterer..." : "Oppdater modul"}
           </button>
         </div>
       </form>
