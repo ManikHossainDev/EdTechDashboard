@@ -9,7 +9,7 @@ const Piechart = () => {
       <div className="flex items-center justify-center">
         <div className="bg-white rounded-3xl shadow-lg p-8 w-full">
           <div className="flex justify-center items-center">
-            <p>Loading chart data...</p>
+            <p>Laster diagramdata...</p>
           </div>
         </div>
       </div>
@@ -22,7 +22,7 @@ const Piechart = () => {
       <div className="flex items-center justify-center">
         <div className="bg-white rounded-3xl shadow-lg p-8 w-full">
           <div className="flex justify-center items-center">
-            <p>Error loading chart data. Please try again later.</p>
+            <p>Feil ved lasting av diagramdata. Prøv igjen senere.</p>
           </div>
         </div>
       </div>
@@ -52,14 +52,14 @@ const Piechart = () => {
         <div className="flex justify-around items-center mb-1">
            {/* Left side - Total Children */}
           <div className="">
-            <div className="text-xs text-gray-500 font-medium mb-1">Total Children</div>
+            <div className="text-xs text-gray-500 font-medium mb-1">Totalt antall barn</div>
             <div className="text-4xl font-bold text-gray-900">{totalChildren}</div>
           </div>
           {/* Right side - Total Content */}
           <div className="">
             <div className="flex items-center justify-end mb-1">
               <div className="w-2 h-2 rounded-full bg-orange-400 mr-2"></div>
-              <div className="text-xs text-gray-500 font-medium">Total Content</div>
+              <div className="text-xs text-gray-500 font-medium">Totalt innhold</div>
             </div>
             <div className="text-4xl font-bold text-gray-900">{totalContent}%</div>
           </div>

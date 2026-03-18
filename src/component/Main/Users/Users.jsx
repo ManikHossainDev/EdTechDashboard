@@ -37,7 +37,7 @@ const Users = () => {
       dataIndex: "si",
     },
     {
-      title: "Parent Name",
+      title: "Foreldrenavn",
       dataIndex: "name",
       render: (text, record) => (
         <div className="flex items-center gap-3">
@@ -51,27 +51,27 @@ const Users = () => {
       ),
     },
     {
-      title: "Email",
+      title: "E-post",
       dataIndex: "email",
-      render: (text) => text || "N/A",
+      render: (text) => text || "Ikke tilgjengelig",
     },
     {
-      title: "Phone",
+      title: "Telefon",
       dataIndex: "phoneNumber",
-      render: (text) => text || "N/A",
+      render: (text) => text || "Ikke tilgjengelig",
     },
     {
-      title: "Children",
+      title: "Barn",
       dataIndex: "childrenNames",
-      render: (children) => (children?.length ? children.join(", ") : "N/A"),
+      render: (children) => (children?.length ? children.join(", ") : "Ikke tilgjengelig"),
     },
     {
-      title: "Joined Date",
+      title: "Registrert dato",
       dataIndex: "joinedAt",
-      render: (date) => (date ? moment(date).format("DD MMM YYYY") : "N/A"),
+      render: (date) => (date ? moment(date).format("DD MMM YYYY") : "Ikke tilgjengelig"),
     },
     {
-      title: "Action",
+      title: "Handling",
       render: (_, record) => (
         <IoEyeSharp
           size={22}
@@ -85,12 +85,12 @@ const Users = () => {
   return (
     <section className="px-4">
       <div className="flex justify-between items-center py-6">
-        <h1 className="text-2xl font-semibold">Parents List</h1>
+        <h1 className="text-2xl font-semibold">Foreldreliste</h1>
 
         <Form layout="inline">
           <Form.Item>
             <Input
-              placeholder="Search parent"
+              placeholder="Søk etter forelder"
               allowClear
               onChange={(e) => {
                 setSearchText(e.target.value);
@@ -142,19 +142,19 @@ const Users = () => {
           </div>
 
           <p>
-            <strong>Email:</strong> {selectedUser?.email}
+            <strong>E-post:</strong> {selectedUser?.email}
           </p>
           <p>
-            <strong>Phone:</strong> {selectedUser?.phoneNumber}
+            <strong>Telefon:</strong> {selectedUser?.phoneNumber}
           </p>
           <p>
-            <strong>Address:</strong> {selectedUser?.address}
+            <strong>Adresse:</strong> {selectedUser?.address}
           </p>
           <p>
-            <strong>Children Count:</strong> {selectedUser?.childrenCount}
+            <strong>Antall barn:</strong> {selectedUser?.childrenCount}
           </p>
           <p>
-            <strong>Joined:</strong>{" "}
+            <strong>Registrert:</strong>{" "}
             {moment(selectedUser?.joinedAt).format("DD MMM YYYY")}
           </p>
         </div>

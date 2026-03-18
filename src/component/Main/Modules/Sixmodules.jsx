@@ -113,7 +113,7 @@ const Sixmodules = () => {
     fileInput.click();
   };
 
-  // Learning objectives
+  // Skriv inn læringsmåls
   const handleObjectiveChange = (index, value) => {
     setFormData((prev) => {
       const cloned = cloneState(prev);
@@ -302,7 +302,7 @@ const Sixmodules = () => {
     });
   };
 
-  // Scenarios (for chat-simulator with responses)
+  // Scenarioer (for chat-simulator with responses)
   const handleScenarioChange = (taskIndex, scIndex, field, value) => {
     setFormData((prev) => {
       const cloned = cloneState(prev);
@@ -563,7 +563,7 @@ const Sixmodules = () => {
 
   return (
     <div className="container mx-auto p-6 bg-white rounded-lg shadow-md">
-      <h2 className="text-2xl font-bold mb-6">Edit Module: {formData.title}</h2>
+      <h2 className="text-2xl font-bold mb-6">Rediger modul: {formData.title}</h2>
 
       <form onSubmit={handleSubmit}>
         {/* Module Information */}
@@ -595,7 +595,7 @@ const Sixmodules = () => {
           </div>
           <div className="mb-4">
             <label className="block text-gray-700 text-sm font-bold mb-2">
-              Title
+              Tittel
             </label>
             <input
               type="text"
@@ -617,7 +617,7 @@ const Sixmodules = () => {
           </div>
           <div className="mb-4">
             <label className="block text-gray-700 text-sm font-bold mb-2">
-              Theme
+              Tema
             </label>
             <input
               type="text"
@@ -628,7 +628,7 @@ const Sixmodules = () => {
           </div>
           <div className="mb-4">
             <label className="block text-gray-700 text-sm font-bold mb-2">
-              Description
+              Beskrivelse
             </label>
             <textarea
               value={formData.description}
@@ -653,9 +653,9 @@ const Sixmodules = () => {
           </div>
         </section>
 
-        {/* Intro Video */}
+        {/* Introduksjonsvideo */}
         <section className="mb-8 p-4 border rounded-lg">
-          <h3 className="text-xl font-semibold mb-4">Intro Video</h3>
+          <h3 className="text-xl font-semibold mb-4">Introduksjonsvideo</h3>
           {formData.introVideo?.url ? (
             <div className="mb-4">
               <video controls className="w-full max-w-md h-auto rounded border">
@@ -663,7 +663,7 @@ const Sixmodules = () => {
               </video>
             </div>
           ) : (
-            <p className="text-gray-500 italic mb-4">No intro video uploaded</p>
+            <p className="text-gray-500 italic mb-4">Ingen introduksjonsvideo lastet opp</p>
           )}
           <button
             type="button"
@@ -671,7 +671,7 @@ const Sixmodules = () => {
             disabled={isSubmitting}
             className={`bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded ${isSubmitting ? "opacity-50 cursor-not-allowed" : ""}`}
           >
-            {isSubmitting ? "Uploading..." : "Upload/Replace Intro Video"}
+            {isSubmitting ? "Laster opp..." : "Last opp/bytt introduksjonsvideo"}
           </button>
         </section>
 
@@ -695,7 +695,7 @@ const Sixmodules = () => {
                 value={obj.text}
                 onChange={(e) => handleObjectiveChange(index, e.target.value)}
                 className="flex-1 px-3 py-2 border rounded focus:ring-2 focus:ring-blue-500"
-                placeholder="Learning objective"
+                placeholder="Skriv inn læringsmål"
               />
               <button
                 type="button"
@@ -718,14 +718,14 @@ const Sixmodules = () => {
                 onClick={() => addContentBlock("text")}
                 className="bg-green-500 hover:bg-green-600 text-white px-3 py-1 rounded"
               >
-                Add Text
+                Legg til tekst
               </button>
               <button
                 type="button"
                 onClick={() => addContentBlock("image")}
                 className="bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded"
               >
-                Add Image
+                Legg til bilde
               </button>
             </div>
           </div>
@@ -733,7 +733,7 @@ const Sixmodules = () => {
             <div key={index} className="mb-6 p-4 border rounded">
               <div className="flex justify-between items-center mb-3">
                 <h4 className="font-medium">
-                  Block {index + 1} ({block.type})
+                  Blokk {index + 1} ({block.type})
                 </h4>
                 <button
                   type="button"
@@ -754,7 +754,7 @@ const Sixmodules = () => {
                       />
                     ) : (
                       <div className="w-32 h-32 bg-gray-200 border rounded flex items-center justify-center text-gray-500 text-sm">
-                        No image
+                        Ingen bilde
                       </div>
                     )}
                     <button
@@ -763,12 +763,12 @@ const Sixmodules = () => {
                       disabled={isSubmitting}
                       className="bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded"
                     >
-                      {block.image?.url ? "Change Image" : "Upload Image"}
+                      {block.image?.url ? "Bytt bilde" : "Last opp bilde"}
                     </button>
                   </div>
                   <div>
                     <label className="block text-gray-700 text-sm font-bold mb-2">
-                      Content Text
+                      Innholdstekst
                     </label>
                     <textarea
                       value={
@@ -786,7 +786,7 @@ const Sixmodules = () => {
               {block.type === "text" && (
                 <div>
                   <label className="block text-gray-700 text-sm font-bold mb-2">
-                    Content Text
+                    Innholdstekst
                   </label>
                   <textarea
                     value={
@@ -812,13 +812,13 @@ const Sixmodules = () => {
           {formData.interactiveTasks.map((task, taskIndex) => (
             <div key={taskIndex} className="mb-6 p-4 border rounded bg-gray-50">
               <h4 className="font-semibold text-lg mb-4">
-                Task {taskIndex + 1}: {task.title} ({task.type})
+                Oppgave {taskIndex + 1}: {task.title} ({task.type})
               </h4>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                 <div>
                   <label className="block text-gray-700 text-sm font-bold mb-2">
-                    Title
+                    Tittel
                   </label>
                   <input
                     type="text"
@@ -831,7 +831,7 @@ const Sixmodules = () => {
                 </div>
                 <div>
                   <label className="block text-gray-700 text-sm font-bold mb-2">
-                    Points
+                    Poeng
                   </label>
                   <input
                     type="number"
@@ -849,7 +849,7 @@ const Sixmodules = () => {
               </div>
               <div className="mb-4">
                 <label className="block text-gray-700 text-sm font-bold mb-2">
-                  Description
+                  Beskrivelse
                 </label>
                 <textarea
                   value={task.description || ""}
@@ -862,7 +862,7 @@ const Sixmodules = () => {
               </div>
               <div className="mb-4">
                 <label className="block text-gray-700 text-sm font-bold mb-2">
-                  Instructions
+                  Instruksjoner
                 </label>
                 <textarea
                   value={task.instructions || ""}
@@ -880,13 +880,13 @@ const Sixmodules = () => {
                   {/* Mood Meter */}
                   <div className="mb-6 p-3 border rounded bg-white">
                     <div className="flex justify-between items-center mb-3">
-                      <h5 className="font-medium">Mood Meter Configuration</h5>
+                      <h5 className="font-medium">Humørmåler-konfigurasjon</h5>
                       <button
                         type="button"
                         onClick={() => addMoodState(taskIndex)}
                         className="bg-green-500 hover:bg-green-600 text-white px-2 py-1 rounded text-sm"
                       >
-                        Add State
+                        Legg til tilstand
                       </button>
                     </div>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
@@ -905,7 +905,7 @@ const Sixmodules = () => {
                           }
                           className="w-full px-3 py-2 border rounded"
                         >
-                          <option value="">Select initial state</option>
+                          <option value="">Velg starttilstand</option>
                           {task.config.moodMeter?.states?.map((state) => (
                             <option key={state.id} value={state.id}>
                               {state.name} {state.emoji}
@@ -926,7 +926,7 @@ const Sixmodules = () => {
                               )
                             }
                           />
-                          Show Mood Meter
+                          Vis humørmåler
                         </label>
                       </div>
                     </div>
@@ -1018,13 +1018,13 @@ const Sixmodules = () => {
                   {/* Friends */}
                   <div className="mb-6 p-3 border rounded bg-white">
                     <div className="flex justify-between items-center mb-3">
-                      <h5 className="font-medium">Friends / Characters</h5>
+                      <h5 className="font-medium">Venner / figurer</h5>
                       <button
                         type="button"
                         onClick={() => addFriend(taskIndex)}
                         className="bg-green-500 hover:bg-green-600 text-white px-2 py-1 rounded text-sm"
                       >
-                        Add Friend
+                        Legg til venn
                       </button>
                     </div>
                     {task.config.friends?.map((friend, friendIndex) => (
@@ -1099,16 +1099,16 @@ const Sixmodules = () => {
                     ))}
                   </div>
 
-                  {/* Scenarios with Responses */}
+                  {/* Scenarioer with Responses */}
                   <div className="p-3 border rounded bg-white">
                     <div className="flex justify-between items-center mb-3">
-                      <h5 className="font-medium">Scenarios</h5>
+                      <h5 className="font-medium">Scenarioer</h5>
                       <button
                         type="button"
                         onClick={() => addScenario(taskIndex)}
                         className="bg-green-500 hover:bg-green-600 text-white px-2 py-1 rounded text-sm"
                       >
-                        Add Scenario
+                        Legg til scenario
                       </button>
                     </div>
                     {task.config.scenarios?.map((scenario, scIndex) => (
@@ -1130,7 +1130,7 @@ const Sixmodules = () => {
                         </div>
                         <div className="mb-3">
                           <label className="block text-gray-700 text-sm font-bold mb-1">
-                            Text (Short Description)
+                            Tekst (kort beskrivelse)
                           </label>
                           <input
                             type="text"
@@ -1149,7 +1149,7 @@ const Sixmodules = () => {
                         </div>
                         <div className="mb-3">
                           <label className="block text-gray-700 text-sm font-bold mb-1">
-                            Situation (Full Message)
+                            Situasjon (full melding)
                           </label>
                           <textarea
                             value={scenario.situation || ""}
@@ -1167,7 +1167,7 @@ const Sixmodules = () => {
                         </div>
                         <div className="mb-3">
                           <label className="block text-gray-700 text-sm font-bold mb-1">
-                            Hint (for magnifying glass)
+                            Hint (for forstørrelsesglass)
                           </label>
                           <input
                             type="text"
@@ -1298,13 +1298,13 @@ const Sixmodules = () => {
               onClick={addQuestion}
               className="bg-green-500 hover:bg-green-600 text-white px-3 py-1 rounded"
             >
-              Add Question
+              Legg til spørsmål
             </button>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
             <div>
               <label className="block text-gray-700 text-sm font-bold mb-2">
-                Quiz Title
+                Quiz-tittel
               </label>
               <input
                 type="text"
@@ -1335,7 +1335,7 @@ const Sixmodules = () => {
           </div>
           <div className="mb-4">
             <label className="block text-gray-700 text-sm font-bold mb-2">
-              Description
+              Beskrivelse
             </label>
             <textarea
               value={formData.quiz.description}
@@ -1369,14 +1369,14 @@ const Sixmodules = () => {
                   )
                 }
               />
-              Show Correct Answers
+              Vis riktige svar
             </label>
           </div>
 
           {formData.quiz.questions.map((q, qIndex) => (
             <div key={qIndex} className="mb-6 p-4 border rounded bg-gray-50">
               <div className="flex justify-between items-center mb-3">
-                <h4 className="font-medium">Question {q.questionNumber}</h4>
+                <h4 className="font-medium">Spørsmål {q.questionNumber}</h4>
                 <button
                   type="button"
                   onClick={() => removeQuestion(qIndex)}
@@ -1399,7 +1399,7 @@ const Sixmodules = () => {
                 </div>
                 <div>
                   <label className="block text-gray-700 text-sm font-bold mb-2">
-                    Points
+                    Poeng
                   </label>
                   <input
                     type="number"
@@ -1417,7 +1417,7 @@ const Sixmodules = () => {
               </div>
               <div className="mb-4">
                 <label className="block text-gray-700 text-sm font-bold mb-2">
-                  Question Text
+                  Spørsmålstekst
                 </label>
                 <textarea
                   value={q.question}
@@ -1430,7 +1430,7 @@ const Sixmodules = () => {
               </div>
               <div className="mb-4">
                 <label className="block text-gray-700 text-sm font-bold mb-2">
-                  Explanation
+                  Forklaring
                 </label>
                 <textarea
                   value={q.explanation || ""}
@@ -1444,14 +1444,14 @@ const Sixmodules = () => {
               <div>
                 <div className="flex justify-between items-center mb-2">
                   <label className="block text-gray-700 text-sm font-bold">
-                    Options (Select one as correct)
+                    Alternativer (velg ett som riktig)
                   </label>
                   <button
                     type="button"
                     onClick={() => addOption(qIndex)}
                     className="bg-green-500 hover:bg-green-600 text-white px-2 py-1 rounded text-sm"
                   >
-                    Add Option
+                    Legg til alternativ
                   </button>
                 </div>
                 {q.options.map((opt, optIndex) => (
@@ -1504,12 +1504,12 @@ const Sixmodules = () => {
           ))}
         </section>
 
-        {/* Parent Tip */}
+        {/* Foreldretips */}
         <section className="mb-8 p-4 border rounded-lg">
-          <h3 className="text-xl font-semibold mb-4">Parent Tip</h3>
+          <h3 className="text-xl font-semibold mb-4">Foreldretips</h3>
           <div className="mb-4">
             <label className="block text-gray-700 text-sm font-bold mb-2">
-              Title
+              Tittel
             </label>
             <input
               type="text"
