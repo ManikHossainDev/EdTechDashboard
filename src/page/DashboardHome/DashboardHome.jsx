@@ -5,7 +5,7 @@ import Status from "../../component/Main/Dashboard/Status";
 const DashboardHome = () => {
   return (
     <section>
-      <h1 className="text-base md:text-2xl ml-1 font-semibold py-3 px-3">Overview</h1>
+      <h1 className="text-base md:text-2xl ml-1 font-semibold py-3 px-3">Oversikt</h1>
       <div className="md:px-3">
         <Status />
     

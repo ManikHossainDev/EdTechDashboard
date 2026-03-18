@@ -40,7 +40,7 @@ const Earnings = () => {
   const dataSource = (earningData || []).map((record, index) => ({
     key: record.id,
     id: index + 1,
-    userName: record.user ? record.user.name : "N/A",
+    userName: record.user ? record.user.name : "Ikke tilgjengelig",
     transactionId: record.transactionId,
     amount: record.amount,
     dateTime: new Date(record.createdAt).toLocaleString(),
@@ -58,7 +58,7 @@ const Earnings = () => {
       sorter: (a, b) => a.id - b.id,
     },
     {
-      title: "User Name",
+      title: "Brukernavn",
       dataIndex: "userName",
       key: "userName",
       width: 180,
@@ -75,7 +75,7 @@ const Earnings = () => {
       sorter: (a, b) => a.userName.localeCompare(b.userName),
     },
     {
-      title: "Transaction ID",
+      title: "Transaksjons-ID",
       dataIndex: "transactionId",
       key: "transactionId",
       width: 200,
@@ -87,7 +87,7 @@ const Earnings = () => {
       sorter: (a, b) => a.transactionId.localeCompare(b.transactionId),
     },
     {
-      title: "Amount",
+      title: "Beløp",
       dataIndex: "amount",
       key: "amount",
       width: 120,
@@ -95,14 +95,14 @@ const Earnings = () => {
       sorter: (a, b) => a.amount - b.amount,
     },
     {
-      title: "Date & Time",
+      title: "Dato og klokkeslett",
       dataIndex: "dateTime",
       key: "dateTime",
       width: 150,
       sorter: (a, b) => new Date(a.dateTime) - new Date(b.dateTime),
     },
     {
-      title: "Action",
+      title: "Handling",
       key: "action",
       width: 100,
       render: (_, record) => (
@@ -132,9 +132,9 @@ const Earnings = () => {
       <div className="">
         {/* Header */}
         <div className="flex justify-between items-center mt-5 ">
-          <h1 className="text-2xl font-semibold text-gray-800">Earnings</h1>
+          <h1 className="text-2xl font-semibold text-gray-800">Inntekter</h1>
           <Input
-            placeholder="Search"
+            placeholder="Søk"
             prefix={<SearchOutlined className="text-gray-400" />}
             value={searchText}
             onChange={(e) => setSearchText(e.target.value)}
@@ -199,34 +199,34 @@ const Earnings = () => {
               {/* Header */}
               <div className="text-center py-4 border-b border-gray-200">
                 <h2 className="text-xl font-semibold text-gray-800">
-                  Transaction Details
+                  Transaksjonsdetaljer
                 </h2>
               </div>
 
               {/* Content */}
               <div className="py-6 space-y-4">
                 <div className="flex justify-between items-center py-2">
-                  <span className="text-gray-600 text-sm">Transaction ID</span>
+                  <span className="text-gray-600 text-sm">Transaksjons-ID</span>
                   <span className="text-gray-800 font-semibold truncate max-w-[150px]">
                     {selectedRecord.rawRecord.transactionId}
                   </span>
                 </div>
 
                 <div className="flex justify-between items-center py-2">
-                  <span className="text-gray-600 text-sm">User Name</span>
+                  <span className="text-gray-600 text-sm">Brukernavn</span>
                   <span className="text-gray-800 font-semibold">
                     {selectedRecord.rawRecord.user
                       ? selectedRecord.rawRecord.user.name
-                      : "N/A"}
+                      : "Ikke tilgjengelig"}
                   </span>
                 </div>
 
                 <div className="flex justify-between items-center py-2">
-                  <span className="text-gray-600 text-sm">User Email</span>
+                  <span className="text-gray-600 text-sm">Bruker e-post</span>
                   <span className="text-gray-800 font-semibold">
                     {selectedRecord.rawRecord.user
                       ? selectedRecord.rawRecord.user.email
-                      : "N/A"}
+                      : "Ikke tilgjengelig"}
                   </span>
                 </div>
 
@@ -246,28 +246,28 @@ const Earnings = () => {
                 </div>
 
                 <div className="flex justify-between items-center py-2">
-                  <span className="text-gray-600 text-sm">Payment Method</span>
+                  <span className="text-gray-600 text-sm">Betalingsmetode</span>
                   <span className="text-gray-800 font-semibold">
                     {selectedRecord.rawRecord.paymentMethod}
                   </span>
                 </div>
 
                 <div className="flex justify-between items-center py-2">
-                  <span className="text-gray-600 text-sm">Payment Gateway</span>
+                  <span className="text-gray-600 text-sm">Betalingsgateway</span>
                   <span className="text-gray-800 font-semibold">
                     {selectedRecord.rawRecord.paymentGateway}
                   </span>
                 </div>
 
                 <div className="flex justify-between items-center py-2">
-                  <span className="text-gray-600 text-sm">Description</span>
+                  <span className="text-gray-600 text-sm">Beskrivelse</span>
                   <span className="text-gray-800 font-semibold max-w-xs truncate">
                     {selectedRecord.rawRecord.description}
                   </span>
                 </div>
 
                 <div className="flex justify-between items-center py-2">
-                  <span className="text-gray-600 text-sm">Date & Time</span>
+                  <span className="text-gray-600 text-sm">Dato og klokkeslett</span>
                   <span className="text-gray-800 font-semibold">
                     {new Date(
                       selectedRecord.rawRecord.createdAt
@@ -276,14 +276,14 @@ const Earnings = () => {
                 </div>
 
                 <div className="flex justify-between items-center py-2">
-                  <span className="text-gray-600 text-sm">Currency</span>
+                  <span className="text-gray-600 text-sm">Valuta</span>
                   <span className="text-gray-800 font-semibold">
                     {selectedRecord.rawRecord.currency}
                   </span>
                 </div>
 
                 <div className="flex justify-between items-center py-2">
-                  <span className="text-gray-600 text-sm">Amount</span>
+                  <span className="text-gray-600 text-sm">Beløp</span>
                   <span className="text-gray-800 font-semibold">
                     {selectedRecord.rawRecord.currency}{" "}
                     {selectedRecord.rawRecord.amount}
@@ -297,7 +297,7 @@ const Earnings = () => {
                     {selectedRecord.rawRecord.amount}
                   </div>
                   <div className="text-sm text-orange-500 mt-2">
-                    Total Amount
+                    Totalbeløp
                   </div>
                 </div>
               </div>
