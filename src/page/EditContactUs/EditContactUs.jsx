@@ -22,7 +22,7 @@ const EditContactUs = () => {
   const handleSubmit = async () => {
     const format = {
       type,
-      title: "Contact Us",
+      title: "Kontakt oss",
       content,
     };
 
@@ -30,7 +30,7 @@ const EditContactUs = () => {
       const res = await updateContactUs(format);
 
       if (res.data?.code == 200) {
-        alert("Update Done");
+        alert("Oppdatering fullført");
         navigate("/settings/ContactUs");
       }
     } catch (error) {
@@ -50,7 +50,7 @@ const EditContactUs = () => {
           <Link to="/settings/ContactUs">
             <IoChevronBack className="text-2xl" />
           </Link>
-          <h1 className="text-2xl font-semibold">Edit Contact Us</h1>
+          <h1 className="text-2xl font-semibold">Rediger Kontakt oss</h1>
         </div>
       </div>
 
@@ -89,9 +89,9 @@ const EditContactUs = () => {
               icon={<i className="fas fa-sync-alt"></i>} // Example FontAwesome icon
               className="mt-1 px-5 rounded-lg bg-gray-500 py-5  border-none"
             >
-              Cancel
+              Avbryt
             </Button>
-            <CustomButton className="p-1">Update</CustomButton>
+            <CustomButton className="p-1">Oppdater</CustomButton>
           </div>
         </Form>
       </div>

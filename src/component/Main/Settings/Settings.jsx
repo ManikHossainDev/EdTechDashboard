@@ -28,27 +28,27 @@ const Settings = () => {
     //   path: "personal-info",
     // },
     {
-      title: "Change password",
+      title: "Endre passord",
       path: "change-password",
     },
     {
-      title: "Privacy Policy",
+      title: "Personvernerklæring",
       path: "privacy-policy",
     },
     {
-      title: "Terms & Conditions",
+      title: "Vilkår og betingelser",
       path: "terms-conditions",
     },
     {
-      title: "About us",
+      title: "Om oss",
       path: "about-us",
     },
     {
-      title: "Contact Us",
+      title: "Kontakt oss",
       path: "ContactUs",
     },
     {
-      title: "FAQ",
+      title: "Vanlige spørsmål",
       path: "FAQ",
     },
   ];
@@ -57,7 +57,7 @@ const Settings = () => {
     if (value === "notification") {
       return;
     } else if (value === "change-password") {
-      setModelTitle("Change password");
+      setModelTitle("Endre passord");
       setIsModalOpen(true);
     } else {
       navigate(`/settings/${value}`);
@@ -75,7 +75,7 @@ const Settings = () => {
         confirmPassword: reenterPassword,
       });
       if (result?.error) {
-        toast.error(result?.error?.data?.message || "Something went wrong");
+        toast.error(result?.error?.data?.message || "Noe gikk galt");
       }
       if (result?.data) {
         setIsModalOpen(false);
@@ -120,10 +120,10 @@ const Settings = () => {
         footer={[]}
         centered
       >
-        {modelTitle === "Change password" && (
+        {modelTitle === "Endre passord" && (
           <div className="w-full px-5 ">
             <p className="text-[14px] mb-[14px]">
-              Your password must be 8-10 character long.
+              Passordet ditt må være 8–10 tegn langt.
             </p>
             <Form
               form={form}
@@ -141,11 +141,11 @@ const Settings = () => {
                 rules={[
                   {
                     required: true,
-                    message: "Please Input Your Old Password!",
+                    message: "Vennligst skriv inn ditt gamle passord!",
                   },
                 ]}
               >
-                <CustomInput placeholder="Enter Your old Password" isPassword />
+                <CustomInput placeholder="Skriv inn ditt gamle passord" isPassword />
               </Form.Item>
 
               <Form.Item
@@ -153,11 +153,11 @@ const Settings = () => {
                 rules={[
                   {
                     required: true,
-                    message: "Please Input Your New Password!",
+                    message: "Vennligst skriv inn ditt nye passord!",
                   },
                 ]}
               >
-                <CustomInput placeholder="Set Your New Password" isPassword />
+                <CustomInput placeholder="Sett ditt nye passord" isPassword />
               </Form.Item>
 
               {/* Field */}
@@ -167,7 +167,7 @@ const Settings = () => {
                 rules={[
                   {
                     required: true,
-                    message: "Please Input Your Re-enter Password!",
+                    message: "Vennligst skriv inn passordet på nytt!",
                   },
                   ({ getFieldValue }) => ({
                     validator(_, value) {
@@ -176,22 +176,22 @@ const Settings = () => {
                       }
                       return Promise.reject(
                         new Error(
-                          "The new password that you entered do not match!"
+                          "De nye passordene du skrev inn er ikke like!"
                         )
                       );
                     },
                   }),
                 ]}
               >
-                <CustomInput placeholder="Re-enter password" isPassword />
+                <CustomInput placeholder="Skriv inn passordet på nytt" isPassword />
               </Form.Item>
               <p className=" text-secondary font-medium">
                 <a href="/auth/forget-password">
-                  <h1 className="underline text-blue-500"> Forget Password</h1>
+                  <h1 className="underline text-blue-500"> Glemt passord</h1>
                 </a>
               </p>
               <Form.Item className="w-full">
-                <CustomButton className="w-full">Update Password</CustomButton>
+                <CustomButton className="w-full">Oppdater passord</CustomButton>
               </Form.Item>
             </Form>
           </div>
