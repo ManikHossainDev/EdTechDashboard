@@ -113,7 +113,7 @@ const Fivemodules = () => {
     fileInput.click();
   };
 
-  // Learning objectives
+  // Skriv inn læringsmåls
   const handleObjectiveChange = (index, value) => {
     setFormData((prev) => {
       const cloned = cloneState(prev);
@@ -222,7 +222,7 @@ const Fivemodules = () => {
     });
   };
 
-  // Categories
+  // Kategorier
   const handleCategoryChange = (taskIndex, catIndex, field, value) => {
     setFormData((prev) => {
       const cloned = cloneState(prev);
@@ -250,7 +250,7 @@ const Fivemodules = () => {
     });
   };
 
-  // Scenarios
+  // Scenarioer
   const handleScenarioChange = (taskIndex, scIndex, field, value) => {
     setFormData((prev) => {
       const cloned = cloneState(prev);
@@ -563,7 +563,7 @@ const Fivemodules = () => {
 
   return (
     <div className="container mx-auto p-6 bg-white rounded-lg shadow-md">
-      <h2 className="text-2xl font-bold mb-6">Edit Module: {formData.title}</h2>
+      <h2 className="text-2xl font-bold mb-6">Rediger modul: {formData.title}</h2>
 
       <form onSubmit={handleSubmit}>
         {/* Module Information */}
@@ -595,7 +595,7 @@ const Fivemodules = () => {
           </div>
           <div className="mb-4">
             <label className="block text-gray-700 text-sm font-bold mb-2">
-              Title
+              Tittel
             </label>
             <input
               type="text"
@@ -617,7 +617,7 @@ const Fivemodules = () => {
           </div>
           <div className="mb-4">
             <label className="block text-gray-700 text-sm font-bold mb-2">
-              Theme
+              Tema
             </label>
             <input
               type="text"
@@ -628,7 +628,7 @@ const Fivemodules = () => {
           </div>
           <div className="mb-4">
             <label className="block text-gray-700 text-sm font-bold mb-2">
-              Description
+              Beskrivelse
             </label>
             <textarea
               value={formData.description}
@@ -653,9 +653,9 @@ const Fivemodules = () => {
           </div>
         </section>
 
-        {/* Intro Video */}
+        {/* Introduksjonsvideo */}
         <section className="mb-8 p-4 border rounded-lg">
-          <h3 className="text-xl font-semibold mb-4">Intro Video</h3>
+          <h3 className="text-xl font-semibold mb-4">Introduksjonsvideo</h3>
           {formData.introVideo?.url ? (
             <div className="mb-4">
               <video controls className="w-full max-w-md h-auto rounded border">
@@ -663,7 +663,7 @@ const Fivemodules = () => {
               </video>
             </div>
           ) : (
-            <p className="text-gray-500 italic mb-4">No intro video uploaded</p>
+            <p className="text-gray-500 italic mb-4">Ingen introduksjonsvideo lastet opp</p>
           )}
           <button
             type="button"
@@ -671,7 +671,7 @@ const Fivemodules = () => {
             disabled={isSubmitting}
             className={`bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded ${isSubmitting ? "opacity-50" : ""}`}
           >
-            {isSubmitting ? "Uploading..." : "Upload/Replace Intro Video"}
+            {isSubmitting ? "Laster opp..." : "Last opp/bytt introduksjonsvideo"}
           </button>
         </section>
 
@@ -695,7 +695,7 @@ const Fivemodules = () => {
                 value={obj.text}
                 onChange={(e) => handleObjectiveChange(index, e.target.value)}
                 className="flex-1 px-3 py-2 border rounded"
-                placeholder="Learning objective"
+                placeholder="Skriv inn læringsmål"
               />
               <button
                 type="button"
@@ -718,14 +718,14 @@ const Fivemodules = () => {
                 onClick={() => addContentBlock("text")}
                 className="bg-green-500 hover:bg-green-600 text-white px-3 py-1 rounded"
               >
-                Add Text
+                Legg til tekst
               </button>
               <button
                 type="button"
                 onClick={() => addContentBlock("image")}
                 className="bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded"
               >
-                Add Image
+                Legg til bilde
               </button>
             </div>
           </div>
@@ -733,7 +733,7 @@ const Fivemodules = () => {
             <div key={index} className="mb-6 p-4 border rounded">
               <div className="flex justify-between items-center mb-3">
                 <h4 className="font-medium">
-                  Block {index + 1} ({block.type})
+                  Blokk {index + 1} ({block.type})
                 </h4>
                 <button
                   type="button"
@@ -754,7 +754,7 @@ const Fivemodules = () => {
                       />
                     ) : (
                       <div className="w-32 h-32 bg-gray-200 border rounded flex items-center justify-center text-gray-500 text-sm">
-                        No image
+                        Ingen bilde
                       </div>
                     )}
                     <button
@@ -763,12 +763,12 @@ const Fivemodules = () => {
                       disabled={isSubmitting}
                       className="bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded"
                     >
-                      {block.image?.url ? "Change Image" : "Upload Image"}
+                      {block.image?.url ? "Bytt bilde" : "Last opp bilde"}
                     </button>
                   </div>
                   <div>
                     <label className="block text-gray-700 text-sm font-bold mb-2">
-                      Content Text
+                      Innholdstekst
                     </label>
                     <textarea
                       value={
@@ -786,7 +786,7 @@ const Fivemodules = () => {
               {block.type === "text" && (
                 <div>
                   <label className="block text-gray-700 text-sm font-bold mb-2">
-                    Content Text
+                    Innholdstekst
                   </label>
                   <textarea
                     value={
@@ -812,13 +812,13 @@ const Fivemodules = () => {
           {formData.interactiveTasks.map((task, taskIndex) => (
             <div key={taskIndex} className="mb-6 p-4 border rounded bg-gray-50">
               <h4 className="font-semibold text-lg mb-4">
-                Task {taskIndex + 1}: {task.title} ({task.type})
+                Oppgave {taskIndex + 1}: {task.title} ({task.type})
               </h4>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                 <div>
                   <label className="block text-gray-700 text-sm font-bold mb-2">
-                    Title
+                    Tittel
                   </label>
                   <input
                     type="text"
@@ -831,7 +831,7 @@ const Fivemodules = () => {
                 </div>
                 <div>
                   <label className="block text-gray-700 text-sm font-bold mb-2">
-                    Points
+                    Poeng
                   </label>
                   <input
                     type="number"
@@ -849,7 +849,7 @@ const Fivemodules = () => {
               </div>
               <div className="mb-4">
                 <label className="block text-gray-700 text-sm font-bold mb-2">
-                  Description
+                  Beskrivelse
                 </label>
                 <textarea
                   value={task.description || ""}
@@ -862,7 +862,7 @@ const Fivemodules = () => {
               </div>
               <div className="mb-4">
                 <label className="block text-gray-700 text-sm font-bold mb-2">
-                  Instructions
+                  Instruksjoner
                 </label>
                 <textarea
                   value={task.instructions || ""}
@@ -877,16 +877,16 @@ const Fivemodules = () => {
               {/* scenario-choice */}
               {task.type === "scenario-choice" && task.config && (
                 <>
-                  {/* Categories */}
+                  {/* Kategorier */}
                   <div className="mb-6 p-3 border rounded bg-white">
                     <div className="flex justify-between items-center mb-3">
-                      <h5 className="font-medium">Categories</h5>
+                      <h5 className="font-medium">Kategorier</h5>
                       <button
                         type="button"
                         onClick={() => addCategory(taskIndex)}
                         className="bg-green-500 hover:bg-green-600 text-white px-2 py-1 rounded text-sm"
                       >
-                        Add Category
+                        Legg til kategori
                       </button>
                     </div>
                     {task.config.categories?.map((cat, catIndex) => (
@@ -933,7 +933,7 @@ const Fivemodules = () => {
                               e.target.value,
                             )
                           }
-                          placeholder="Description"
+                          placeholder="Beskrivelse"
                           className="flex-1 px-2 py-1 border rounded"
                         />
                         <button
@@ -947,16 +947,16 @@ const Fivemodules = () => {
                     ))}
                   </div>
 
-                  {/* Scenarios */}
+                  {/* Scenarioer */}
                   <div className="p-3 border rounded bg-white">
                     <div className="flex justify-between items-center mb-3">
-                      <h5 className="font-medium">Scenarios</h5>
+                      <h5 className="font-medium">Scenarioer</h5>
                       <button
                         type="button"
                         onClick={() => addScenario(taskIndex)}
                         className="bg-green-500 hover:bg-green-600 text-white px-2 py-1 rounded text-sm"
                       >
-                        Add Scenario
+                        Legg til scenario
                       </button>
                     </div>
                     {task.config.scenarios?.map((scenario, scIndex) => (
@@ -987,7 +987,7 @@ const Fivemodules = () => {
                             />
                           ) : (
                             <div className="w-24 h-24 bg-gray-200 border rounded flex items-center justify-center text-gray-500 text-xs">
-                              No image
+                              Ingen bilde
                             </div>
                           )}
                           <button
@@ -1040,7 +1040,7 @@ const Fivemodules = () => {
                         </div>
                         <div>
                           <div className="flex justify-between items-center mb-2">
-                            <label className="text-sm font-bold">Options</label>
+                            <label className="text-sm font-bold">Alternativer</label>
                             <button
                               type="button"
                               onClick={() =>
@@ -1048,7 +1048,7 @@ const Fivemodules = () => {
                               }
                               className="bg-green-500 hover:bg-green-600 text-white px-2 py-1 rounded text-xs"
                             >
-                              Add Option
+                              Legg til alternativ
                             </button>
                           </div>
                           {scenario.options?.map((opt, optIndex) => (
@@ -1154,13 +1154,13 @@ const Fivemodules = () => {
               onClick={addQuestion}
               className="bg-green-500 hover:bg-green-600 text-white px-3 py-1 rounded"
             >
-              Add Question
+              Legg til spørsmål
             </button>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
             <div>
               <label className="block text-gray-700 text-sm font-bold mb-2">
-                Quiz Title
+                Quiz-tittel
               </label>
               <input
                 type="text"
@@ -1191,7 +1191,7 @@ const Fivemodules = () => {
           </div>
           <div className="mb-4">
             <label className="block text-gray-700 text-sm font-bold mb-2">
-              Description
+              Beskrivelse
             </label>
             <textarea
               value={formData.quiz.description}
@@ -1225,14 +1225,14 @@ const Fivemodules = () => {
                   )
                 }
               />
-              Show Correct Answers
+              Vis riktige svar
             </label>
           </div>
 
           {formData.quiz.questions.map((q, qIndex) => (
             <div key={qIndex} className="mb-6 p-4 border rounded bg-gray-50">
               <div className="flex justify-between items-center mb-3">
-                <h4 className="font-medium">Question {q.questionNumber}</h4>
+                <h4 className="font-medium">Spørsmål {q.questionNumber}</h4>
                 <button
                   type="button"
                   onClick={() => removeQuestion(qIndex)}
@@ -1255,7 +1255,7 @@ const Fivemodules = () => {
                 </div>
                 <div>
                   <label className="block text-gray-700 text-sm font-bold mb-2">
-                    Points
+                    Poeng
                   </label>
                   <input
                     type="number"
@@ -1273,7 +1273,7 @@ const Fivemodules = () => {
               </div>
               <div className="mb-4">
                 <label className="block text-gray-700 text-sm font-bold mb-2">
-                  Question Text
+                  Spørsmålstekst
                 </label>
                 <textarea
                   value={q.question}
@@ -1286,7 +1286,7 @@ const Fivemodules = () => {
               </div>
               <div className="mb-4">
                 <label className="block text-gray-700 text-sm font-bold mb-2">
-                  Explanation
+                  Forklaring
                 </label>
                 <textarea
                   value={q.explanation || ""}
@@ -1300,14 +1300,14 @@ const Fivemodules = () => {
               <div>
                 <div className="flex justify-between items-center mb-2">
                   <label className="block text-gray-700 text-sm font-bold">
-                    Options (Select one as correct)
+                    Alternativer (velg ett som riktig)
                   </label>
                   <button
                     type="button"
                     onClick={() => addOption(qIndex)}
                     className="bg-green-500 hover:bg-green-600 text-white px-2 py-1 rounded text-sm"
                   >
-                    Add Option
+                    Legg til alternativ
                   </button>
                 </div>
                 {q.options.map((opt, optIndex) => (
@@ -1360,12 +1360,12 @@ const Fivemodules = () => {
           ))}
         </section>
 
-        {/* Parent Tip */}
+        {/* Foreldretips */}
         <section className="mb-8 p-4 border rounded-lg">
-          <h3 className="text-xl font-semibold mb-4">Parent Tip</h3>
+          <h3 className="text-xl font-semibold mb-4">Foreldretips</h3>
           <div className="mb-4">
             <label className="block text-gray-700 text-sm font-bold mb-2">
-              Title
+              Tittel
             </label>
             <input
               type="text"

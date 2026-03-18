@@ -54,10 +54,10 @@ const EditInformation = () => {
       const res = await uploadImage(formData).unwrap();
       console.log(res);
       if (res?.data?.code === 200) {
-        toast.success("Profile picture updated");
+        toast.success("Profilbilde oppdatert");
       }
     } catch (err) {
-      toast.error(err?.data?.message || "Image upload failed");
+      toast.error(err?.data?.message || "Bildeopplasting feilet");
     } finally {
       setImageUploading(false);
     }
@@ -76,11 +76,11 @@ const EditInformation = () => {
 
       const res = await updateProfileInfo(payload).unwrap();
       if (res?.data.code === 200) {
-        toast.success("Profile updated successfully!");
+        toast.success("Profil oppdatert!");
         navigate("/personal-info");
       }
     } catch (err) {
-      toast.error(err?.data?.message || "Profile update failed");
+      toast.error(err?.data?.message || "Profiloppdatering feilet");
     }
   };
 
@@ -91,7 +91,7 @@ const EditInformation = () => {
         <Link to="/personal-info">
           <IoChevronBack className="text-2xl" />
         </Link>
-        <h1 className="text-2xl font-semibold ml-2">Edit Information</h1>
+        <h1 className="text-2xl font-semibold ml-2">Rediger informasjon</h1>
       </div>
 
       <div className="max-w-xl px-2">
@@ -115,13 +115,13 @@ const EditInformation = () => {
             ) : (
               <div className="bg-[#c6dadc] flex flex-col items-center justify-center rounded-full w-full h-full text-white">
                 <IoCameraOutline size={40} />
-                <span>Upload</span>
+                <span>Last opp</span>
               </div>
             )}
 
             <div className="absolute inset-0 bg-black/70 rounded-md flex items-center justify-center opacity-0 hover:opacity-100 transition">
               <p className="text-white text-sm">
-                {imageUploading ? "Uploading..." : "Change Image"}
+                {imageUploading ? "Laster opp..." : "Bytt bilde"}
               </p>
             </div>
           </div>
@@ -147,11 +147,11 @@ const EditInformation = () => {
           onFinish={onFinish}
           className="mt-10"
         >
-          <Form.Item label="Full Name" name="fullName">
-            <CustomInput placeholder="Enter your full name" />
+          <Form.Item label="Fullt navn" name="fullName">
+            <CustomInput placeholder="Skriv inn fullt navn" />
           </Form.Item>
 
-          <Form.Item label="Email" name="email">
+          <Form.Item label="E-post" name="email">
             <CustomInput readOnly />
           </Form.Item>
 
@@ -159,7 +159,7 @@ const EditInformation = () => {
             loading={isLoading}
             className="w-full text-black font-semibold"
           >
-            Save & Change
+            Lagre endringer
           </CustomButton>
         </Form>
       </div>

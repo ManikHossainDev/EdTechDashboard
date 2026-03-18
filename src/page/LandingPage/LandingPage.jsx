@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Tabs, Form, Input, Button, Card, Spin, Segmented, Divider } from "antd";
+import { Tabs, Form, Input, Button, Card, Spin, Divider } from "antd";
 import { PlusOutlined, DeleteOutlined } from "@ant-design/icons";
 import { toast } from "sonner";
 import {
@@ -9,23 +9,9 @@ import {
 
 // ── Shared helpers ───────────────────────────────────────────────────────────
 
-const LOCALE_LABEL = { en: "English (EN)", nb: "Norwegian (NB)" };
+const ACTIVE_LOCALE = "nb";
 
 const SAVE_BTN_STYLE = { backgroundColor: "#FF9E1C", borderColor: "#FF9E1C" };
-
-function LocaleTabs({ locale, onChange }) {
-  return (
-    <Segmented
-      options={[
-        { label: LOCALE_LABEL.en, value: "en" },
-        { label: LOCALE_LABEL.nb, value: "nb" },
-      ]}
-      value={locale}
-      onChange={onChange}
-      className="mb-5"
-    />
-  );
-}
 
 function SaveButton({ loading, onClick, label }) {
   return (
@@ -60,9 +46,9 @@ function ContactEditor() {
   const handleSave = async () => {
     try {
       await upsert({ section: "contact", body: fields }).unwrap();
-      toast.success("Contact info saved!");
+      toast.success("Kontaktinformasjon lagret!");
     } catch {
-      toast.error("Failed to save contact info.");
+      toast.error("Kunne ikke lagre kontaktinformasjon.");
     }
   };
 
@@ -71,11 +57,11 @@ function ContactEditor() {
   return (
     <div className="w-full space-y-3 sm:space-y-4 px-3 sm:px-4 lg:max-w-2xl">
       <p className="text-xs sm:text-sm text-gray-500 mb-3 sm:mb-4">
-        This information will be shown in the footer of the landing page. Navigation links are
-        managed from the site code directly.
+        Denne informasjonen vises i bunnteksten på landingssiden. Navigasjonslenker
+        administreres direkte i nettstedskoden.
       </p>
       <Form layout="vertical">
-        <Form.Item label={<span className="font-medium text-sm sm:text-base">Phone Number</span>}>
+        <Form.Item label={<span className="font-medium text-sm sm:text-base">Telefonnummer</span>}>
           <Input
             size="middle"
             value={fields.phone}
@@ -83,7 +69,7 @@ function ContactEditor() {
             placeholder="+4604328390903"
           />
         </Form.Item>
-        <Form.Item label={<span className="font-medium text-sm sm:text-base">Email Address</span>}>
+        <Form.Item label={<span className="font-medium text-sm sm:text-base">E-postadresse</span>}>
           <Input
             size="middle"
             value={fields.email}
@@ -91,7 +77,7 @@ function ContactEditor() {
             placeholder="demo@gmail.com"
           />
         </Form.Item>
-        <Form.Item label={<span className="font-medium text-sm sm:text-base">Address</span>}>
+        <Form.Item label={<span className="font-medium text-sm sm:text-base">Adresse</span>}>
           <Input.TextArea
             rows={2}
             size="middle"
@@ -101,7 +87,7 @@ function ContactEditor() {
           />
         </Form.Item>
       </Form>
-      <SaveButton loading={isSaving} onClick={handleSave} label="Save Contact Info" />
+      <SaveButton loading={isSaving} onClick={handleSave} label="Lagre kontaktinformasjon" />
     </div>
   );
 }
@@ -110,7 +96,7 @@ function ContactEditor() {
 function HeroEditor() {
   const { data, isLoading } = useGetLandingSectionQuery("hero");
   const [upsert, { isLoading: isSaving }] = useUpsertLandingSectionMutation();
-  const [locale, setLocale] = useState("en");
+  const locale = ACTIVE_LOCALE;
   const [fields, setFields] = useState({
     title:    { en: "", nb: "" },
     subtitle: { en: "", nb: "" },
@@ -133,9 +119,9 @@ function HeroEditor() {
   const handleSave = async () => {
     try {
       await upsert({ section: "hero", body: fields }).unwrap();
-      toast.success("Hero section saved!");
+      toast.success("Hero-seksjon lagret!");
     } catch {
-      toast.error("Failed to save hero section.");
+      toast.error("Kunne ikke lagre hero-seksjon.");
     }
   };
 
@@ -143,41 +129,40 @@ function HeroEditor() {
 
   return (
     <div className="w-full space-y-3 sm:space-y-4 px-3 sm:px-4 lg:max-w-2xl">
-      <LocaleTabs locale={locale} onChange={setLocale} />
       <Form layout="vertical">
-        <Form.Item label={<span className="font-medium text-sm sm:text-base">Title</span>}>
+        <Form.Item label={<span className="font-medium text-sm sm:text-base">Tittel</span>}>
           <Input
             size="middle"
             value={fields.title[locale]}
             onChange={(e) => handleChange("title", e.target.value)}
-            placeholder={`Hero title in ${LOCALE_LABEL[locale]}`}
+            placeholder="Hero-tittel på norsk"
           />
         </Form.Item>
-        <Form.Item label={<span className="font-medium text-sm sm:text-base">Subtitle</span>}>
+        <Form.Item label={<span className="font-medium text-sm sm:text-base">Undertittel</span>}>
           <Input.TextArea
             rows={3}
             size="middle"
             value={fields.subtitle[locale]}
             onChange={(e) => handleChange("subtitle", e.target.value)}
-            placeholder={`Hero subtitle in ${LOCALE_LABEL[locale]}`}
+            placeholder="Hero-undertittel på norsk"
           />
         </Form.Item>
-        <Form.Item label={<span className="font-medium text-sm sm:text-base">CTA Button Text</span>}>
+        <Form.Item label={<span className="font-medium text-sm sm:text-base">CTA-knappetekst</span>}>
           <Input
             size="middle"
             value={fields.ctaText[locale]}
             onChange={(e) => handleChange("ctaText", e.target.value)}
-            placeholder={`e.g. "Get Started" — in ${LOCALE_LABEL[locale]}`}
+            placeholder='f.eks. "Kom i gang"'
           />
         </Form.Item>
       </Form>
-      <SaveButton loading={isSaving} onClick={handleSave} label="Save Hero Section" />
+      <SaveButton loading={isSaving} onClick={handleSave} label="Lagre hero-seksjon" />
     </div>
   );
 }
 
 // ── How It Works ─────────────────────────────────────────────────────────────
-const STEP_LABELS = ["Learn (Modules)", "Get Certified", "Agree (Family Agreement)"];
+const STEP_LABELS = ["Lær (moduler)", "Bli sertifisert", "Godta (familieavtale)"];
 
 const makeDefaultSteps = () =>
   Array.from({ length: 3 }, (_, i) => ({
@@ -189,7 +174,7 @@ const makeDefaultSteps = () =>
 function HowItWorksEditor() {
   const { data, isLoading } = useGetLandingSectionQuery("howItWorks");
   const [upsert, { isLoading: isSaving }] = useUpsertLandingSectionMutation();
-  const [locale, setLocale] = useState("en");
+  const locale = ACTIVE_LOCALE;
   const [sectionTitle, setSectionTitle] = useState({ en: "", nb: "" });
   const [steps, setSteps] = useState(makeDefaultSteps());
 
@@ -221,9 +206,9 @@ function HowItWorksEditor() {
   const handleSave = async () => {
     try {
       await upsert({ section: "howItWorks", body: { sectionTitle, steps } }).unwrap();
-      toast.success("How It Works saved!");
+      toast.success("Slik fungerer det lagret!");
     } catch {
-      toast.error("Failed to save How It Works.");
+      toast.error("Kunne ikke lagre Slik fungerer det.");
     }
   };
 
@@ -231,14 +216,13 @@ function HowItWorksEditor() {
 
   return (
     <div className="w-full space-y-3 sm:space-y-4">
-      <LocaleTabs locale={locale} onChange={setLocale} />
       <Form layout="vertical">
-        <Form.Item label={<span className="font-medium text-sm sm:text-base">Section Title</span>}>
+        <Form.Item label={<span className="font-medium text-sm sm:text-base">Seksjonstittel</span>}>
           <Input
             size="middle"
             value={sectionTitle[locale]}
             onChange={(e) => setSectionTitle((s) => ({ ...s, [locale]: e.target.value }))}
-            placeholder={`e.g. "How It Works" — in ${LOCALE_LABEL[locale]}`}
+            placeholder='f.eks. "Slik fungerer det"'
           />
         </Form.Item>
       </Form>
@@ -246,29 +230,29 @@ function HowItWorksEditor() {
         <Card
           key={idx}
           size="small"
-          title={<span className="font-semibold text-sm sm:text-base">Step {idx + 1} — {STEP_LABELS[idx]}</span>}
+          title={<span className="font-semibold text-sm sm:text-base">Steg {idx + 1} — {STEP_LABELS[idx]}</span>}
           className="mb-3 sm:mb-4 border-[#FF9E1C]/30"
         >
           <Form layout="vertical">
-            <Form.Item label={<span className="font-medium">Step Title</span>}>
+            <Form.Item label={<span className="font-medium">Stegtittel</span>}>
               <Input
                 value={step.title[locale]}
                 onChange={(e) => handleStepChange(idx, "title", e.target.value)}
-                placeholder={`Step title in ${LOCALE_LABEL[locale]}`}
+                placeholder="Stegtittel på norsk"
               />
             </Form.Item>
-            <Form.Item label={<span className="font-medium">Description</span>}>
+            <Form.Item label={<span className="font-medium">Beskrivelse</span>}>
               <Input.TextArea
                 rows={2}
                 value={step.description[locale]}
                 onChange={(e) => handleStepChange(idx, "description", e.target.value)}
-                placeholder={`Description in ${LOCALE_LABEL[locale]}`}
+                placeholder="Beskrivelse på norsk"
               />
             </Form.Item>
           </Form>
         </Card>
       ))}
-      <SaveButton loading={isSaving} onClick={handleSave} label="Save How It Works" />
+      <SaveButton loading={isSaving} onClick={handleSave} label="Lagre Slik fungerer det" />
     </div>
   );
 }
@@ -286,7 +270,7 @@ const makeDefaultFeatureItems = () =>
 function FeaturesEditor() {
   const { data, isLoading } = useGetLandingSectionQuery("features");
   const [upsert, { isLoading: isSaving }] = useUpsertLandingSectionMutation();
-  const [locale, setLocale] = useState("en");
+  const locale = ACTIVE_LOCALE;
   const [sectionTitle, setSectionTitle] = useState({ en: "", nb: "" });
   const [description, setDescription] = useState({ en: "", nb: "" });
   const [items, setItems] = useState(makeDefaultFeatureItems());
@@ -326,9 +310,9 @@ function FeaturesEditor() {
   const handleSave = async () => {
     try {
       await upsert({ section: "features", body: { sectionTitle, description, items } }).unwrap();
-      toast.success("Features list saved!");
+      toast.success("Funksjonsliste lagret!");
     } catch {
-      toast.error("Failed to save features.");
+      toast.error("Kunne ikke lagre funksjoner.");
     }
   };
 
@@ -336,76 +320,74 @@ function FeaturesEditor() {
 
   return (
     <div className="w-full space-y-3 sm:space-y-4 px-3 sm:px-4 lg:max-w-2xl">
-      <LocaleTabs locale={locale} onChange={setLocale} />
-
-      <Card title={<span className="font-semibold text-sm sm:text-base">Section Header</span>} size="small" className="border-[#FF9E1C]/30 mb-3 sm:mb-4">
+      <Card title={<span className="font-semibold text-sm sm:text-base">Seksjonshode</span>} size="small" className="border-[#FF9E1C]/30 mb-3 sm:mb-4">
         <Form layout="vertical">
-          <Form.Item label={<span className="font-medium text-sm sm:text-base">Section Title</span>}>
+          <Form.Item label={<span className="font-medium text-sm sm:text-base">Seksjonstittel</span>}>
             <Input
               size="middle"
               value={sectionTitle[locale]}
               onChange={(e) => setSectionTitle((s) => ({ ...s, [locale]: e.target.value }))}
-              placeholder={`e.g. "8 Exciting Learning Modules 🔥" — in ${LOCALE_LABEL[locale]}`}
+              placeholder='f.eks. "8 spennende læringsmoduler 🔥"'
             />
           </Form.Item>
-          <Form.Item label={<span className="font-medium text-sm sm:text-base">Section Description</span>}>
+          <Form.Item label={<span className="font-medium text-sm sm:text-base">Seksjonsbeskrivelse</span>}>
             <Input.TextArea
               rows={2}
               value={description[locale]}
               onChange={(e) => setDescription((s) => ({ ...s, [locale]: e.target.value }))}
-              placeholder={`Section description in ${LOCALE_LABEL[locale]}`}
+              placeholder="Seksjonsbeskrivelse på norsk"
             />
           </Form.Item>
         </Form>
       </Card>
 
-      <Divider orientation="left">Feature Items (8 modules)</Divider>
+      <Divider orientation="left">Funksjonselementer (8 moduler)</Divider>
 
       {items.map((item, idx) => (
         <Card
           key={idx}
           size="small"
-          title={<span className="font-semibold text-sm sm:text-base">Module {item.moduleNo}</span>}
+          title={<span className="font-semibold text-sm sm:text-base">Modul {item.moduleNo}</span>}
           className="mb-3 sm:mb-4 border-[#FF9E1C]/30"
         >
           <Form layout="vertical">
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-3">
-              <Form.Item label={<span className="font-medium text-xs sm:text-sm">Icon (emoji)</span>} className="mb-2">
+              <Form.Item label={<span className="font-medium text-xs sm:text-sm">Ikon (emoji)</span>} className="mb-2">
                 <Input
                   value={item.icon}
                   onChange={(e) => handleItemChange(idx, "icon", e.target.value)}
-                  placeholder="e.g. 📱"
+                  placeholder="f.eks. 📱"
                 />
               </Form.Item>
-              <Form.Item label={<span className="font-medium text-xs sm:text-sm">Time</span>} className="mb-2">
+              <Form.Item label={<span className="font-medium text-xs sm:text-sm">Tid</span>} className="mb-2">
                 <Input
                   value={item.time}
                   onChange={(e) => handleItemChange(idx, "time", e.target.value)}
-                  placeholder="e.g. 15min"
+                  placeholder="f.eks. 15 min"
                 />
               </Form.Item>
             </div>
-            <Form.Item label={<span className="font-medium text-sm sm:text-base">Feature Title</span>}>
+            <Form.Item label={<span className="font-medium text-sm sm:text-base">Funksjonstittel</span>}>
               <Input
                 size="middle"
                 value={item.title[locale]}
                 onChange={(e) => handleItemChange(idx, "title", e.target.value)}
-                placeholder={`Feature title in ${LOCALE_LABEL[locale]}`}
+                placeholder="Funksjonstittel på norsk"
               />
             </Form.Item>
-            <Form.Item label={<span className="font-medium text-sm sm:text-base">Feature Description</span>}>
+            <Form.Item label={<span className="font-medium text-sm sm:text-base">Funksjonsbeskrivelse</span>}>
               <Input.TextArea
                 rows={2}
                 value={item.description[locale]}
                 onChange={(e) => handleItemChange(idx, "description", e.target.value)}
-                placeholder={`Description in ${LOCALE_LABEL[locale]}`}
+                placeholder="Beskrivelse på norsk"
               />
             </Form.Item>
           </Form>
         </Card>
       ))}
 
-      <SaveButton loading={isSaving} onClick={handleSave} label="Save Features List" />
+      <SaveButton loading={isSaving} onClick={handleSave} label="Lagre funksjonsliste" />
     </div>
   );
 }
@@ -417,7 +399,7 @@ const makeDefaultBenefitItems = () =>
 function BenefitsEditor() {
   const { data, isLoading } = useGetLandingSectionQuery("benefits");
   const [upsert, { isLoading: isSaving }] = useUpsertLandingSectionMutation();
-  const [locale, setLocale] = useState("en");
+  const locale = ACTIVE_LOCALE;
   const [sectionTitle, setSectionTitle] = useState({ en: "", nb: "" });
   const [items, setItems] = useState(makeDefaultBenefitItems());
 
@@ -447,9 +429,9 @@ function BenefitsEditor() {
   const handleSave = async () => {
     try {
       await upsert({ section: "benefits", body: { sectionTitle, items } }).unwrap();
-      toast.success("Benefits section saved!");
+      toast.success("Fordelsseksjon lagret!");
     } catch {
-      toast.error("Failed to save benefits.");
+      toast.error("Kunne ikke lagre fordeler.");
     }
   };
 
@@ -457,19 +439,18 @@ function BenefitsEditor() {
 
   return (
     <div className="w-full space-y-3 sm:space-y-4">
-      <LocaleTabs locale={locale} onChange={setLocale} />
       <Form layout="vertical">
-        <Form.Item label={<span className="font-medium text-sm sm:text-base">Section Title</span>}>
+        <Form.Item label={<span className="font-medium text-sm sm:text-base">Seksjonstittel</span>}>
           <Input
             size="middle"
             value={sectionTitle[locale]}
             onChange={(e) => setSectionTitle((s) => ({ ...s, [locale]: e.target.value }))}
-            placeholder={`e.g. "Get Your Child Mobile Ready 🔥" — in ${LOCALE_LABEL[locale]}`}
+            placeholder='f.eks. "Gjør barnet ditt mobilklart 🔥"'
           />
         </Form.Item>
       </Form>
 
-      <Divider orientation="left">Benefit Checkboxes</Divider>
+      <Divider orientation="left">Fordelspunkter</Divider>
 
       {items.map((item, idx) => (
         <div key={idx} className="flex flex-col sm:flex-row sm:items-start gap-2 mb-3">
@@ -478,7 +459,7 @@ function BenefitsEditor() {
               rows={2}
               value={item.text[locale]}
               onChange={(e) => handleItemChange(idx, e.target.value)}
-              placeholder={`Benefit ${idx + 1} in ${LOCALE_LABEL[locale]}`}
+              placeholder={`Fordel ${idx + 1} på norsk`}
               className="flex-1"
             />
           </div>
@@ -499,16 +480,16 @@ function BenefitsEditor() {
         onClick={addItem}
         className="w-full mb-4"
       >
-        Add Benefit Item
+        Legg til fordel
       </Button>
 
-      <SaveButton loading={isSaving} onClick={handleSave} label="Save Benefits Section" />
+      <SaveButton loading={isSaving} onClick={handleSave} label="Lagre fordelsseksjon" />
     </div>
   );
 }
 
 // ── Why Mobilklar (4 Pillars) ─────────────────────────────────────────────────
-const PILLAR_LABELS = ["Pillar 1", "Pillar 2", "Pillar 3", "Pillar 4"];
+const PILLAR_LABELS = ["Søyle 1", "Søyle 2", "Søyle 3", "Søyle 4"];
 
 const makeDefaultPillars = () =>
   PILLAR_LABELS.map(() => ({
@@ -520,7 +501,7 @@ const makeDefaultPillars = () =>
 function WhyMobilklarEditor() {
   const { data, isLoading } = useGetLandingSectionQuery("whyMobilklar");
   const [upsert, { isLoading: isSaving }] = useUpsertLandingSectionMutation();
-  const [locale, setLocale] = useState("en");
+  const locale = ACTIVE_LOCALE;
   const [sectionTitle, setSectionTitle] = useState({ en: "", nb: "" });
   const [subtitle, setSubtitle] = useState({ en: "", nb: "" });
   const [pillars, setPillars] = useState(makeDefaultPillars());
@@ -556,9 +537,9 @@ function WhyMobilklarEditor() {
   const handleSave = async () => {
     try {
       await upsert({ section: "whyMobilklar", body: { sectionTitle, subtitle, pillars } }).unwrap();
-      toast.success("Why Mobilklar saved!");
+      toast.success("Hvorfor Mobilklar lagret!");
     } catch {
-      toast.error("Failed to save Why Mobilklar.");
+      toast.error("Kunne ikke lagre Hvorfor Mobilklar.");
     }
   };
 
@@ -566,27 +547,26 @@ function WhyMobilklarEditor() {
 
   return (
     <div className="w-full space-y-3 sm:space-y-4">
-      <LocaleTabs locale={locale} onChange={setLocale} />
       <Form layout="vertical">
-        <Form.Item label={<span className="font-medium text-sm sm:text-base">Section Title</span>}>
+        <Form.Item label={<span className="font-medium text-sm sm:text-base">Seksjonstittel</span>}>
           <Input
             size="middle"
             value={sectionTitle[locale]}
             onChange={(e) => setSectionTitle((s) => ({ ...s, [locale]: e.target.value }))}
-            placeholder={`e.g. "Why Mobilklar?" — in ${LOCALE_LABEL[locale]}`}
+            placeholder='f.eks. "Hvorfor Mobilklar?"'
           />
         </Form.Item>
-        <Form.Item label={<span className="font-medium text-sm sm:text-base">Section Subtitle</span>}>
+        <Form.Item label={<span className="font-medium text-sm sm:text-base">Seksjonsundertittel</span>}>
           <Input
             size="middle"
             value={subtitle[locale]}
             onChange={(e) => setSubtitle((s) => ({ ...s, [locale]: e.target.value }))}
-            placeholder={`e.g. "Built for kids aged 8–13" — in ${LOCALE_LABEL[locale]}`}
+            placeholder='f.eks. "Bygget for barn i alderen 8–13"'
           />
         </Form.Item>
       </Form>
 
-      <Divider orientation="left">4 Pillars</Divider>
+      <Divider orientation="left">4 søyler</Divider>
 
       {pillars.map((pillar, idx) => (
         <Card
@@ -596,34 +576,34 @@ function WhyMobilklarEditor() {
           className="mb-3 sm:mb-4 border-[#FF9E1C]/30"
         >
           <Form layout="vertical">
-            <Form.Item label={<span className="font-medium text-xs sm:text-sm">Icon (emoji)</span>}>
+            <Form.Item label={<span className="font-medium text-xs sm:text-sm">Ikon (emoji)</span>}>
               <Input
                 size="middle"
                 value={pillar.icon}
                 onChange={(e) => handlePillarChange(idx, "icon", e.target.value)}
-                placeholder="e.g. 🔒"
+                placeholder="f.eks. 🔒"
               />
             </Form.Item>
-            <Form.Item label={<span className="font-medium text-sm sm:text-base">Pillar Title</span>}>
+            <Form.Item label={<span className="font-medium text-sm sm:text-base">Søyletittel</span>}>
               <Input
                 size="middle"
                 value={pillar.title[locale]}
                 onChange={(e) => handlePillarChange(idx, "title", e.target.value)}
-                placeholder={`Title in ${LOCALE_LABEL[locale]}`}
+                placeholder="Tittel på norsk"
               />
             </Form.Item>
-            <Form.Item label={<span className="font-medium text-sm sm:text-base">Pillar Description</span>}>
+            <Form.Item label={<span className="font-medium text-sm sm:text-base">Søylebeskrivelse</span>}>
               <Input.TextArea
                 rows={2}
                 value={pillar.description[locale]}
                 onChange={(e) => handlePillarChange(idx, "description", e.target.value)}
-                placeholder={`Description in ${LOCALE_LABEL[locale]}`}
+                placeholder="Beskrivelse på norsk"
               />
             </Form.Item>
           </Form>
         </Card>
       ))}
-      <SaveButton loading={isSaving} onClick={handleSave} label="Save Why Mobilklar" />
+      <SaveButton loading={isSaving} onClick={handleSave} label="Lagre Hvorfor Mobilklar" />
     </div>
   );
 }
@@ -632,7 +612,7 @@ function WhyMobilklarEditor() {
 function QuoteEditor() {
   const { data, isLoading } = useGetLandingSectionQuery("quote");
   const [upsert, { isLoading: isSaving }] = useUpsertLandingSectionMutation();
-  const [locale, setLocale] = useState("en");
+  const locale = ACTIVE_LOCALE;
   const [fields, setFields] = useState({
     title:  { en: "", nb: "" },
     text:   { en: "", nb: "" },
@@ -655,9 +635,9 @@ function QuoteEditor() {
   const handleSave = async () => {
     try {
       await upsert({ section: "quote", body: fields }).unwrap();
-      toast.success("Quote saved!");
+      toast.success("Sitat lagret!");
     } catch {
-      toast.error("Failed to save quote.");
+      toast.error("Kunne ikke lagre sitat.");
     }
   };
 
@@ -665,35 +645,34 @@ function QuoteEditor() {
 
   return (
     <div className="w-full space-y-3 sm:space-y-4">
-      <LocaleTabs locale={locale} onChange={setLocale} />
       <Form layout="vertical">
-        <Form.Item label={<span className="font-medium text-sm sm:text-base">Section Title</span>}>
+        <Form.Item label={<span className="font-medium text-sm sm:text-base">Seksjonstittel</span>}>
           <Input
             size="middle"
             value={fields.title[locale]}
             onChange={(e) => handleChange("title", e.target.value)}
-            placeholder={`e.g. "Parent Reviews" — in ${LOCALE_LABEL[locale]}`}
+            placeholder='f.eks. "Foreldreomtaler"'
           />
         </Form.Item>
-        <Form.Item label={<span className="font-medium text-sm sm:text-base">Quote Text</span>}>
+        <Form.Item label={<span className="font-medium text-sm sm:text-base">Sitattekst</span>}>
           <Input.TextArea
             rows={3}
             size="middle"
             value={fields.text[locale]}
             onChange={(e) => handleChange("text", e.target.value)}
-            placeholder={`Quote in ${LOCALE_LABEL[locale]}`}
+            placeholder="Sitat på norsk"
           />
         </Form.Item>
-        <Form.Item label={<span className="font-medium text-sm sm:text-base">Author Name / Title</span>}>
+        <Form.Item label={<span className="font-medium text-sm sm:text-base">Forfatternavn / tittel</span>}>
           <Input
             size="middle"
             value={fields.author[locale]}
             onChange={(e) => handleChange("author", e.target.value)}
-            placeholder={`e.g. "Dr. Emily Parker, Child Psychologist" — in ${LOCALE_LABEL[locale]}`}
+            placeholder='f.eks. "Dr. Emily Parker, barnepsykolog"'
           />
         </Form.Item>
       </Form>
-      <SaveButton loading={isSaving} onClick={handleSave} label="Save Quote" />
+      <SaveButton loading={isSaving} onClick={handleSave} label="Lagre sitat" />
     </div>
   );
 }
@@ -705,7 +684,7 @@ const makeDefaultParagraphs = (n = 2) =>
 function AboutEditor() {
   const { data, isLoading } = useGetLandingSectionQuery("about");
   const [upsert, { isLoading: isSaving }] = useUpsertLandingSectionMutation();
-  const [locale, setLocale] = useState("en");
+  const locale = ACTIVE_LOCALE;
   const [title, setTitle] = useState({ en: "", nb: "" });
   const [paragraphs, setParagraphs] = useState(makeDefaultParagraphs());
 
@@ -746,9 +725,9 @@ function AboutEditor() {
   const handleSave = async () => {
     try {
       await upsert({ section: "about", body: { title, paragraphs } }).unwrap();
-      toast.success("About Us saved!");
+      toast.success("Om oss lagret!");
     } catch {
-      toast.error("Failed to save About Us.");
+      toast.error("Kunne ikke lagre Om oss.");
     }
   };
 
@@ -756,29 +735,28 @@ function AboutEditor() {
 
   return (
     <div className="w-full space-y-3 sm:space-y-4">
-      <LocaleTabs locale={locale} onChange={setLocale} />
       <Form layout="vertical">
-        <Form.Item label={<span className="font-medium text-sm sm:text-base">Page Title</span>}>
+        <Form.Item label={<span className="font-medium text-sm sm:text-base">Sidetittel</span>}>
           <Input
             size="middle"
             value={title[locale]}
             onChange={(e) => setTitle((t) => ({ ...t, [locale]: e.target.value }))}
-            placeholder={`e.g. "About Us" — in ${LOCALE_LABEL[locale]}`}
+            placeholder='f.eks. "Om oss"'
           />
         </Form.Item>
       </Form>
 
-      <Divider orientation="left">Content Paragraphs</Divider>
+      <Divider orientation="left">Innholdsavsnitt</Divider>
 
       {paragraphs.map((p, idx) => (
         <div key={idx} className="flex flex-col sm:flex-row sm:items-start gap-2 mb-3">
           <div className="flex-1">
-            <p className="text-xs sm:text-sm font-medium text-gray-600 mb-1">Paragraph {idx + 1}</p>
+            <p className="text-xs sm:text-sm font-medium text-gray-600 mb-1">Avsnitt {idx + 1}</p>
             <Input.TextArea
               rows={4}
               value={p.text[locale]}
               onChange={(e) => handleParagraphChange(idx, e.target.value)}
-              placeholder={`Paragraph ${idx + 1} in ${LOCALE_LABEL[locale]}`}
+              placeholder={`Avsnitt ${idx + 1} på norsk`}
             />
           </div>
           {paragraphs.length > 1 && (
@@ -798,34 +776,34 @@ function AboutEditor() {
         onClick={addParagraph}
         className="w-full mb-4"
       >
-        Add Paragraph
+        Legg til avsnitt
       </Button>
 
-      <SaveButton loading={isSaving} onClick={handleSave} label="Save About Us" />
+      <SaveButton loading={isSaving} onClick={handleSave} label="Lagre Om oss" />
     </div>
   );
 }
 
 // ── Main Page ─────────────────────────────────────────────────────────────────
 const TAB_ITEMS = [
-  { key: "hero",         label: "Hero Section",       children: <HeroEditor /> },
-  { key: "howItWorks",   label: "How It Works",        children: <HowItWorksEditor /> },
-  { key: "features",     label: "Features (Modules)",  children: <FeaturesEditor /> },
-  { key: "benefits",     label: "Benefits",            children: <BenefitsEditor /> },
-  { key: "whyMobilklar", label: "Why Mobilklar",       children: <WhyMobilklarEditor /> },
-  { key: "quote",        label: "Quote",               children: <QuoteEditor /> },
-  { key: "about",        label: "About Us",            children: <AboutEditor /> },
-  { key: "contact",      label: "Contact (Footer)",    children: <ContactEditor /> },
+  { key: "hero",         label: "Hero-seksjon",         children: <HeroEditor /> },
+  { key: "howItWorks",   label: "Slik fungerer det",    children: <HowItWorksEditor /> },
+  { key: "features",     label: "Funksjoner (moduler)", children: <FeaturesEditor /> },
+  { key: "benefits",     label: "Fordeler",             children: <BenefitsEditor /> },
+  { key: "whyMobilklar", label: "Hvorfor Mobilklar",    children: <WhyMobilklarEditor /> },
+  { key: "quote",        label: "Sitat",                children: <QuoteEditor /> },
+  { key: "about",        label: "Om oss",               children: <AboutEditor /> },
+  { key: "contact",      label: "Kontakt (bunntekst)",  children: <ContactEditor /> },
 ];
 
 export default function LandingPage() {
   return (
     <section className="w-full min-h-screen px-3 sm:px-4 md:px-6">
       <div className="py-3 sm:py-4 md:py-5">
-        <h1 className="text-xl sm:text-2xl md:text-3xl font-semibold">Landing Page Content</h1>
+        <h1 className="text-xl sm:text-2xl md:text-3xl font-semibold">Innhold for landingsside</h1>
         <p className="text-gray-500 text-xs sm:text-sm md:text-base mt-1 sm:mt-2">
-          Edit landing page sections in English (EN) and Norwegian (NB). Navigation links are
-          managed from the site code and cannot be changed here.
+          Rediger seksjoner på landingssiden på norsk (NB). Navigasjonslenker styres i
+          nettstedskoden og kan ikke endres her.
         </p>
       </div>
       <div className="bg-white rounded-lg p-3 sm:p-4 md:p-6 shadow-sm overflow-x-auto">
