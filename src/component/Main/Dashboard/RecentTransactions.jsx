@@ -28,7 +28,7 @@ const RecentTransactions = () => {
       sorter: (a, b) => a.si - b.si,
     },
     {
-      title: "Name",
+      title: "Navn",
       dataIndex: "firstName",
       key: "firstName",
       sorter: (a, b) => a.firstName?.localeCompare(b.firstName),
@@ -40,30 +40,30 @@ const RecentTransactions = () => {
       ),
     },
     {
-      title: "Email",
+      title: "E-post",
       dataIndex: "email",
       key: "email",
       sorter: (a, b) => a.email?.localeCompare(b.email),
-      render: (text) => text || "N/A",
+      render: (text) => text || "Ikke tilgjengelig",
     },
     {
-      title: "Address",
+      title: "Adresse",
       dataIndex: "address",
       key: "address",
       sorter: (a, b) => a.address?.localeCompare(b.address),
-      render: (text) => text || "N/A",
+      render: (text) => text || "Ikke tilgjengelig",
       responsive: ["lg"],
     },
     {
-      title: "Joined Date Time",
+      title: "Registrert dato",
       dataIndex: "date",
       key: "date",
       sorter: (a, b) => moment(a.date).unix() - moment(b.date).unix(),
-      render: (text) => (text ? moment(text).format("DD MMM YYYY") : "N/A"),
+      render: (text) => (text ? moment(text).format("DD MMM YYYY") : "Ikke tilgjengelig"),
       responsive: ["md"],
     },
     {
-      title: "Action",
+      title: "Handling",
       key: "action",
       render: (_, record) => (
         <Space size="middle">
@@ -94,7 +94,7 @@ const RecentTransactions = () => {
 
   return (
     <div className="px-1 w-full col-span-full md:col-span-6 rounded-lg">
-      <h2 className="font-semibold text-md pt-1 pl-1">New Parents</h2>
+      <h2 className="font-semibold text-md pt-1 pl-1">Nye foreldre</h2>
       <ConfigProvider
         theme={{
           components: {
@@ -136,32 +136,32 @@ const RecentTransactions = () => {
               />
             </div>
             <h1 className="text-center text-2xl font-semibold my-2">
-              Recent User Details
+              Detaljer om nylig bruker
             </h1>
             <div className="flex justify-between py-3 border-b">
-              <p>User ID :</p>
-              <p>{selectedTransaction?.rawRecord?.id || "N/A"}</p>
+              <p>Bruker-ID :</p>
+              <p>{selectedTransaction?.rawRecord?.id || "Ikke tilgjengelig"}</p>
             </div>
             <div className="flex justify-between py-3 border-b">
-              <p>Name :</p>
-              <p>{selectedTransaction?.rawRecord?.name || "N/A"}</p>
+              <p>Navn :</p>
+              <p>{selectedTransaction?.rawRecord?.name || "Ikke tilgjengelig"}</p>
             </div>
             <div className="flex justify-between py-3 border-b">
-              <p>Email :</p>
-              <p>{selectedTransaction?.rawRecord?.email || "N/A"}</p>
+              <p>E-post :</p>
+              <p>{selectedTransaction?.rawRecord?.email || "Ikke tilgjengelig"}</p>
             </div>
             <div className="flex justify-between py-3 border-b">
-              <p>Address:</p>
-              <p>{selectedTransaction?.rawRecord?.address || "N/A"}</p>
+              <p>Adresse:</p>
+              <p>{selectedTransaction?.rawRecord?.address || "Ikke tilgjengelig"}</p>
             </div>
             <div className="flex justify-between ">
-              <p>Joined Date :</p>
+              <p>Registrert dato :</p>
               <p>
                 {selectedTransaction?.rawRecord?.joinedAt
                   ? moment(selectedTransaction.rawRecord.joinedAt).format(
                       "DD MMM YYYY"
                     )
-                  : "N/A"}
+                  : "Ikke tilgjengelig"}
               </p>
             </div>
           </div>

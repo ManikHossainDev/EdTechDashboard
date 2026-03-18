@@ -131,7 +131,7 @@ const Threemodules = () => {
     fileInput.click();
   };
 
-  // Learning objectives
+  // Skriv inn læringsmåls
   const handleObjectiveChange = (index, value) => {
     setFormData((prev) => {
       const cloned = cloneState(prev);
@@ -502,7 +502,7 @@ const Threemodules = () => {
 
   return (
     <div className="container mx-auto p-6 bg-white rounded-lg shadow-md">
-      <h2 className="text-2xl font-bold mb-6">Edit Module: {formData.title}</h2>
+      <h2 className="text-2xl font-bold mb-6">Rediger modul: {formData.title}</h2>
 
       <form onSubmit={handleSubmit}>
         {/* Module Information */}
@@ -534,7 +534,7 @@ const Threemodules = () => {
           </div>
           <div className="mb-4">
             <label className="block text-gray-700 text-sm font-bold mb-2">
-              Title
+              Tittel
             </label>
             <input
               type="text"
@@ -556,7 +556,7 @@ const Threemodules = () => {
           </div>
           <div className="mb-4">
             <label className="block text-gray-700 text-sm font-bold mb-2">
-              Theme
+              Tema
             </label>
             <input
               type="text"
@@ -567,7 +567,7 @@ const Threemodules = () => {
           </div>
           <div className="mb-4">
             <label className="block text-gray-700 text-sm font-bold mb-2">
-              Description
+              Beskrivelse
             </label>
             <textarea
               value={formData.description}
@@ -592,9 +592,9 @@ const Threemodules = () => {
           </div>
         </section>
 
-        {/* Intro Video */}
+        {/* Introduksjonsvideo */}
         <section className="mb-8 p-4 border rounded-lg">
-          <h3 className="text-xl font-semibold mb-4">Intro Video</h3>
+          <h3 className="text-xl font-semibold mb-4">Introduksjonsvideo</h3>
           {formData.introVideo?.url ? (
             <div className="mb-4">
               <video controls className="w-full max-w-md h-auto rounded border">
@@ -602,7 +602,7 @@ const Threemodules = () => {
               </video>
             </div>
           ) : (
-            <p className="text-gray-500 italic mb-4">No intro video uploaded</p>
+            <p className="text-gray-500 italic mb-4">Ingen introduksjonsvideo lastet opp</p>
           )}
           <button
             type="button"
@@ -610,7 +610,7 @@ const Threemodules = () => {
             disabled={isSubmitting}
             className={`bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded ${isSubmitting ? "opacity-50 cursor-not-allowed" : ""}`}
           >
-            {isSubmitting ? "Uploading..." : "Upload/Replace Intro Video"}
+            {isSubmitting ? "Laster opp..." : "Last opp/bytt introduksjonsvideo"}
           </button>
         </section>
 
@@ -623,7 +623,7 @@ const Threemodules = () => {
               onClick={addObjective}
               className="bg-green-500 hover:bg-green-600 text-white px-3 py-1 rounded"
             >
-              Add Objective
+              Legg til mål
             </button>
           </div>
           {formData.learningObjectives.map((obj, index) => (
@@ -634,7 +634,7 @@ const Threemodules = () => {
                 value={obj.text}
                 onChange={(e) => handleObjectiveChange(index, e.target.value)}
                 className="flex-1 px-3 py-2 border rounded focus:ring-2 focus:ring-blue-500"
-                placeholder="Enter learning objective"
+                placeholder="Skriv inn læringsmål"
               />
               <button
                 type="button"
@@ -657,14 +657,14 @@ const Threemodules = () => {
                 onClick={() => addContentBlock("text")}
                 className="bg-green-500 hover:bg-green-600 text-white px-3 py-1 rounded"
               >
-                Add Text
+                Legg til tekst
               </button>
               <button
                 type="button"
                 onClick={() => addContentBlock("image")}
                 className="bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded"
               >
-                Add Image
+                Legg til bilde
               </button>
             </div>
           </div>
@@ -672,7 +672,7 @@ const Threemodules = () => {
             <div key={index} className="mb-6 p-4 border rounded">
               <div className="flex justify-between items-center mb-3">
                 <h4 className="font-medium">
-                  Block {index + 1} ({block.type})
+                  Blokk {index + 1} ({block.type})
                 </h4>
                 <button
                   type="button"
@@ -693,7 +693,7 @@ const Threemodules = () => {
                       />
                     ) : (
                       <div className="w-32 h-32 bg-gray-200 border rounded flex items-center justify-center text-gray-500">
-                        No image
+                        Ingen bilde
                       </div>
                     )}
                     <button
@@ -702,14 +702,14 @@ const Threemodules = () => {
                       disabled={isSubmitting}
                       className="bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded"
                     >
-                      {block.image?.url ? "Change Image" : "Upload Image"}
+                      {block.image?.url ? "Bytt bilde" : "Last opp bilde"}
                     </button>
                   </div>
                 </div>
               )}
               <div>
                 <label className="block text-gray-700 text-sm font-bold mb-2">
-                  Content Text
+                  Innholdstekst
                 </label>
                 <textarea
                   value={
@@ -736,13 +736,13 @@ const Threemodules = () => {
           {formData.interactiveTasks.map((task, taskIndex) => (
             <div key={taskIndex} className="mb-6 p-4 border rounded bg-gray-50">
               <h4 className="font-semibold text-lg mb-4">
-                Task {taskIndex + 1}: {task.title} ({task.type})
+                Oppgave {taskIndex + 1}: {task.title} ({task.type})
               </h4>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                 <div>
                   <label className="block text-gray-700 text-sm font-bold mb-2">
-                    Title
+                    Tittel
                   </label>
                   <input
                     type="text"
@@ -755,7 +755,7 @@ const Threemodules = () => {
                 </div>
                 <div>
                   <label className="block text-gray-700 text-sm font-bold mb-2">
-                    Points
+                    Poeng
                   </label>
                   <input
                     type="number"
@@ -773,7 +773,7 @@ const Threemodules = () => {
               </div>
               <div className="mb-4">
                 <label className="block text-gray-700 text-sm font-bold mb-2">
-                  Description
+                  Beskrivelse
                 </label>
                 <textarea
                   value={task.description}
@@ -786,7 +786,7 @@ const Threemodules = () => {
               </div>
               <div className="mb-4">
                 <label className="block text-gray-700 text-sm font-bold mb-2">
-                  Instructions
+                  Instruksjoner
                 </label>
                 <textarea
                   value={task.instructions}
@@ -802,13 +802,13 @@ const Threemodules = () => {
               {task.type === "scenario-choice" && (
                 <div className="p-3 border rounded bg-white">
                   <div className="flex justify-between items-center mb-3">
-                    <h5 className="font-medium">Scenarios</h5>
+                    <h5 className="font-medium">Scenarioer</h5>
                     <button
                       type="button"
                       onClick={() => addScenario(taskIndex)}
                       className="bg-green-500 hover:bg-green-600 text-white px-2 py-1 rounded text-sm"
                     >
-                      Add Scenario
+                      Legg til scenario
                     </button>
                   </div>
                   {task.scenarios?.map((scenario, scIndex) => (
@@ -848,7 +848,7 @@ const Threemodules = () => {
                       </div>
                       <div className="mb-2">
                         <div className="flex justify-between items-center mb-2">
-                          <label className="text-sm font-bold">Options</label>
+                          <label className="text-sm font-bold">Alternativer</label>
                           <button
                             type="button"
                             onClick={() =>
@@ -856,7 +856,7 @@ const Threemodules = () => {
                             }
                             className="bg-green-500 hover:bg-green-600 text-white px-2 py-1 rounded text-xs"
                           >
-                            Add Option
+                            Legg til alternativ
                           </button>
                         </div>
                         {scenario.options?.map((opt, optIndex) => (
@@ -946,13 +946,13 @@ const Threemodules = () => {
               onClick={addQuestion}
               className="bg-green-500 hover:bg-green-600 text-white px-3 py-1 rounded"
             >
-              Add Question
+              Legg til spørsmål
             </button>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
             <div>
               <label className="block text-gray-700 text-sm font-bold mb-2">
-                Quiz Title
+                Quiz-tittel
               </label>
               <input
                 type="text"
@@ -983,7 +983,7 @@ const Threemodules = () => {
           </div>
           <div className="mb-4">
             <label className="block text-gray-700 text-sm font-bold mb-2">
-              Description
+              Beskrivelse
             </label>
             <textarea
               value={formData.quiz.description}
@@ -1017,14 +1017,14 @@ const Threemodules = () => {
                   )
                 }
               />
-              Show Correct Answers
+              Vis riktige svar
             </label>
           </div>
 
           {formData.quiz.questions.map((q, qIndex) => (
             <div key={qIndex} className="mb-6 p-4 border rounded bg-gray-50">
               <div className="flex justify-between items-center mb-3">
-                <h4 className="font-medium">Question {q.questionNumber}</h4>
+                <h4 className="font-medium">Spørsmål {q.questionNumber}</h4>
                 <button
                   type="button"
                   onClick={() => removeQuestion(qIndex)}
@@ -1047,7 +1047,7 @@ const Threemodules = () => {
                 </div>
                 <div>
                   <label className="block text-gray-700 text-sm font-bold mb-2">
-                    Points
+                    Poeng
                   </label>
                   <input
                     type="number"
@@ -1065,7 +1065,7 @@ const Threemodules = () => {
               </div>
               <div className="mb-4">
                 <label className="block text-gray-700 text-sm font-bold mb-2">
-                  Question Text
+                  Spørsmålstekst
                 </label>
                 <textarea
                   value={q.question}
@@ -1078,7 +1078,7 @@ const Threemodules = () => {
               </div>
               <div className="mb-4">
                 <label className="block text-gray-700 text-sm font-bold mb-2">
-                  Explanation
+                  Forklaring
                 </label>
                 <textarea
                   value={q.explanation}
@@ -1092,14 +1092,14 @@ const Threemodules = () => {
               <div>
                 <div className="flex justify-between items-center mb-2">
                   <label className="block text-gray-700 text-sm font-bold">
-                    Options (Select one as correct)
+                    Alternativer (velg ett som riktig)
                   </label>
                   <button
                     type="button"
                     onClick={() => addOption(qIndex)}
                     className="bg-green-500 hover:bg-green-600 text-white px-2 py-1 rounded text-sm"
                   >
-                    Add Option
+                    Legg til alternativ
                   </button>
                 </div>
                 {q.options.map((opt, optIndex) => (
@@ -1152,12 +1152,12 @@ const Threemodules = () => {
           ))}
         </section>
 
-        {/* Parent Tip */}
+        {/* Foreldretips */}
         <section className="mb-8 p-4 border rounded-lg">
-          <h3 className="text-xl font-semibold mb-4">Parent Tip</h3>
+          <h3 className="text-xl font-semibold mb-4">Foreldretips</h3>
           <div className="mb-4">
             <label className="block text-gray-700 text-sm font-bold mb-2">
-              Title
+              Tittel
             </label>
             <input
               type="text"

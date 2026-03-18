@@ -13,23 +13,23 @@ const PureComponentChart = () => {
   console.log(data);
 
   const chartData = [
-    { name: "January", uv: 120000 },
-    { name: "February", uv: 150000 },
-    { name: "March", uv: 130000 },
+    { name: "Januar", uv: 120000 },
+    { name: "Februar", uv: 150000 },
+    { name: "Mars", uv: 130000 },
     { name: "April", uv: 160000 },
-    { name: "May", uv: 140000 },
-    { name: "June", uv: 170000 },
-    { name: "July", uv: 180000 },
+    { name: "Mai", uv: 140000 },
+    { name: "Juni", uv: 170000 },
+    { name: "Juli", uv: 180000 },
     { name: "August", uv: 190000 },
     { name: "September", uv: 160000 },
-    { name: "October", uv: 200000 },
+    { name: "Oktober", uv: 200000 },
     { name: "November", uv: 210000 },
-    { name: "December", uv: 220000 },
+    { name: "Desember", uv: 220000 },
   ];
 
   return (
     <div className="bg-white shadow-lg  p-6 rounded-3xl ">
-      <h1 className="font-bold">Income Ratio</h1>
+      <h1 className="font-bold">Inntektsforhold</h1>
       <hr className="my-3 border" />
       <ResponsiveContainer width="100%" height={300}>
         <AreaChart
@@ -64,7 +64,7 @@ const PureComponentChart = () => {
               const numericValue = typeof value === "number" ? value : 0;
               return `$${(numericValue / 1000).toFixed(2)}k`;
             }}
-            labelFormatter={(label) => `Time: ${label}`}
+            labelFormatter={(label) => `Tid: ${label}`}
           />
           <Area
             type="monotone"
