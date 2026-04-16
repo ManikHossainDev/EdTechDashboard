@@ -58,6 +58,23 @@ const settingApi = baseApi.injectEndpoints({
       transformResponse: (response) => response?.data,
       invalidatesTags: ["faqs"],
     }),
+    getAgeSettings: builder.query({
+      query: () => ({
+        url: "/admin/age-settings",
+        method: "GET",
+      }),
+      transformResponse: (response) => response?.data,
+      providesTags: ["age_settings"],
+    }),
+    updateAgeSettings: builder.mutation({
+      query: (updateBody) => ({
+        url: "/admin/age-settings",
+        method: "PUT",
+        body: updateBody,
+      }),
+      transformResponse: (response) => response?.data,
+      invalidatesTags: ["age_settings"],
+    }),
   }),
 });
 
@@ -69,6 +86,8 @@ export const {
   useUpdateFaqMutation,
   useCreateFaqMutation,
   useDeleteFaqMutation,
+  useGetAgeSettingsQuery,
+  useUpdateAgeSettingsMutation,
 } = settingApi;
 
 // about_us contact_us privacy_policy terms_conditions

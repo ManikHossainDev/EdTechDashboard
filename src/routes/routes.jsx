@@ -33,6 +33,7 @@ import Eightmodules from "../component/Main/Modules/Eightmodules";
 import Towmodules from "../component/Main/Modules/Towmodules";
 import Onemodules from "../component/Main/Modules/Onemodules";
 import LandingPage from "../page/LandingPage/LandingPage";
+import AgeSettingsPage from "../page/Settings/AgeSettingsPage";
 
 
 const router = createBrowserRouter([
@@ -114,6 +115,10 @@ const router = createBrowserRouter([
       {
         path: "settings",
         element: <SettingsPage />,
+      },
+      {
+        path: "settings/age-settings",
+        element: <AgeSettingsPage />,
       },
       {
         path: "settings/privacy-policy",

@@ -32,6 +32,10 @@ const Settings = () => {
       path: "change-password",
     },
     {
+      title: "Alderskontroll - Innstillinger",
+      path: "age-settings",
+    },
+    {
       title: "Personvernerklæring",
       path: "privacy-policy",
     },
